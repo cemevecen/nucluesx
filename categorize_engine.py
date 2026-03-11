@@ -116,13 +116,14 @@ def categorize_tweet(tweet_text):
         try:
             prompt = f"Metni şu kategorilerden birine yerleştir: Ekonomi, Finans, Spor, Teknoloji, Eğlence, Müzik, Dünya, Ülke Gündemi. SADECE kategorinin ismini yaz.\nMetin: {tweet_text}"
             response = client_gemini.models.generate_content(
-                model='gemini-flash-latest',
+                model='gemini-2.0-flash', # Güncel ve ücretsiz kotası geniş olan model
                 contents=prompt
             )
             res = response.text.strip().replace("[", "").replace("]", "").replace(".", "")
             if res in ["Ekonomi", "Finans", "Spor", "Teknoloji", "Eğlence", "Müzik", "Dünya", "Ülke Gündemi"]:
                 return res
-        except Exception:
+        except Exception as e:
+            print(f"⚠️ Gemini Hatası (Yedeğe geçiliyor): {e}")
             pass
 
     # 2. Aşama: Groq (Llama-3) Dene

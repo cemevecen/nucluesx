@@ -32,7 +32,11 @@ def fetch_user_tweets(username, limit=5):
         response = requests.get(url, headers=headers, params=querystring)
         response.raise_for_status() 
         
-        data = response.json()
+        try:
+            data = response.json()
+        except Exception:
+            print(f"❌ JSON hatası! Status Code: {response.status_code}, Response: {response.text[:100]}")
+            return []
         
         extracted_tweets = []
         

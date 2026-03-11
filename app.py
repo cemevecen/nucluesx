@@ -1,8 +1,6 @@
-# NucleusX AI - Production Build: v7.0 (Clean & Optimized)
 import streamlit as st
 import re
 import pandas as pd
-import sqlite3
 from database import init_db, get_db_connection
 import time
 from categorize_engine import run_categorization_process
