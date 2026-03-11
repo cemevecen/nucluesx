@@ -1,4 +1,4 @@
-# NucleusX AI - Deployment Refresh: v2.5 (Fixed 8-Category Layout)
+# NucleusX AI - Deployment Refresh: v3.0 (Full 8-Column Horizontal Layout)
 import streamlit as st
 import pandas as pd
 import sqlite3
@@ -130,53 +130,42 @@ st.title("🎙️ NucleusX AI Newsroom")
 st.markdown("---")
 
 # Veriyi Kategorilere Göre Hazırla
-# 8 kategoriyi 2 satıra (4+4) bölerek gösteriyoruz ki kolonlar çok daralmasın
-categories_row1 = ["Ülke Gündemi", "Dünya", "Ekonomi", "Finans"]
-categories_row2 = ["Teknoloji", "Spor", "Eğlence", "Müzik"]
+# Tüm 8 kategoriyi tek bir satırda (side-by-side) döküyoruz
+all_categories = ["Ülke Gündemi", "Dünya", "Ekonomi", "Finans", "Teknoloji", "Spor", "Eğlence", "Müzik"]
 
-def render_category_columns(cat_list):
-    cols = st.columns(len(cat_list))
-    for i, category in enumerate(cat_list):
-        with cols[i]:
-            # Kolon Başlığı
-            st.markdown(f"""
-                <div class="column-header">
-                    <h3>{category}</h3>
-                    <small>{len(df[df['category'] == category])} Haber</small>
-                </div>
-            """, unsafe_allow_html=True)
-            
-            cat_df = df[df['category'] == category].head(10)
-            
-            if cat_df.empty:
-                st.info(f"Henüz {category} haberi yok.")
-            else:
-                for index, row in cat_df.iterrows():
-                    st.markdown(f"""
-                        <div class="news-card">
-                            <div class="author-info">
-                                <span class="author-name">{row['author']}</span>
-                                <span style="color: #4b5563; font-size: 0.7rem;">{row['username']}</span>
-                            </div>
-                            <div class="tweet-content">
-                                {row['content']}
-                            </div>
-                            <div class="card-footer">
-                                <div class="interaction-icons">
-                                    <span>💬</span> <span>🔄</span> <span>❤️</span>
-                                </div>
-                                <div class="time-stamp">
-                                    {row['processed_at'].split(' ')[1][:5]}
-                                </div>
+cols = st.columns(len(all_categories))
+
+for i, category in enumerate(all_categories):
+    with cols[i]:
+        # Kolon Başlığı
+        st.markdown(f"""
+            <div class="column-header">
+                <h3 style="font-size: 1rem;">{category}</h3>
+                <small>{len(df[df['category'] == category])} Haber</small>
+            </div>
+        """, unsafe_allow_html=True)
+        
+        cat_df = df[df['category'] == category].head(10)
+        
+        if cat_df.empty:
+            st.info(f"Henüz {category} haberi yok.")
+        else:
+            for index, row in cat_df.iterrows():
+                st.markdown(f"""
+                    <div class="news-card">
+                        <div class="author-info">
+                            <span class="author-name" style="font-size: 0.8rem;">{row['author']}</span>
+                        </div>
+                        <div class="tweet-content" style="font-size: 0.85rem;">
+                            {row['content']}
+                        </div>
+                        <div class="card-footer" style="padding-top: 5px;">
+                            <div class="time-stamp">
+                                {row['processed_at'].split(' ')[1][:5]}
                             </div>
                         </div>
-                    """, unsafe_allow_html=True)
-
-# İlk Satır
-render_category_columns(categories_row1)
-st.markdown("<br>", unsafe_allow_html=True)
-# İkinci Satır
-render_category_columns(categories_row2)
+                    </div>
+                """, unsafe_allow_html=True)
 
 # Manuel Yenileme Butonu (Test İçin Sınırsız, Ancak Kota Dostu)
 if st.sidebar.button("🔄 Şimdi Yeni Haberleri Tara"):
