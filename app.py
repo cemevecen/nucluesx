@@ -110,7 +110,7 @@ st.markdown("""
     }
     
     div[data-testid="column"] {
-        min-width: calc(19.2% - 12px) !important; 
+        min-width: 320px !important; 
         flex: 0 0 auto !important;
     }
 
@@ -125,9 +125,8 @@ st.markdown("""
     }
     [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p, 
     [data-testid="stSidebar"] label, 
-    [data-testid="stSidebar"] .stMarkdown h1, 
-    [data-testid="stSidebar"] .stMarkdown h2,
-    [data-testid="stSidebar"] .stMarkdown h3 {
+    [data-testid="stSidebar"] h1, [data-testid="stSidebar"] h2, [data-testid="stSidebar"] h3,
+    [data-testid="stSidebar"] .stMarkdown p {
         color: #1e293b !important;
     }
     [data-testid="stSidebar"] .stButton button {
@@ -314,33 +313,33 @@ if st.sidebar.button("🔄 Şimdi Yeni Haberleri Tara"):
             except Exception as e:
                 st.error(f"❌ Tarama sırasında bir hata oluştu: {e}")
 
-# MİGRASYON / BAKIM BUTONU (Yönetici Paneli Altında Görünür)
+def recategorize_all_news():
+    """Veritabanındaki TÜM haberleri AI ile tekrar tarayıp hashtag (#) atar. 
+    Özellikle #GUNDEM ve #GELISME etiketlerini temizler ve mükerrerleri gruplar."""
+    from database import get_db_connection
+    from categorize_engine import get_full_analysis
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    # Tüm haberleri tarayalım (Özellikle eski etiketleri temizlemek için)
+    cursor.execute("SELECT id, content FROM tweets")
+    rows = cursor.fetchall()
+    
+    yield f"🧹 {len(rows)} haber için derin analiz başlıyor..."
+    
+    for row_id, content in rows:
+        cat, tag = get_full_analysis(content)
+        cursor.execute("UPDATE tweets SET category = %s, topic_tag = %s WHERE id = %s", (cat, tag, row_id))
+        conn.commit()
+        yield f"♻️ {tag} [{cat}] (ID: {row_id})"
+    
+    conn.close()
+    yield "✅ Veritabanı başarıyla optimize edildi!"
+
+# MİGRASYON / BAKIM BUTONU
 if st.sidebar.button("🧹 Tüm Veritabanını Optimize Et"):
     if admin_password != ADMIN_PASS:
         st.sidebar.error("❌ Yönetici yetkisi gerekli.")
     else:
-        def recategorize_all_news():
-            """Veritabanındaki TÜM haberleri AI ile tekrar tarayıp hashtag (#) atar. 
-            Özellikle #GUNDEM ve #GELISME etiketlerini temizler ve mükerrerleri gruplar."""
-            from database import get_db_connection
-            from categorize_engine import generate_topic_tag, get_full_analysis
-            conn = get_db_connection()
-            cursor = conn.cursor()
-            # Tüm haberleri tarayalım (Zaten hashtag varsa bile üzerine yazıp standartlaştıralım)
-            cursor.execute("SELECT id, content FROM tweets")
-            rows = cursor.fetchall()
-            
-            yield f"🧹 {len(rows)} haber için derin analiz ve çapraz gruplama başlıyor..."
-            
-            for row_id, content in rows:
-                cat, tag = get_full_analysis(content)
-                cursor.execute("UPDATE tweets SET category = %s, topic_tag = %s WHERE id = %s", (cat, tag, row_id))
-                conn.commit()
-                yield f"♻️ {tag} [{cat}] (ID: {row_id})"
-            
-            conn.close()
-            yield "✅ Veritabanı başarıyla optimize edildi!"
-        
         status_text = st.sidebar.empty()
         with st.spinner("🛠️ Eski haberler kümeleniyor..."):
             try:
