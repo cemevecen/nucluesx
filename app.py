@@ -3,7 +3,7 @@ import streamlit as st
 import re
 import pandas as pd
 import sqlite3
-from database import DB_NAME, init_db
+from database import init_db, get_db_connection
 import time
 from categorize_engine import run_categorization_process
 
@@ -132,14 +132,16 @@ def make_clickable(text):
 
 def load_data():
     try:
-        conn = sqlite3.connect(DB_NAME)
-        # media_url sütununu da çekiyoruz
-        query = "SELECT * FROM tweets ORDER BY processed_at DESC"
+        conn = get_db_connection()
+        query = "SELECT author, username, content, category, processed_at, media_url FROM tweets ORDER BY processed_at DESC"
         df = pd.read_sql_query(query, conn)
         conn.close()
+        # Tarih formatını pandas üzerinden düzeltelim (PostgreSQL'den gelen tipi koruyarak)
+        if not df.empty:
+            df['processed_at'] = df['processed_at'].astype(str)
         return df
     except Exception as e:
-        # Tablo henüz oluşmamış veya başka bir hata varsa boş DF döndür
+        st.error(f"Veri yüklenirken hata oluştu: {e}")
         return pd.DataFrame(columns=['author', 'username', 'content', 'category', 'processed_at', 'media_url'])
 
 # Kenar Çubuğu

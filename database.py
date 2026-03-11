@@ -1,78 +1,80 @@
-import sqlite3
-from datetime import datetime
+import os
+import psycopg2
+from psycopg2.extras import RealDictCursor
+from dotenv import load_dotenv
 
-DB_NAME = "nucleusx.db"
+load_dotenv()
+
+# Supabase Bağlantı Bilgileri
+DB_HOST = os.getenv("DB_HOST")
+DB_NAME = os.getenv("DB_NAME", "postgres")
+DB_USER = os.getenv("DB_USER", "postgres")
+DB_PASS = os.getenv("DB_PASS")
+DB_PORT = os.getenv("DB_PORT", "5432")
+
+def get_db_connection():
+    """Supabase (PostgreSQL) veritabanına bağlanır."""
+    return psycopg2.connect(
+        host=DB_HOST,
+        database=DB_NAME,
+        user=DB_USER,
+        password=DB_PASS,
+        port=DB_PORT
+    )
 
 def init_db():
-    """Veritabanını ve gerekli tabloları oluşturur."""
-    print(f"🗄️ Veritabanı kontrol ediliyor: {DB_NAME}")
-    conn = sqlite3.connect(DB_NAME)
+    """Tabloları Supabase üzerinde hazırlar (Yoksa oluşturur)."""
+    conn = get_db_connection()
     cursor = conn.cursor()
     
-    # Haber/Tweet tablosu oluşturuluyor
+    # Tweets tablosunu oluştur (PostgreSQL uyumlu)
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS tweets (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             author TEXT,
             username TEXT,
             content TEXT,
             category TEXT,
             media_url TEXT,
-            processed_at TIMESTAMP
+            processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
     
-    # MİGRASYON: Eğer tablo varsa ama media_url sütunu yoksa ekle
-    try:
-        cursor.execute("SELECT media_url FROM tweets LIMIT 1")
-    except sqlite3.OperationalError:
-        print("🔧 Eski veritabanı tespit edildi, media_url sütunu ekleniyor...")
-        cursor.execute("ALTER TABLE tweets ADD COLUMN media_url TEXT")
+    # Mükerrer kaydı önlemek için UNIQUE index (PostgreSQL stili)
+    cursor.execute('''
+        CREATE UNIQUE INDEX IF NOT EXISTS unique_tweet_idx ON tweets (username, md5(content));
+    ''')
     
     conn.commit()
+    cursor.close()
     conn.close()
-
-def tweet_exists(username, content):
-    """Aynı tweetin daha önce kaydedilip edilmediğini kontrol eder."""
-    conn = sqlite3.connect(DB_NAME)
-    cursor = conn.cursor()
-    cursor.execute('SELECT id FROM tweets WHERE username = ? AND content = ?', (username, content))
-    result = cursor.fetchone()
-    conn.close()
-    return result is not None
 
 def save_tweet(author, username, content, category, media_url=None):
-    """Analiz edilen tweeti veritabanına kaydeder."""
-    conn = sqlite3.connect(DB_NAME)
+    """Tweet verisini Supabase'e kaydeder."""
+    conn = get_db_connection()
     cursor = conn.cursor()
-    
-    now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    
-    cursor.execute('''
-        INSERT INTO tweets (author, username, content, category, media_url, processed_at)
-        VALUES (?, ?, ?, ?, ?, ?)
-    ''', (author, username, content, category, media_url, now))
-    
-    conn.commit()
-    conn.close()
+    try:
+        cursor.execute(
+            "INSERT INTO tweets (author, username, content, category, media_url) VALUES (%s, %s, %s, %s, %s) ON CONFLICT DO NOTHING",
+            (author, username, content, category, media_url)
+        )
+        conn.commit()
+    except Exception as e:
+        print(f"❌ Veritabanına kaydederken hata oluştu: {e}")
+    finally:
+        cursor.close()
+        conn.close()
 
-def get_recent_tweets(limit=10):
-    """Son kaydedilen tweetleri getirir."""
-    conn = sqlite3.connect(DB_NAME)
+def tweet_exists(username, content):
+    """Tweetin zaten kaydedilip edilmediğini kontrol eder."""
+    conn = get_db_connection()
     cursor = conn.cursor()
-    
-    cursor.execute('''
-        SELECT author, username, content, category, processed_at, media_url 
-        FROM tweets 
-        ORDER BY processed_at DESC 
-        LIMIT ?
-    ''', (limit,))
-    
-    results = cursor.fetchall()
+    # PostgreSQL'de içerik çok uzunsa md5 ile kontrol edebiliriz
+    cursor.execute(
+        "SELECT id FROM tweets WHERE username = %s AND content = %s LIMIT 1",
+        (username, content)
+    )
+    exists = cursor.fetchone() is not None
+    cursor.close()
     conn.close()
-    return results
-
-# Dosya ilk kez çalıştırıldığında veritabanını kur
-if __name__ == "__main__":
-    init_db()
-    print("✅ Veritabanı başarıyla kuruldu!")
+    return exists
