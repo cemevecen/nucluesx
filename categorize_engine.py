@@ -55,10 +55,9 @@ def categorize_tweet(tweet_text):
 
 def run_categorization_process():
     """Tüm hedef hesaplardan tweetleri çeker, kategorize eder ve kaydeder."""
-    # Tarayacağımız Genişletilmiş Haber / Gazeteci Hesapları
     target_accounts = [
         "fatihaltayli", "ozgurdemirtas", "yagosabuncuoglu", "shiftdelete", 
-        "boxofficeturkey", "MuzikOnair", "bbcturkce", "pusholder", "ajans_muhbir"
+        "boxofficeturkey", "MuzikOnair", "trthaber", "pusholder", "ajans_muhbir"
     ]
     
     print("-" * 50)
