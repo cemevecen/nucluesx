@@ -266,57 +266,49 @@ for i, category in enumerate(all_categories):
             topics = cat_df.groupby('topic_tag')
             
             for tag, group in topics:
-                # 1. AKILLI AYRIŞTIRICI: 
-                # Eğer hashtag genel bir şeyse (#GUNDEM vb.) birleştirme yapma, ayrı ayrı göster.
-                GENERIC_TAGS = ['#GUNDEM', '#GELISME', '#HABER', '#SONDAKIKA']
+                # Grup içindeki birebir aynı içerikleri veya aynı kaynakları temizle
+                group = group.drop_duplicates(subset=['author']) 
                 
-                if tag in GENERIC_TAGS:
-                    # Bu grup içindeki her haberi tekil kart olarak bas
-                    for _, main_news in group.iterrows():
-                        clickable_main = make_clickable(main_news['content'])
-                        media_html = f'<img src="{main_news["media_url"]}" style="width:100%; border-radius:12px; margin-bottom:12px;">' if main_news.get('media_url') else ""
-                        
-                        column_html += f"""
-                            <div class="topic-hashtag">{tag}</div>
-                            <div class="topic-card">
-                                {media_html}
-                                <div class="tweet-content"><b>{main_news['author']}</b>: {clickable_main}</div>
+                if len(group) > 1:
+                    # BİRDEN FAZLA KAYNAKLI (HUB) GÖRÜNÜMÜ
+                    main_news = group.iloc[0]
+                    clickable_main = make_clickable(main_news['content'])
+                    media_html = f'<img src="{main_news["media_url"]}" style="width:100%; border-radius:12px; margin-bottom:12px; object-fit: cover; max-height: 200px;">' if main_news.get('media_url') else ""
+                    
+                    timeline_html = ""
+                    for _, other_news in group.iterrows():
+                        time_val = other_news['processed_at'].split(' ')[1][:5]
+                        timeline_html += f"""
+                            <div class="timeline-item">
+                                <small style="display: block; color: #2563eb; font-weight: bold;">{time_val} - {other_news['author']}</small>
+                                <small>{other_news['content'][:80]}...</small>
                             </div>
                         """
-                else:
-                    # Gerçek bir konu Hub'ı oluştur (Aynı olaya dair farklı kaynaklar)
-                    group = group.drop_duplicates(subset=['author'])
-                    main_news = group.iloc[0]
-                clickable_main = make_clickable(main_news['content'])
-                media_html = f'<img src="{main_news["media_url"]}" style="width:100%; border-radius:12px; margin-bottom:12px;">' if main_news.get('media_url') else ""
-                
-                timeline_html = ""
-                for _, other_news in group.iterrows():
-                    time_val = other_news['processed_at'].split(' ')[1][:5]
-                    timeline_html += f"""
-                        <div class="timeline-item">
-                            <small style="display: block; color: #2563eb; font-weight: bold;">{time_val}</small>
-                            <small><b>{other_news['author']}</b>: {other_news['content'][:80]}...</small>
+
+                    column_html += f"""
+                        <div class="topic-hashtag">{tag}</div>
+                        <div class="topic-card">
+                            {media_html}
+                            <div class="tweet-content"><b>{main_news['author']}</b>: {clickable_main}</div>
+                            <div style="width: 100%; border-top: 1px solid #f1f5f9; padding-top: 10px; margin-top: 10px;">
+                                <small style="color: #64748b; font-weight: bold; display: block; margin-bottom:8px;">🔍 Kaynaklar ve Zaman Akışı</small>
+                                <div class="timeline-container">{timeline_html}</div>
+                            </div>
                         </div>
                     """
-
-                column_html += f"""
-                    <div class="topic-hashtag">{tag}</div>
-                    <div class="topic-card">
-                        <div style="display: flex; flex-direction: column; gap: 15px;">
-                            <div style="width: 100%;">
-                                {media_html}
-                                <div class="tweet-content"><b>{main_news['author']}</b>: {clickable_main}</div>
-                            </div>
-                            <div style="width: 100%; border-top: 1px solid #f1f5f9; padding-top: 15px; margin-top: 5px;">
-                                <small style="color: #64748b; font-weight: bold; display: block; margin-bottom:15px;">🔍 Kaynaklar ve Zaman Akışı</small>
-                                <div class="timeline-container">
-                                    {timeline_html}
-                                </div>
-                            </div>
+                else:
+                    # TEKİL HABER GÖRÜNÜMÜ (Düz Kart)
+                    main_news = group.iloc[0]
+                    clickable_main = make_clickable(main_news['content'])
+                    media_html = f'<img src="{main_news["media_url"]}" style="width:100%; border-radius:12px; margin-bottom:12px; object-fit: cover; max-height: 180px;">' if main_news.get('media_url') else ""
+                    
+                    column_html += f"""
+                        <div class="topic-hashtag">{tag}</div>
+                        <div class="news-card">
+                            {media_html}
+                            <div class="tweet-content"><b>{main_news['author']}</b>: {clickable_main}</div>
                         </div>
-                    </div>
-                """
+                    """
             st.markdown(column_html, unsafe_allow_html=True)
 
 # Manuel Yenileme Butonu (Test İçin Sınırsız, Ancak Kota Dostu)

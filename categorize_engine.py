@@ -59,17 +59,31 @@ def categorize_with_groq(text):
         return None
 
 def generate_topic_tag(text):
-    """Metin için kısa bir hashtag (#OlayAdi) üretir. 
-    Aynı olaya dair farklı kaynakların aynı hashtag'i üretmesi için optimize edildi."""
+    """
+    Haber metni için BENZERSİZ ve OLAY ODAKLI bir hashtag (#) üretir.
+    Amacı: Farklı kaynaklar aynı olaydan bahsettiğinde aynı etiketi almalarını sağlamaktır.
+    """
     if client_gemini:
         try:
-            prompt = f"Bu haber metninin ana öznesini veya olayını belirle. SADECE tek ve kısa bir hashtag olarak dön. \nÖrnek: 'Dolar 35 oldu' -> #Dolar, 'Fenerbahçe kazandı' -> #Fenerbahce. \nSADECE etiketi yaz.\nMetin: {text}"
+            prompt = f"""
+            Bu haberin ana konusunu/öznesini SADECE bir adet hashtag olarak belirle.
+            KURALLAR:
+            1. #Gundem, #Gelisme, #Sondakika gibi genel ifadeler ASLA kullanma.
+            2. Haberin ana kişisini, kurumunu veya olay yerini kullan. (Örn: #SALIH_MUSLIM, #ASGARI_UCRET, #FENERBAHCE)
+            3. Sadece etiketi dön, açıklama yapma.
+            4. Türkçe karakterleri İngilizce karakterlere çevirme (Ş -> S gibi yapabilirsin ama zorunlu değil, AI karar verir).
+            
+            Metin: {text}
+            """
             response = client_gemini.models.generate_content(model='gemini-2.0-flash', contents=prompt)
-            res = response.text.strip().split()[0].replace(".", "").replace(",", "")
-            if res.startswith("#"): return res.upper()
-            else: return f"#{res.upper()}"
+            res = response.text.strip().split()[0].replace(".", "").replace(",", "").replace('"', '').replace("'", "")
+            if not res.startswith("#"): res = f"#{res}"
+            # Eğer hala çok kısaysa veya jenerikse son çare anahtar kelimeye bak
+            if len(res) < 3 or res.upper() in ["#GUNDEM", "#GELISME", "#HABER"]:
+                return "#DETAY"
+            return res.upper()
         except: pass
-    return "#GELISME"
+    return "#HABER"
 
 def categorize_with_mistral(text):
     """Mistral AI üzerinden analiz yapar (3. Yedek)."""
