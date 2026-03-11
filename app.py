@@ -1,4 +1,4 @@
-# NucleusX AI - Deployment Refresh: v1.1
+# NucleusX AI - Deployment Refresh: v2.5 (Fixed 8-Category Layout)
 import streamlit as st
 import pandas as pd
 import sqlite3

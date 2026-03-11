@@ -48,7 +48,9 @@ def categorize_tweet(tweet_text):
             model='gemini-2.5-flash',
             contents=prompt
         )
-        return response.text.strip()
+        res = response.text.strip()
+        # AI bazen köşeli parantez veya nokta ekleyebilir, temizleyelim
+        return res.replace("[", "").replace("]", "").replace(".", "").strip()
     except Exception as e:
         print(f"⚠️ Gemini hatası: {e}")
         return "Bilinmeyen Kategori"
