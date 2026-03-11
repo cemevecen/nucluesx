@@ -15,6 +15,7 @@ init_db()
 # API Anahtarları
 api_key_gemini = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
 api_key_groq = os.getenv("GROQ_API_KEY")
+api_key_mistral = os.getenv("MISTRAL_API_KEY")
 
 # Gemini Client
 try:
@@ -57,6 +58,34 @@ def categorize_with_groq(text):
     except Exception:
         return None
 
+def categorize_with_mistral(text):
+    """Mistral AI üzerinden analiz yapar (3. Yedek)."""
+    if not api_key_mistral:
+        return None
+        
+    url = "https://api.mistral.ai/v1/chat/completions"
+    headers = {
+        "Authorization": f"Bearer {api_key_mistral}",
+        "Content-Type": "application/json"
+    }
+    
+    prompt = f"Categorize into ONE: Ekonomi, Finans, Spor, Teknoloji, Eğlence, Müzik, Dünya, Ülke Gündemi. Respond with ONLY the category name.\n\nText: {text}"
+    
+    data = {
+        "model": "open-mistral-7b", 
+        "messages": [{"role": "user", "content": prompt}]
+    }
+    
+    try:
+        response = requests.post(url, headers=headers, json=data, timeout=5)
+        if response.status_code == 200:
+            res = response.json()['choices'][0]['message']['content'].strip().replace(".", "")
+            if res in ["Ekonomi", "Finans", "Spor", "Teknoloji", "Eğlence", "Müzik", "Dünya", "Ülke Gündemi"]:
+                return res
+        return None
+    except Exception:
+        return None
+
 def get_fallback_category(text):
     """AI hata verdiğinde anahtar kelimelerle kategori tahmini yapar."""
     text = text.lower()
@@ -79,7 +108,7 @@ def get_fallback_category(text):
 def categorize_tweet(tweet_text):
     """
     Kategori belirleme zinciri: 
-    1. Gemini (Ana) -> 2. Groq (Yedek LLM) -> 3. Anahtar Kelime (Güvenli Liman)
+    1. Gemini (Ana) -> 2. Groq (Llama-3) -> 3. Mistral -> 4. Anahtar Kelime
     """
     
     # 1. Aşama: Gemini Dene
@@ -94,14 +123,19 @@ def categorize_tweet(tweet_text):
             if res in ["Ekonomi", "Finans", "Spor", "Teknoloji", "Eğlence", "Müzik", "Dünya", "Ülke Gündemi"]:
                 return res
         except Exception:
-            pass # Hata durumunda bir sonraki aşamaya geç
+            pass
 
     # 2. Aşama: Groq (Llama-3) Dene
     res_groq = categorize_with_groq(tweet_text)
     if res_groq:
         return res_groq
+
+    # 3. Aşama: Mistral Dene
+    res_mistral = categorize_with_mistral(tweet_text)
+    if res_mistral:
+        return res_mistral
         
-    # 3. Aşama: Anahtar Kelime (Fallback)
+    # 4. Aşama: Anahtar Kelime (En Son Çare)
     return get_fallback_category(tweet_text)
 
 def run_categorization_process():
