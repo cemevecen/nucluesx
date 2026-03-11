@@ -1,4 +1,4 @@
-# NucleusX AI - Deployment Refresh: v5.0 (Horizontal Scroll Layout - 5 Columns)
+# NucleusX AI - Deployment Refresh: v5.5 (Real-time Progress UI)
 import streamlit as st
 import pandas as pd
 import sqlite3
@@ -204,10 +204,15 @@ if st.sidebar.button("🔄 Şimdi Yeni Haberleri Tara"):
     else:
         # Not: Mükerrer kontrolü (database.py) ve API geciktirici (categorize_engine.py) 
         # sayesinde sınırsız tıklanabilir, fatura oluşturmaz.
+        # Gerçek zamanlı ilerleme mesajları için boş bir yer tutucu
+        status_text = st.sidebar.empty()
         with st.spinner("🚀 NucleusX AI Haberleri Topluyor..."):
             try:
-                run_categorization_process()
-                st.success("✅ Tarama tamamlandı! Mükerrer haberler otomatik atlandı.")
+                # Motor artık adım adım (generator) çalıştığı için döngüyle bildirim alıyoruz
+                for update in run_categorization_process():
+                    status_text.info(update)
+                
+                st.success("✅ Tarama tamamlandı! Sayfa yenileniyor...")
                 time.sleep(1)
                 st.rerun()
             except Exception as e:

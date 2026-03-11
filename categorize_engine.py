@@ -67,8 +67,10 @@ def run_categorization_process():
     print("-" * 50)
     
     for username in target_accounts:
-        print(f"\n📡 {username} hesabından tweetler çekiliyor...")
-        tweets = fetch_user_tweets(username, limit=10)
+        # Streamlit'e o an taranan hesabı bildirelim
+        yield f"📡 {username} hesabından tweetler çekiliyor..."
+        
+        tweets = fetch_user_tweets(username, limit=5) # 10 çok yavaşlattığı için 5 ideal
         
         if not tweets:
             print(f"🔍 {username} için yeni tweet bulunamadı veya bir hata oluştu.")
@@ -85,20 +87,19 @@ def run_categorization_process():
             print(f"📝 TWEET: {tweet['text'][:100]}...") # Uzun tweetleri keserek basıyoruz
             
             # 2. Rate Limiting (Ücretsiz Planı Korumak İçin)
-            # Gemini 1.5/2.5 Flash Free Tier sınırı dakikada 15 istektir.
-            time.sleep(2) # Her istek arasında 2 saniye bekle (max 30 RPM gibi güvenli bir sınır)
+            time.sleep(1) 
 
             # Yapay Zeka Devreye Girer
             kategori = categorize_tweet(tweet['text'])
-            
+
             # Veritabanına kaydet
             save_tweet(tweet['author'], tweet['username'], tweet['text'], kategori)
-            
-            print(f"🏷️ ATANAN KATEGORİ: [{kategori}]")
+            yield f"✅ {tweet['username']}: [{kategori}]"
     
     print("\n" + "-" * 50)
     print("✅ Analiz Tamamlandı! Tüm veriler NucleusX veritabanına işlendi.")
 
 if __name__ == "__main__":
-    init_db() # Ensure DB is ready
-    run_categorization_process()
+    init_db()
+    for status in run_categorization_process():
+        print(status)
