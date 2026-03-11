@@ -1,4 +1,4 @@
-# NucleusX AI - Deployment Refresh: v6.0 (Images & Clickable Links)
+# NucleusX AI - Production Build: v7.0 (Clean & Optimized)
 import streamlit as st
 import re
 import pandas as pd
@@ -240,4 +240,5 @@ if st.sidebar.button("🔄 Şimdi Yeni Haberleri Tara"):
                 st.error(f"❌ Tarama sırasında bir hata oluştu: {e}")
 
 st.sidebar.markdown("---")
-st.sidebar.write("Developed by Antigravity AI 🤖")
+st.sidebar.caption("🚀 **NucleusX Engine v7.0**")
+st.sidebar.caption("Developed by Antigravity AI 🤖")
