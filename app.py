@@ -3,6 +3,7 @@ import pandas as pd
 import sqlite3
 from database import DB_NAME, init_db
 import time
+from categorize_engine import run_categorization_process
 
 # Sayfa Konfigürasyonu
 st.set_page_config(
@@ -135,10 +136,13 @@ else:
 
 # Manuel Yenileme Butonu
 if st.sidebar.button("🔄 Şimdi Yeni Haberleri Tara"):
-    with st.spinner("AI Haberleri Topluyor..."):
-        import subprocess
-        subprocess.run(["python3", "categorize_engine.py"])
-        st.rerun()
+    with st.spinner("🚀 NucleusX AI Haberleri Topluyor..."):
+        try:
+            run_categorization_process()
+            st.success("Tarama tamamlandı!")
+            st.rerun()
+        except Exception as e:
+            st.error(f"Tarama sırasında bir hata oluştu: {e}")
 
 st.sidebar.markdown("---")
 st.sidebar.write("Developed by Antigravity AI 🤖")

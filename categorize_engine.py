@@ -51,12 +51,13 @@ def categorize_tweet(tweet_text):
         print(f"⚠️ Gemini hatası: {e}")
         return "Bilinmeyen Kategori"
 
-# Tarayacağımız Örnek Haber / Gazeteci Hesapları
-target_accounts = ["fatihaltayli", "yagosabuncuoglu", "shiftdelete", "boxofficeturkey"]
-
-if __name__ == "__main__":
+def run_categorization_process():
+    """Tüm hedef hesaplardan tweetleri çeker, kategorize eder ve kaydeder."""
+    # Tarayacağımız Örnek Haber / Gazeteci Hesapları
+    target_accounts = ["fatihaltayli", "yagosabuncuoglu", "shiftdelete", "boxofficeturkey"]
+    
     print("-" * 50)
-    print("🚀 AI Haber Sınıflandırıcı Motoru Başlıyor...")
+    print("🚀 NucleusX AI Haber Sınıflandırıcı Motoru Başlıyor...")
     print("-" * 50)
     
     for username in target_accounts:
@@ -81,3 +82,6 @@ if __name__ == "__main__":
     
     print("\n" + "-" * 50)
     print("✅ Analiz Tamamlandı! Tüm veriler NucleusX veritabanına işlendi.")
+
+if __name__ == "__main__":
+    run_categorization_process()
