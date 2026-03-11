@@ -34,8 +34,8 @@ def categorize_tweet(tweet_text):
     
     prompt = f"""
     Sen, NucleusX gibi bir haber toplayıcı (aggregator) için çalışan baş editörsün.
-    Aşağıdaki tweet metnini oku ve onu bu 4 kategoriden sadece BİRİNE yerleştir:
-    Kategoriler: Spor, Ekonomi, Teknoloji, Eğlence
+    Aşağıdeki tweet metnini oku ve onu bu 8 kategoriden sadece BİRİNE yerleştir:
+    Kategoriler: Ekonomi, Finans, Spor, Teknoloji, Eğlence, Müzik, Dünya, Ülke Gündemi
     
     Eğer tweet alakasızsa veya anlaşılmıyorsa "Diğer" de.
     SADECE kategorinin adını yaz. Başka hiçbir açıklama yapma.
@@ -55,8 +55,11 @@ def categorize_tweet(tweet_text):
 
 def run_categorization_process():
     """Tüm hedef hesaplardan tweetleri çeker, kategorize eder ve kaydeder."""
-    # Tarayacağımız Örnek Haber / Gazeteci Hesapları
-    target_accounts = ["fatihaltayli", "yagosabuncuoglu", "shiftdelete", "boxofficeturkey"]
+    # Tarayacağımız Genişletilmiş Haber / Gazeteci Hesapları
+    target_accounts = [
+        "fatihaltayli", "ozgurdemirtas", "yagosabuncuoglu", "shiftdelete", 
+        "boxofficeturkey", "MuzikOnair", "bbcturkce", "pusholder", "ajans_muhbir"
+    ]
     
     print("-" * 50)
     print("🚀 NucleusX AI Haber Sınıflandırıcı Motoru Başlıyor...")

@@ -129,44 +129,53 @@ st.title("🎙️ NucleusX AI Newsroom")
 st.markdown("---")
 
 # Veriyi Kategorilere Göre Hazırla
-cat_list = ["Ekonomi", "Spor", "Teknoloji", "Eğlence"]
-cols = st.columns(len(cat_list))
+# 8 kategoriyi 2 satıra (4+4) bölerek gösteriyoruz ki kolonlar çok daralmasın
+categories_row1 = ["Ülke Gündemi", "Dünya", "Ekonomi", "Finans"]
+categories_row2 = ["Teknoloji", "Spor", "Eğlence", "Müzik"]
 
-for i, category in enumerate(cat_list):
-    with cols[i]:
-        # Kolon Başlığı
-        st.markdown(f"""
-            <div class="column-header">
-                <h3>{category}</h3>
-                <small>{len(df[df['category'] == category])} Haber</small>
-            </div>
-        """, unsafe_allow_html=True)
-        
-        cat_df = df[df['category'] == category].head(10) # Her kolonda son 10 haber
-        
-        if cat_df.empty:
-            st.info(f"Henüz {category} haberi yok.")
-        else:
-            for index, row in cat_df.iterrows():
-                st.markdown(f"""
-                    <div class="news-card">
-                        <div class="author-info">
-                            <span class="author-name">{row['author']}</span>
-                            <span style="color: #4b5563; font-size: 0.7rem;">{row['username']}</span>
-                        </div>
-                        <div class="tweet-content">
-                            {row['content']}
-                        </div>
-                        <div class="card-footer">
-                            <div class="interaction-icons">
-                                <span>💬</span> <span>🔄</span> <span>❤️</span>
+def render_category_columns(cat_list):
+    cols = st.columns(len(cat_list))
+    for i, category in enumerate(cat_list):
+        with cols[i]:
+            # Kolon Başlığı
+            st.markdown(f"""
+                <div class="column-header">
+                    <h3>{category}</h3>
+                    <small>{len(df[df['category'] == category])} Haber</small>
+                </div>
+            """, unsafe_allow_html=True)
+            
+            cat_df = df[df['category'] == category].head(10)
+            
+            if cat_df.empty:
+                st.info(f"Henüz {category} haberi yok.")
+            else:
+                for index, row in cat_df.iterrows():
+                    st.markdown(f"""
+                        <div class="news-card">
+                            <div class="author-info">
+                                <span class="author-name">{row['author']}</span>
+                                <span style="color: #4b5563; font-size: 0.7rem;">{row['username']}</span>
                             </div>
-                            <div class="time-stamp">
-                                {row['processed_at'].split(' ')[1][:5]}
+                            <div class="tweet-content">
+                                {row['content']}
+                            </div>
+                            <div class="card-footer">
+                                <div class="interaction-icons">
+                                    <span>💬</span> <span>🔄</span> <span>❤️</span>
+                                </div>
+                                <div class="time-stamp">
+                                    {row['processed_at'].split(' ')[1][:5]}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                """, unsafe_allow_html=True)
+                    """, unsafe_allow_html=True)
+
+# İlk Satır
+render_category_columns(categories_row1)
+st.markdown("<br>", unsafe_allow_html=True)
+# İkinci Satır
+render_category_columns(categories_row2)
 
 # Manuel Yenileme Butonu ve Güvenlik Sınırları
 if st.sidebar.button("🔄 Şimdi Yeni Haberleri Tara"):
