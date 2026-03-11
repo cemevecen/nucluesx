@@ -117,6 +117,21 @@ st.markdown("""
     h1, h2, h3, p {
         color: #0f172a !important;
     }
+    
+    /* Sidebar Bembeyaz ve Yazılar Siyah (Premium) */
+    [data-testid="stSidebar"] {
+        background-color: #ffffff !important;
+        border-right: 1px solid #e2e8f0;
+    }
+    [data-testid="stSidebar"] * {
+        color: #1e293b !important;
+    }
+    [data-testid="stSidebar"] .stButton button {
+        background-color: #2563eb !important;
+        color: white !important;
+        border: none;
+    }
+    
     .topic-card {
         background: #ffffff;
         border-radius: 16px;
@@ -134,6 +149,7 @@ st.markdown("""
         font-weight: bold;
         display: inline-block;
         margin-bottom: 12px;
+        margin-top: 10px;
     }
     .timeline-container {
         border-left: 2px solid #e2e8f0;
@@ -227,18 +243,15 @@ for i, category in enumerate(all_categories):
         if cat_df.empty:
             st.info(f"Henüz {category} haberi yok.")
         else:
-            # Konulara (Hashtaglere) göre grupla
+            # Tüm kolon içeriğini tek bir HTML bloğunda toplayalım (Kayma ve bozulmayı önler)
+            column_html = ""
             topics = cat_df.groupby('topic_tag')
             
             for tag, group in topics:
-                # Haber kartını tek bir HTML string olarak inşa edelim
-                # Bu sayede Streamlit'in HTML kutularını 'patlatmasını' engelleriz.
-                
                 main_news = group.iloc[0]
                 clickable_main = make_clickable(main_news['content'])
                 media_html = f'<img src="{main_news["media_url"]}" style="width:100%; border-radius:12px; margin-bottom:12px;">' if main_news.get('media_url') else ""
                 
-                # Zaman akışını oluştur
                 timeline_html = ""
                 for _, other_news in group.iterrows():
                     time_val = other_news['processed_at'].split(' ')[1][:5]
@@ -249,8 +262,7 @@ for i, category in enumerate(all_categories):
                         </div>
                     """
 
-                # Tüm kartı tek bir markdown ile bas
-                st.markdown(f"""
+                column_html += f"""
                     <div class="topic-hashtag">{tag}</div>
                     <div class="topic-card">
                         <div style="display: flex; flex-direction: column; gap: 15px;">
@@ -266,7 +278,8 @@ for i, category in enumerate(all_categories):
                             </div>
                         </div>
                     </div>
-                """, unsafe_allow_html=True)
+                """
+            st.markdown(column_html, unsafe_allow_html=True)
 
 # Manuel Yenileme Butonu (Test İçin Sınırsız, Ancak Kota Dostu)
 if st.sidebar.button("🔄 Şimdi Yeni Haberleri Tara"):
@@ -274,21 +287,34 @@ if st.sidebar.button("🔄 Şimdi Yeni Haberleri Tara"):
     if admin_password != ADMIN_PASS:
         st.sidebar.error("❌ Hatalı şifre! Tarama izniniz yok.")
     else:
-        # Not: Mükerrer kontrolü (database.py) ve API geciktirici (categorize_engine.py) 
-        # sayesinde sınırsız tıklanabilir, fatura oluşturmaz.
-        # Gerçek zamanlı ilerleme mesajları için boş bir yer tutucu
+        # Motor artık adım adım (generator) çalıştığı için döngüyle bildirim alıyoruz
         status_text = st.sidebar.empty()
         with st.spinner("🚀 NucleusX AI Haberleri Topluyor..."):
             try:
-                # Motor artık adım adım (generator) çalıştığı için döngüyle bildirim alıyoruz
                 for update in run_categorization_process():
                     status_text.info(update)
-                
                 st.success("✅ Tarama tamamlandı! Sayfa yenileniyor...")
                 time.sleep(1)
                 st.rerun()
             except Exception as e:
                 st.error(f"❌ Tarama sırasında bir hata oluştu: {e}")
+
+# MİGRASYON / BAKIM BUTONU (Yönetici Paneli Altında Görünür)
+if st.sidebar.button("🧹 Tüm Veritabanını Optimize Et"):
+    if admin_password != ADMIN_PASS:
+        st.sidebar.error("❌ Yönetici yetkisi gerekli.")
+    else:
+        from categorize_engine import recategorize_all_news
+        status_text = st.sidebar.empty()
+        with st.spinner("🛠️ Eski haberler kümeleniyor..."):
+            try:
+                for log in recategorize_all_news():
+                    status_text.info(log)
+                st.success("✨ Tüm geçmiş veriler optimize edildi!")
+                time.sleep(1)
+                st.rerun()
+            except Exception as e:
+                st.error(f"❌ Optimizasyon hatası: {e}")
 
 st.sidebar.markdown("---")
 st.sidebar.caption("🚀 **NucleusX Engine v7.0**")
