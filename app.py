@@ -245,9 +245,15 @@ for i, category in enumerate(all_categories):
         else:
             # Tüm kolon içeriğini tek bir HTML bloğunda toplayalım (Kayma ve bozulmayı önler)
             column_html = ""
+            # Hashtag'leri standartlaştır ve grupla
+            cat_df['topic_tag'] = cat_df['topic_tag'].str.strip().str.upper()
             topics = cat_df.groupby('topic_tag')
             
             for tag, group in topics:
+                # Bir grup içindeki birebir aynı içerikleri veya aynı kaynakları temizle
+                # Sadece benzersiz tweetleri (içerik özeti üzerinden) göster
+                group = group.drop_duplicates(subset=['author']) # Aynı olayda her kaynaktan 1 tane göster
+                
                 main_news = group.iloc[0]
                 clickable_main = make_clickable(main_news['content'])
                 media_html = f'<img src="{main_news["media_url"]}" style="width:100%; border-radius:12px; margin-bottom:12px;">' if main_news.get('media_url') else ""
@@ -304,7 +310,28 @@ if st.sidebar.button("🧹 Tüm Veritabanını Optimize Et"):
     if admin_password != ADMIN_PASS:
         st.sidebar.error("❌ Yönetici yetkisi gerekli.")
     else:
-        from categorize_engine import recategorize_all_news
+        def recategorize_all_news():
+            """Veritabanındaki TÜM haberleri AI ile tekrar tarayıp hashtag (#) atar. 
+            Özellikle #GUNDEM ve #GELISME etiketlerini temizler."""
+            from database import get_db_connection
+            from categorize_engine import generate_topic_tag
+            conn = get_db_connection()
+            cursor = conn.cursor()
+            # Sadece genel etiketleri değil, eskileri de daha derin analiz için tekrar tarayalım
+            cursor.execute("SELECT id, content FROM tweets WHERE topic_tag IN ('#Gundem', '#GUNDEM', '#GELISME') OR topic_tag IS NULL")
+            rows = cursor.fetchall()
+            
+            yield f"🧹 {len(rows)} haber için derin analiz ve hashtagleme başlıyor..."
+            
+            for row_id, content in rows:
+                tag = generate_topic_tag(content)
+                cursor.execute("UPDATE tweets SET topic_tag = %s WHERE id = %s", (tag, row_id))
+                conn.commit()
+                yield f"♻️ {tag} olarak güncellendi (ID: {row_id})"
+            
+            conn.close()
+            yield "✅ Veritabanı başarıyla optimize edildi!"
+        
         status_text = st.sidebar.empty()
         with st.spinner("🛠️ Eski haberler kümeleniyor..."):
             try:

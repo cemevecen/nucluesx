@@ -59,16 +59,17 @@ def categorize_with_groq(text):
         return None
 
 def generate_topic_tag(text):
-    """Metin için kısa bir hashtag (#OlayAdi) üretir."""
+    """Metin için kısa bir hashtag (#OlayAdi) üretir. 
+    Aynı olaya dair farklı kaynakların aynı hashtag'i üretmesi için optimize edildi."""
     if client_gemini:
         try:
-            prompt = f"Bu haber metni için çok kısa, tek kelimelik (hashtag stili) bir konu başlığı üret. Sadece # ile başlayan etiketi yaz. Örn: #DolarArtisi, #SecimGundemi. SADECE etiketi dönder.\nMetin: {text}"
+            prompt = f"Bu haber metninin ana öznesini veya olayını belirle. SADECE tek ve kısa bir hashtag olarak dön. \nÖrnek: 'Dolar 35 oldu' -> #Dolar, 'Fenerbahçe kazandı' -> #Fenerbahce. \nSADECE etiketi yaz.\nMetin: {text}"
             response = client_gemini.models.generate_content(model='gemini-2.0-flash', contents=prompt)
-            res = response.text.strip().split()[0]
-            if res.startswith("#"): return res
-            else: return f"#{res}"
+            res = response.text.strip().split()[0].replace(".", "").replace(",", "")
+            if res.startswith("#"): return res.upper()
+            else: return f"#{res.upper()}"
         except: pass
-    return "#Gundem"
+    return "#GELISME"
 
 def categorize_with_mistral(text):
     """Mistral AI üzerinden analiz yapar (3. Yedek)."""
