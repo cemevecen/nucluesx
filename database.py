@@ -52,6 +52,12 @@ def init_db():
             )
         ''')
         
+        # OTOMATİK MİGRASYON: Eğer tablo önceden oluşmuşsa ama topic_tag yoksa ekle
+        try:
+            cursor.execute("ALTER TABLE tweets ADD COLUMN IF NOT EXISTS topic_tag TEXT DEFAULT '#Gundem'")
+        except:
+            pass # Zaten varsa hata vermemesi için
+        
         # Mükerrer kaydı önlemek için UNIQUE index (PostgreSQL stili)
         cursor.execute('''
             CREATE UNIQUE INDEX IF NOT EXISTS unique_tweet_idx ON tweets (username, (md5(content)));
