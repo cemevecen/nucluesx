@@ -142,21 +142,21 @@ def run_categorization_process():
     """Tüm hedef hesaplardan tweetleri çeker, kategorize eder ve kaydeder."""
     target_accounts = [
         # Ülke Gündemi
-        "pusholder", "ajans_muhbir",
+        "pusholder", "ajans_muhbir", "haskologlu", "darkwebhaber",
         # Dünya
-        "bbcturkce", "euronews_tr",
+        "bbcturkce", "euronews_tr", "dw_turkce", "voaturkce",
         # Ekonomi
-        "ozgurdemirtas", "temelanaliz",
+        "ozgurdemirtas", "temelanaliz", "ekonomimcom", "Econofia",
         # Finans
-        "borsagundem", "ParaAnaliz",
+        "borsagundem", "ParaAnaliz", "InvestingTR", "paramevzu",
         # Teknoloji
-        "shiftdelete", "webteknoloji",
+        "shiftdelete", "webteknoloji", "donanimhaber", "teknoseyir",
         # Spor
-        "yagosabuncuoglu", "sporx",
+        "yagosabuncuoglu", "sporx", "ntvspor", "beINSPORTS_TR",
         # Eğlence
-        "boxofficeturkey", "raninitv",
+        "boxofficeturkey", "raninitv", "birsenaltuntas1", "tokyophoner",
         # Müzik
-        "MuzikOnair", "PopBizde"
+        "MuzikOnair", "PopBizde", "murekkephaber", "Kultur_Sanat"
     ]
     
     print("-" * 50)
