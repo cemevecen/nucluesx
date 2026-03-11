@@ -87,25 +87,6 @@ def save_tweet(author, username, content, category, topic_tag="#Gundem", media_u
 
 def tweet_exists(username, content, category=None):
     """
-    Tweetin zaten kaydedilip edilmediğini kontrol eder.
-    Aynı zamanda çapraz hesap kontrolü yaparak aynı haberin 
-    başka bir hesap tarafından zaten paylaşılıp paylaşılmadığına bakar.
-    """
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    # 1. Birebir aynı tweet kontrolü (Aynı hesap tarafından)
-    cursor.execute(
-        "SELECT id FROM tweets WHERE username = %s AND content = %s LIMIT 1",
-        (username, content)
-    )
-    if cursor.fetchone():
-        cursor.close()
-        conn.close()
-        return True
-        
-def tweet_exists(username, content, category=None):
-    """
     Kategoriden bağımsız (GLOBAL) mükerrer kontrolü yapar.
     Aynı haberin farklı bir kategoride veya hesapta olmasını engeller.
     """
@@ -123,6 +104,7 @@ def tweet_exists(username, content, category=None):
         return True
         
     # 2. GLOBAL Çapraz Hesap Kontrolü (Haber başka bir kategoride olsa bile engelle)
+    # Metnin ilk 40 karakterini kullanarak son 24 saatteki haberlerle karşılaştırıyoruz
     clean_snippet = content[:100].strip()
     cursor.execute(
         "SELECT id FROM tweets WHERE content LIKE %s AND processed_at > NOW() - INTERVAL '24 hours' LIMIT 1",
