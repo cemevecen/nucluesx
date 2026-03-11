@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import sqlite3
-from database import DB_NAME
+from database import DB_NAME, init_db
 import time
 
 # Sayfa Konfigürasyonu
@@ -11,6 +11,9 @@ st.set_page_config(
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+# Canlı yayında veritabanı yoksa oluştur
+init_db()
 
 # Premium CSS - Glassmorphism ve Modern Tasarım
 st.markdown("""
@@ -66,11 +69,15 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 def load_data():
-    conn = sqlite3.connect(DB_NAME)
-    query = "SELECT * FROM tweets ORDER BY processed_at DESC"
-    df = pd.read_sql_query(query, conn)
-    conn.close()
-    return df
+    try:
+        conn = sqlite3.connect(DB_NAME)
+        query = "SELECT * FROM tweets ORDER BY processed_at DESC"
+        df = pd.read_sql_query(query, conn)
+        conn.close()
+        return df
+    except Exception as e:
+        # Tablo henüz oluşmamış veya başka bir hata varsa boş DF döndür
+        return pd.DataFrame(columns=['author', 'username', 'content', 'category', 'processed_at'])
 
 # Kenar Çubuğu
 st.sidebar.title("🚀 NucleusX AI")
