@@ -188,19 +188,22 @@ def make_clickable(text):
     text = re.sub(r'@(\w+)', r'<a href="https://x.com/\1" target="_blank" style="color: #60a5fa; text-decoration: none;">@\1</a>', text)
     return text
 
+# Veritabanı verisini önbelleğe alalım (Hız İçin Kritik!)
+# ttl=300 (5 dakika) boyunca aynı veriyi sunar, sonra yeniler.
+@st.cache_data(ttl=300)
 def load_data():
     try:
         conn = get_db_connection()
-        query = "SELECT author, username, content, category, topic_tag, processed_at, media_url FROM tweets ORDER BY processed_at DESC"
+        # Sadece son 3 gündeki haberleri çekelim ki tablo şişmesin (Hız kazandırır)
+        query = "SELECT author, username, content, category, topic_tag, processed_at, media_url FROM tweets WHERE processed_at > NOW() - INTERVAL '3 days' ORDER BY processed_at DESC"
         df = pd.read_sql_query(query, conn)
         conn.close()
-        # Tarih formatını pandas üzerinden düzeltelim (PostgreSQL'den gelen tipi koruyarak)
         if not df.empty:
             df['processed_at'] = df['processed_at'].astype(str)
         return df
     except Exception as e:
         st.error(f"Veri yüklenirken hata oluştu: {e}")
-        return pd.DataFrame(columns=['author', 'username', 'content', 'category', 'processed_at', 'media_url'])
+        return pd.DataFrame(columns=['author', 'username', 'content', 'category', 'topic_tag', 'processed_at', 'media_url'])
 
 # Kenar Çubuğu
 st.sidebar.title("🚀 NucleusX AI")
