@@ -11,10 +11,24 @@ load_dotenv()
 init_db()
 
 # Yeni Google GenAI kütüphanesi başlatımı
-client = genai.Client()
+# Cloud ortamında (Streamlit) secrets'tan okumak için düzenlendi
+api_key = os.getenv("GEMINI_API_KEY") or os.getenv("GOOGLE_API_KEY")
+
+try:
+    if api_key:
+        client = genai.Client(api_key=api_key)
+    else:
+        client = None
+        print("⚠️ Uyarı: GEMINI_API_KEY bulunamadı.")
+except Exception as e:
+    client = None
+    print(f"❌ Gemini Client Hatası: {e}")
 
 def categorize_tweet(tweet_text):
     """Tweet metnini alır ve Gemini yapay zekası yardımıyla kategorize eder."""
+    
+    if not client:
+        return "Bilinmeyen Kategori (API Hatası)"
     
     prompt = f"""
     Sen, NucleusX gibi bir haber toplayıcı (aggregator) için çalışan baş editörsün.
@@ -29,7 +43,7 @@ def categorize_tweet(tweet_text):
     
     try:
         response = client.models.generate_content(
-            model='gemini-2.5-flash',
+            model='gemini-1.5-flash',
             contents=prompt
         )
         return response.text.strip()
