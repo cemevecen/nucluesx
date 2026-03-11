@@ -91,32 +91,33 @@ st.markdown("""
         display: flex !important;
         overflow-x: auto !important;
         flex-wrap: nowrap !important;
-        gap: 12px !important;
+        gap: 15px !important;
         padding-bottom: 20px !important;
-        scrollbar-width: none; /* Firefox */
-        -ms-overflow-style: none; /* IE/Edge */
-        scroll-snap-type: x mandatory; /* Swipe hissi */
+        scrollbar-width: none;
+        -ms-overflow-style: none;
+        scroll-snap-type: x mandatory;
     }
     
     [data-testid="stHorizontalBlock"]::-webkit-scrollbar {
-        display: none !important; /* Chrome, Safari, Opera */
+        display: none !important;
     }
     
     div[data-testid="column"] {
-        min-width: calc(19.5% - 10px) !important; /* Ekranda yaklaşık 5 tanesi tam görünür */
-        flex: 0 0 auto !important;
-        scroll-snap-align: start; /* Kolon başında yapışma */
+        flex: 0 0 19% !important; /* 5 tanesini sığdır, geri kalanı taşır */
+        min-width: 280px !important;
+        flex-shrink: 0 !important; /* Sıkışmayı engelle (Taşması için kritik) */
+        scroll-snap-align: start;
     }
 
-    @media (max-width: 1200px) {
+    @media (max-width: 1400px) {
         div[data-testid="column"] {
-            min-width: calc(24% - 10px) !important; /* Tablette 4 tane */
+            flex: 0 0 24% !important; /* 4 tanesi sığar */
         }
     }
     
-    @media (max-width: 768px) {
+    @media (max-width: 1000px) {
         div[data-testid="column"] {
-            min-width: calc(45% - 10px) !important; /* Mobil 2 tane */
+            flex: 0 0 45% !important; /* 2 tanesi sığar */
         }
     }
 
