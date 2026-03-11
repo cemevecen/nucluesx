@@ -231,38 +231,42 @@ for i, category in enumerate(all_categories):
             topics = cat_df.groupby('topic_tag')
             
             for tag, group in topics:
-                # Hub Başlığı ve Hashtag
-                st.markdown(f'<div class="topic-hashtag">{tag}</div>', unsafe_allow_html=True)
+                # Haber kartını tek bir HTML string olarak inşa edelim
+                # Bu sayede Streamlit'in HTML kutularını 'patlatmasını' engelleriz.
                 
-                # Grubun ilk tweeti ana haber olsun
                 main_news = group.iloc[0]
                 clickable_main = make_clickable(main_news['content'])
                 media_html = f'<img src="{main_news["media_url"]}" style="width:100%; border-radius:12px; margin-bottom:12px;">' if main_news.get('media_url') else ""
                 
-                with st.container():
-                    st.markdown(f"""
-                        <div class="topic-card">
-                            <div style="display: flex; gap: 20px;">
-                                <div style="flex: 2;">
-                                    {media_html}
-                                    <div class="tweet-content"><b>{main_news['author']}</b>: {clickable_main}</div>
-                                </div>
-                                <div style="flex: 1; border-left: 1px solid #f1f5f9; padding-left: 15px;">
-                                    <small style="color: #64748b; font-weight: bold; display: block; margin-bottom:10px;">Zaman Akışı</small>
-                                    <div class="timeline-container">
-                    """, unsafe_allow_html=True)
-                    
-                    # Diğer kaynakları zaman akışı olarak ekle
-                    for _, other_news in group.iterrows():
-                        time_val = other_news['processed_at'].split(' ')[1][:5]
-                        st.markdown(f"""
-                            <div class="timeline-item">
-                                <small style="display: block; color: #2563eb; font-weight: bold;">{time_val}</small>
-                                <small><b>{other_news['author']}</b>: {other_news['content'][:60]}...</small>
+                # Zaman akışını oluştur
+                timeline_html = ""
+                for _, other_news in group.iterrows():
+                    time_val = other_news['processed_at'].split(' ')[1][:5]
+                    timeline_html += f"""
+                        <div class="timeline-item">
+                            <small style="display: block; color: #2563eb; font-weight: bold;">{time_val}</small>
+                            <small><b>{other_news['author']}</b>: {other_news['content'][:80]}...</small>
+                        </div>
+                    """
+
+                # Tüm kartı tek bir markdown ile bas
+                st.markdown(f"""
+                    <div class="topic-hashtag">{tag}</div>
+                    <div class="topic-card">
+                        <div style="display: flex; flex-direction: column; gap: 15px;">
+                            <div style="width: 100%;">
+                                {media_html}
+                                <div class="tweet-content"><b>{main_news['author']}</b>: {clickable_main}</div>
                             </div>
-                        """, unsafe_allow_html=True)
-                    
-                    st.markdown("</div></div></div></div>", unsafe_allow_html=True)
+                            <div style="width: 100%; border-top: 1px solid #f1f5f9; padding-top: 15px; margin-top: 5px;">
+                                <small style="color: #64748b; font-weight: bold; display: block; margin-bottom:15px;">🔍 Kaynaklar ve Zaman Akışı</small>
+                                <div class="timeline-container">
+                                    {timeline_html}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
 
 # Manuel Yenileme Butonu (Test İçin Sınırsız, Ancak Kota Dostu)
 if st.sidebar.button("🔄 Şimdi Yeni Haberleri Tara"):
