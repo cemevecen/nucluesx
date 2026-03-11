@@ -24,30 +24,37 @@ def get_db_connection():
 
 def init_db():
     """Tabloları Supabase üzerinde hazırlar (Yoksa oluşturur)."""
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    # Tweets tablosunu oluştur (PostgreSQL uyumlu)
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS tweets (
-            id SERIAL PRIMARY KEY,
-            author TEXT,
-            username TEXT,
-            content TEXT,
-            category TEXT,
-            media_url TEXT,
-            processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-    ''')
-    
-    # Mükerrer kaydı önlemek için UNIQUE index (PostgreSQL stili)
-    cursor.execute('''
-        CREATE UNIQUE INDEX IF NOT EXISTS unique_tweet_idx ON tweets (username, md5(content));
-    ''')
-    
-    conn.commit()
-    cursor.close()
-    conn.close()
+    if not DB_HOST or not DB_PASS:
+        print("⚠️ Supabase bağlantı bilgileri eksik! Lütfen Secrets'a ekleyin.")
+        return
+
+    try:
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # Tweets tablosunu oluştur (PostgreSQL uyumlu)
+        cursor.execute('''
+            CREATE TABLE IF NOT EXISTS tweets (
+                id SERIAL PRIMARY KEY,
+                author TEXT,
+                username TEXT,
+                content TEXT,
+                category TEXT,
+                media_url TEXT,
+                processed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+        ''')
+        
+        # Mükerrer kaydı önlemek için UNIQUE index (PostgreSQL stili)
+        cursor.execute('''
+            CREATE UNIQUE INDEX IF NOT EXISTS unique_tweet_idx ON tweets (username, md5(content));
+        ''')
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+    except Exception as e:
+        print(f"✅ Supabase Bağlantı Hatası: {e}")
 
 def save_tweet(author, username, content, category, media_url=None):
     """Tweet verisini Supabase'e kaydeder."""
