@@ -104,13 +104,29 @@ def tweet_exists(username, content, category=None):
         conn.close()
         return True
         
-    # 2. Çapraz Hesap Kontrolü (Aynı haber başka biri tarafından geçildi mi?)
-    # Metnin ilk 100 karakterini kullanarak son 12 saatteki haberlerle karşılaştırıyoruz
-    # (Haber başlıkları genelde benzer başlar)
+def tweet_exists(username, content, category=None):
+    """
+    Kategoriden bağımsız (GLOBAL) mükerrer kontrolü yapar.
+    Aynı haberin farklı bir kategoride veya hesapta olmasını engeller.
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # 1. Birebir aynı tweet (Aynı hesap)
+    cursor.execute(
+        "SELECT id FROM tweets WHERE username = %s AND content = %s LIMIT 1",
+        (username, content)
+    )
+    if cursor.fetchone():
+        cursor.close()
+        conn.close()
+        return True
+        
+    # 2. GLOBAL Çapraz Hesap Kontrolü (Haber başka bir kategoride olsa bile engelle)
     clean_snippet = content[:100].strip()
     cursor.execute(
-        "SELECT id FROM tweets WHERE category = %s AND content LIKE %s AND processed_at > NOW() - INTERVAL '12 hours' LIMIT 1",
-        (category, f"%{clean_snippet[:50]}%")
+        "SELECT id FROM tweets WHERE content LIKE %s AND processed_at > NOW() - INTERVAL '24 hours' LIMIT 1",
+        (f"%{clean_snippet[:40]}%",)
     )
     exists = cursor.fetchone() is not None
     

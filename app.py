@@ -123,7 +123,11 @@ st.markdown("""
         background-color: #ffffff !important;
         border-right: 1px solid #e2e8f0;
     }
-    [data-testid="stSidebar"] * {
+    [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p, 
+    [data-testid="stSidebar"] label, 
+    [data-testid="stSidebar"] .stMarkdown h1, 
+    [data-testid="stSidebar"] .stMarkdown h2,
+    [data-testid="stSidebar"] .stMarkdown h3 {
         color: #1e293b !important;
     }
     [data-testid="stSidebar"] .stButton button {
@@ -131,6 +135,8 @@ st.markdown("""
         color: white !important;
         border: none;
     }
+    /* Metin rengini özellikle beyaz isteyenler için (Eğer arka plan koyu kalsaydı) */
+    /* Ancak kullanıcı bembeyaz sidebar istediği için siyah yapıyoruz */
     
     .topic-card {
         background: #ffffff;
@@ -312,22 +318,22 @@ if st.sidebar.button("🧹 Tüm Veritabanını Optimize Et"):
     else:
         def recategorize_all_news():
             """Veritabanındaki TÜM haberleri AI ile tekrar tarayıp hashtag (#) atar. 
-            Özellikle #GUNDEM ve #GELISME etiketlerini temizler."""
+            Özellikle #GUNDEM ve #GELISME etiketlerini temizler ve mükerrerleri gruplar."""
             from database import get_db_connection
-            from categorize_engine import generate_topic_tag
+            from categorize_engine import generate_topic_tag, get_full_analysis
             conn = get_db_connection()
             cursor = conn.cursor()
-            # Sadece genel etiketleri değil, eskileri de daha derin analiz için tekrar tarayalım
-            cursor.execute("SELECT id, content FROM tweets WHERE topic_tag IN ('#Gundem', '#GUNDEM', '#GELISME') OR topic_tag IS NULL")
+            # Tüm haberleri tarayalım (Zaten hashtag varsa bile üzerine yazıp standartlaştıralım)
+            cursor.execute("SELECT id, content FROM tweets")
             rows = cursor.fetchall()
             
-            yield f"🧹 {len(rows)} haber için derin analiz ve hashtagleme başlıyor..."
+            yield f"🧹 {len(rows)} haber için derin analiz ve çapraz gruplama başlıyor..."
             
             for row_id, content in rows:
-                tag = generate_topic_tag(content)
-                cursor.execute("UPDATE tweets SET topic_tag = %s WHERE id = %s", (tag, row_id))
+                cat, tag = get_full_analysis(content)
+                cursor.execute("UPDATE tweets SET category = %s, topic_tag = %s WHERE id = %s", (cat, tag, row_id))
                 conn.commit()
-                yield f"♻️ {tag} olarak güncellendi (ID: {row_id})"
+                yield f"♻️ {tag} [{cat}] (ID: {row_id})"
             
             conn.close()
             yield "✅ Veritabanı başarıyla optimize edildi!"
