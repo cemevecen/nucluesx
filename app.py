@@ -21,50 +21,72 @@ st.markdown("""
     <style>
     .main {
         background-color: #0e1117;
+        padding: 0;
     }
     .stApp {
         background: radial-gradient(circle at top right, #1e293b, #0f172a);
     }
+    .block-container {
+        padding-top: 2rem !important;
+        padding-bottom: 0rem !important;
+        max-width: 98% !important;
+    }
+    /* Scoopnest Style Column Header */
+    .column-header {
+        padding: 10px;
+        border-bottom: 3px solid rgba(255, 255, 255, 0.1);
+        margin-bottom: 20px;
+        text-align: center;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 10px 10px 0 0;
+    }
     .news-card {
         background: rgba(255, 255, 255, 0.05);
         backdrop-filter: blur(10px);
-        border-radius: 15px;
-        padding: 20px;
+        border-radius: 12px;
+        padding: 15px;
         border: 1px solid rgba(255, 255, 255, 0.1);
-        margin-bottom: 20px;
-        transition: transform 0.3s ease;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
     }
     .news-card:hover {
         transform: translateY(-5px);
-        border: 1px solid rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        background: rgba(255, 255, 255, 0.08);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.3);
     }
-    .category-badge {
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: bold;
-        text-transform: uppercase;
+    .author-info {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
     }
-    .cat-ekonomi { background: #1e3a8a; color: #bfdbfe; }
-    .cat-spor { background: #064e3b; color: #d1fae5; }
-    .cat-teknoloji { background: #581c87; color: #f3e8ff; }
-    .cat-eglence { background: #831843; color: #fce7f3; }
-    .cat-diger { background: #374151; color: #f3f4f6; }
-    
     .author-name {
         color: #60a5fa;
         font-weight: bold;
-        margin-bottom: 5px;
+        font-size: 0.9rem;
     }
     .tweet-content {
         color: #e2e8f0;
-        font-size: 1.1rem;
-        line-height: 1.5;
+        font-size: 0.95rem;
+        line-height: 1.4;
+        margin-bottom: 12px;
     }
-    .time-stamp {
+    .card-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 0.75rem;
         color: #94a3b8;
-        font-size: 0.8rem;
-        margin-top: 10px;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
+        padding-top: 10px;
+    }
+    .interaction-icons {
+        display: flex;
+        gap: 15px;
+        color: #60a5fa;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -102,51 +124,49 @@ selected_cat = st.sidebar.selectbox("Kategori Filtrele", categories)
 if selected_cat != "Tümü":
     df = df[df['category'] == selected_cat]
 
-# Ana Ekran
-st.title("🗞️ Canlı Haber Akışı")
-st.markdown(f"**Toplam {len(df)} haber listeleniyor.**")
-
-# İstatistikler - Küçük Widgetlar
-c1, c2, c3, c4 = st.columns(4)
-stats = df['category'].value_counts()
-
-with c1:
-    st.metric("Ekonomi", stats.get("Ekonomi", 0))
-with c2:
-    st.metric("Spor", stats.get("Spor", 0))
-with c3:
-    st.metric("Teknoloji", stats.get("Teknoloji", 0))
-with c4:
-    st.metric("Eğlence", stats.get("Eğlence", 0))
-
-st.markdown(f"**Not:** Diğer kategorisinde {stats.get('Diğer', 0) + stats.get('Bilinmeyen Kategori', 0)} haber bulunuyor.")
-
+# Ana Ekran - Scoopnest Dikey Kolon Düzeni
+st.title("🎙️ NucleusX AI Newsroom")
 st.markdown("---")
 
-# Haber Listesi
-if df.empty:
-    st.warning("Henüz veritabanında haber yok. Lütfen tarayıcıyı çalıştırın.")
-else:
-    for index, row in df.iterrows():
-        # Kategori ismini CSS class uygun hale getir (Boşluk/Özel Karakter Temizliği)
-        raw_cat = str(row['category'])
-        clean_cat = raw_cat.lower().replace('ç', 'c').replace('ö', 'o').replace('ü', 'u').replace('ğ', 'g').replace('ı', 'i').replace(' ', '-')
-        cat_class = f"cat-{clean_cat}"
-        
+# Veriyi Kategorilere Göre Hazırla
+cat_list = ["Ekonomi", "Spor", "Teknoloji", "Eğlence"]
+cols = st.columns(len(cat_list))
+
+for i, category in enumerate(cat_list):
+    with cols[i]:
+        # Kolon Başlığı
         st.markdown(f"""
-            <div class="news-card">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <span class="author-name">{row['author']} ({row['username']})</span>
-                    <span class="category-badge {cat_class}">{row['category']}</span>
-                </div>
-                <div class="tweet-content">
-                    {row['content']}
-                </div>
-                <div class="time-stamp">
-                    🕒 {row['processed_at']}
-                </div>
+            <div class="column-header">
+                <h3>{category}</h3>
+                <small>{len(df[df['category'] == category])} Haber</small>
             </div>
         """, unsafe_allow_html=True)
+        
+        cat_df = df[df['category'] == category].head(10) # Her kolonda son 10 haber
+        
+        if cat_df.empty:
+            st.info(f"Henüz {category} haberi yok.")
+        else:
+            for index, row in cat_df.iterrows():
+                st.markdown(f"""
+                    <div class="news-card">
+                        <div class="author-info">
+                            <span class="author-name">{row['author']}</span>
+                            <span style="color: #4b5563; font-size: 0.7rem;">{row['username']}</span>
+                        </div>
+                        <div class="tweet-content">
+                            {row['content']}
+                        </div>
+                        <div class="card-footer">
+                            <div class="interaction-icons">
+                                <span>💬</span> <span>🔄</span> <span>❤️</span>
+                            </div>
+                            <div class="time-stamp">
+                                {row['processed_at'].split(' ')[1][:5]}
+                            </div>
+                        </div>
+                    </div>
+                """, unsafe_allow_html=True)
 
 # Manuel Yenileme Butonu ve Güvenlik Sınırları
 if st.sidebar.button("🔄 Şimdi Yeni Haberleri Tara"):
