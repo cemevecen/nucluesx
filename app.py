@@ -16,185 +16,156 @@ st.set_page_config(
 # Canlı yayında veritabanı yoksa oluştur
 init_db()
 
-# Premium CSS - Glassmorphism ve Modern Tasarım
+# Premium CSS - Mockup Matching Design
 st.markdown("""
     <style>
-    .main {
-        background-color: #ffffff !important;
-        padding: 0;
-    }
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+    
+    * { font-family: 'Inter', sans-serif; }
+
+    /* Ana Arka Plan */
     .stApp {
         background-color: #f8fafc !important;
     }
-    .block-container {
-        padding-top: 2rem !important;
-        padding-bottom: 0rem !important;
-        max-width: 98% !important;
-    }
-    .column-header {
-        height: 90px;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        padding: 10px;
-        border-bottom: 3px solid #2563eb;
-        margin-bottom: 20px;
-        text-align: center;
-        background: #ffffff !important;
-        border-radius: 12px;
-        color: #1e293b;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        border: 1px solid #e2e8f0;
-    }
-    .news-card {
-        background: #ffffff !important;
-        border-radius: 12px;
-        padding: 15px;
-        border: 1px solid #e2e8f0;
-        margin-bottom: 20px;
-        transition: all 0.3s ease;
-        display: flex;
-        flex-direction: column;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-    }
-    .news-card:hover {
-        transform: translateY(-5px);
-        border: 1px solid #2563eb;
-        background: #ffffff !important;
-        box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
-    }
-    .author-info {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-        margin-bottom: 10px;
-    }
-    .author-name {
-        color: #2563eb;
-        font-weight: bold;
-        font-size: 0.9rem;
-    }
-    .tweet-content {
-        color: #0f172a;
-        font-size: 0.95rem;
-        line-height: 1.4;
-        margin-bottom: 12px;
-    }
-    .card-footer {
+    
+    /* Header (Top Nav) */
+    .top-nav {
         display: flex;
         justify-content: space-between;
         align-items: center;
+        padding: 15px 40px;
+        background: white;
+        border-bottom: 1px solid #e2e8f0;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+        margin-bottom: 25px;
+        margin-left: -5rem;
+        margin-right: -5rem;
+    }
+    .logo-text {
+        font-weight: 800;
+        font-size: 1.5rem;
+        color: #1e293b;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .search-box {
+        background: #f1f5f9;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        width: 400px;
+        color: #64748b;
+        font-size: 0.9rem;
+    }
+
+    /* Sidebar - DARK SLATE */
+    [data-testid="stSidebar"] {
+        background-color: #1e293b !important;
+        color: white !important;
+    }
+    [data-testid="stSidebar"] * {
+        color: white !important;
+    }
+    .sidebar-item {
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        border-radius: 8px;
+        margin-bottom: 5px;
+        transition: all 0.2s;
+        cursor: pointer;
+        font-size: 0.9rem;
+        color: #94a3b8 !important;
+    }
+    .sidebar-item:hover, .sidebar-item.active {
+        background: rgba(255,255,255,0.1);
+        color: white !important;
+    }
+
+    /* Trending Topics Bar */
+    .trending-title {
+        font-weight: 700;
+        font-size: 1.2rem;
+        color: #1e293b;
+        margin-bottom: 15px;
+    }
+    .trend-pill {
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 30px !important;
+        padding: 8px 20px !important;
+        background: white !important;
+        color: #1e40af !important;
+        font-weight: 600 !important;
+        font-size: 0.85rem !important;
+        transition: all 0.2s;
+        text-align: center;
+    }
+
+    /* News Cards */
+    .news-card {
+        background: #ffffff !important;
+        border-radius: 16px;
+        padding: 15px;
+        border: 1px solid #e2e8f0;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        transition: transform 0.2s;
+    }
+    .card-title {
+        color: #1e40af !important;
+        font-weight: 700;
+        font-size: 1rem;
+        line-height: 1.3;
+        margin-bottom: 8px;
+    }
+    .card-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
         font-size: 0.75rem;
         color: #64748b;
-        border-top: 1px solid #f1f5f9;
-        padding-top: 10px;
+        margin-top: 12px;
+    }
+
+    /* Column Headers */
+    .column-header {
+        height: 70px;
+        background: white;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        padding: 0 20px;
+        margin-bottom: 20px;
+        border: 1px solid #e2e8f0;
+        color: #1e293b;
+        font-weight: 700;
+    }
+
+    /* Layout Reset */
+    .block-container {
+        padding-top: 0rem !important;
+        padding-left: 5rem !important;
+        padding-right: 5rem !important;
     }
     
-    /* YATAY SWIPE (Scrollbar Gizli, Özel Deneyim) */
+    /* Horizontal Swipe */
     [data-testid="stHorizontalBlock"] {
         display: flex !important;
         overflow-x: auto !important;
-        flex-wrap: nowrap !important;
-        gap: 15px !important;
-        padding-bottom: 20px !important;
+        gap: 20px !important;
+        padding-bottom: 30px !important;
         scrollbar-width: none;
-        -ms-overflow-style: none;
-        scroll-snap-type: x mandatory;
     }
-    
-    [data-testid="stHorizontalBlock"]::-webkit-scrollbar {
-        display: none !important;
-    }
+    [data-testid="stHorizontalBlock"]::-webkit-scrollbar { display: none; }
     
     div[data-testid="column"] {
-        flex: 0 0 19% !important; /* 5 tanesini sığdır, geri kalanı taşır */
-        min-width: 280px !important;
-        flex-shrink: 0 !important; /* Sıkışmayı engelle (Taşması için kritik) */
-        scroll-snap-align: start;
-    }
-
-    @media (max-width: 1400px) {
-        div[data-testid="column"] {
-            flex: 0 0 24% !important; /* 4 tanesi sığar */
-        }
-    }
-    
-    @media (max-width: 1000px) {
-        div[data-testid="column"] {
-            flex: 0 0 45% !important; /* 2 tanesi sığar */
-        }
-    }
-
-    h1, h2, h3, p {
-        color: #0f172a !important;
-    }
-    
-    /* Sidebar Bembeyaz ve Yazılar Siyah (Premium) */
-    [data-testid="stSidebar"] {
-        background-color: #ffffff !important;
-        border-right: 1px solid #e2e8f0;
-    }
-    /* TÜM sidebar elemanlarını tek tek lacivert/siyah yapalım */
-    [data-testid="stSidebar"] .stMarkdown p, 
-    [data-testid="stSidebar"] .stMarkdown h1, 
-    [data-testid="stSidebar"] .stMarkdown h2, 
-    [data-testid="stSidebar"] .stMarkdown h3,
-    [data-testid="stSidebar"] span,
-    [data-testid="stSidebar"] label,
-    [data-testid="stSidebar"] div {
-        color: #0f172a !important;
-    }
-    [data-testid="stSidebar"] .stButton button {
-        background-color: #2563eb !important;
-        color: white !important;
-    }
-    [data-testid="stSidebar"] .stButton button {
-        background-color: #2563eb !important;
-        color: white !important;
-        border: none;
-    }
-    /* Metin rengini özellikle beyaz isteyenler için (Eğer arka plan koyu kalsaydı) */
-    /* Ancak kullanıcı bembeyaz sidebar istediği için siyah yapıyoruz */
-    
-    .topic-card {
-        background: #ffffff;
-        border-radius: 16px;
-        padding: 20px;
-        border: 1px solid #e2e8f0;
-        margin-bottom: 25px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
-    .topic-hashtag {
-        background: #2563eb;
-        color: white !important;
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        font-weight: bold;
-        display: inline-block;
-        margin-bottom: 12px;
-        margin-top: 10px;
-    }
-    .timeline-container {
-        border-left: 2px solid #e2e8f0;
-        padding-left: 15px;
-        margin-left: 10px;
-    }
-    .timeline-item {
-        position: relative;
-        margin-bottom: 15px;
-        padding-bottom: 5px;
-    }
-    .timeline-item::before {
-        content: "";
-        position: absolute;
-        left: -21px;
-        top: 5px;
-        width: 10px;
-        height: 10px;
-        background: #2563eb;
-        border-radius: 50%;
+        flex: 0 0 calc(19% - 16px) !important;
+        min-width: 300px !important;
+        flex-shrink: 0 !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -228,15 +199,15 @@ def load_data():
 st.sidebar.title("🚀 NucleusX AI")
 st.sidebar.markdown("---")
 
-# Güvenlik ve Kotayı Korumak İçin: Admin Girişi (Basit Bir Önlem)
-# Bu kısım botların veya rastgele kullanıcıların 'Scan' butonuna basıp kotanızı bitirmesini engeller.
+# Sabit Değişkenler
+GENERIC_TAG_LIST = ["#GELISME", "#GELİŞME", "#GUNDEM", "#GÜNDEM", "#HABER", "#DETAY", "#SONDAKIKA", "#SONDAKİKA"]
+
+# Güvenlik ve Kotayı Korumak İçin: Admin Girişi
 with st.sidebar.expander("🔐 Yönetici Paneli"):
     admin_password = st.text_input("Tarama Şifresi", type="password")
-    # Örnek şifre 'nucleus123' - Bunu Streamlit Secrets üzerinden yönetmek daha güvenlidir.
     ADMIN_PASS = st.secrets.get("ADMIN_PASSWORD", "nucleus123")
 
 st.sidebar.markdown("---")
-st.sidebar.info("Bu panel, Twitter'dan çekilen ve AI tarafından kategorize edilen haberleri gösterir.")
 
 # Veriyi Yükle
 df = load_data()
@@ -255,28 +226,62 @@ if 'selected_tag' not in st.session_state:
 def clear_tag():
     st.session_state.selected_tag = None
 
-# Ana Başlık
-st.title("🎙️ NucleusX AI Newsroom")
+# CSS Override for stButton to match trend-pill
+st.markdown("""
+    <style>
+    div.stButton > button:first-child[key^="t_"] {
+        border: 1px solid #cbd5e1 !important;
+        border-radius: 30px !important;
+        background: white !important;
+        color: #1e40af !important;
+        height: 40px !important;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
-# TREND HASHTAGLER (Kategori Tablarının Üzerinde)
-GENERIC_TAG_LIST = ["#GELISME", "#GELİŞME", "#GUNDEM", "#GÜNDEM", "#HABER", "#DETAY", "#SONDAKIKA", "#SONDAKİKA"]
+# Sticky Top Nav (Logo & Search)
+st.markdown("""
+    <div class="top-nav">
+        <div class="logo-text">
+            <span>⚛️</span> NUCLEUS<b>X</b> <span style="font-size: 0.8rem; opacity: 0.6; font-weight: 400;">AI NEWSROOM</span>
+        </div>
+        <div class="search-box">🔍 Search news, events or topics...</div>
+        <div style="display: flex; gap: 20px; align-items: center; font-size: 1.2rem;">
+            <span>❓</span> <span>🔔</span> <span style="background: #e2e8f0; width: 35px; height: 35px; border-radius: 50%; padding: 5px; cursor: pointer;">👤</span>
+        </div>
+    </div>
+""", unsafe_allow_html=True)
+
+# Custom Sidebar content
+with st.sidebar:
+    st.markdown("""
+        <div style="margin-top: 20px;">
+            <div class="sidebar-item active">📊 Dashboard</div>
+            <div class="sidebar-item">🧭 Explore</div>
+            <div class="sidebar-item">⚖️ Politics</div>
+            <div class="sidebar-item">💼 Business</div>
+            <div class="sidebar-item">💻 Tech</div>
+            <div class="sidebar-item">🌍 World</div>
+            <div class="sidebar-item">🔬 Science</div>
+            <div class="sidebar-item">💰 Finance</div>
+        </div>
+    """, unsafe_allow_html=True)
+    st.info("Bu panel, Twitter'dan çekilen ve AI tarafından kategorize edilen haberleri gösterir.")
+
+# TREND HASHTAGLER
 if not df.empty:
-    # Trend konuları belirle (Örn: #FENERBAHCE)
-    popular_tags = df[~df['topic_tag'].isin(GENERIC_TAG_LIST)]['topic_tag'].value_counts().head(10).index.tolist()
-    
+    popular_tags = df[~df['topic_tag'].isin(GENERIC_TAG_LIST)]['topic_tag'].value_counts().head(8).index.tolist()
     if popular_tags:
-        st.markdown('<div style="margin-bottom: 5px; color: #1e293b; font-weight: bold; font-size: 0.9rem;">🔥 GÜNCEL KONULAR</div>', unsafe_allow_html=True)
-        # Etiketleri yan yana butonlar olarak diz
+        st.markdown('<div class="trending-title">Trending Topics</div>', unsafe_allow_html=True)
         tag_cols = st.columns(len(popular_tags) + 1)
         for idx, tag in enumerate(popular_tags):
-            if tag_cols[idx].button(tag, key=f"trend_{tag}"):
+            if tag_cols[idx].button(tag, key=f"t_{tag}", use_container_width=True):
                 st.session_state.selected_tag = tag
                 st.rerun()
         if st.session_state.selected_tag:
-            if tag_cols[-1].button("❌ Filtreyi Kaldır", on_click=clear_tag):
-                st.rerun()
+            tag_cols[-1].button("❌ Reset", on_click=clear_tag)
 
-st.markdown("---")
+st.markdown("<br>", unsafe_allow_html=True)
 
 # FİLTRELİ KONU GÖRÜNÜMÜ
 if st.session_state.selected_tag:
@@ -335,33 +340,29 @@ for i, category in enumerate(all_categories):
 
             for tag, group in topics:
                 group = group.sort_values('processed_at', ascending=False).drop_duplicates(subset=['author']) 
-                
-                # SADECE İLK (EN KALİTELİ) HABERİ GÖSTER
                 main_news = group.iloc[0]
-                clickable_main = make_clickable(main_news['content'])
+                # Başlık ve içerik ayrımı (Eğer ":" varsa öncesi başlık gibi düşünülür mockup'ta)
+                title_part = main_news['content'].split(':')[0] if ':' in main_news['content'] else main_news['author']
+                desc_part = main_news['content'].split(':')[1] if ':' in main_news['content'] else main_news['content']
+                
                 media_html = f'<img src="{main_news["media_url"]}" style="width:100%; border-radius:12px; margin-bottom:12px; object-fit:cover; height:180px; background:#f1f5f9;">' if main_news.get('media_url') else ""
                 
-                # Jenerik olmayan etiketler için "Grup" vurgusu yap
-                if tag not in GENERIC_TAGS and len(group) > 1:
-                    column_html += f"""
-                        <div class="topic-hashtag" style="cursor:pointer; background:#2563eb;">{tag}</div>
-                        <div class="topic-card">
-                            {media_html}
-                            <div class="tweet-content"><b>{main_news['author']}</b>: {clickable_main}</div>
-                            <div style="border-top:1px solid #eee; margin-top:8px; padding-top:5px;">
-                                <small style="color:#2563eb; font-weight:bold;">✨ {len(group)} farklı kaynak bu olayı geçti.</small>
-                            </div>
+                count_info = f'<div style="color:#2563eb; font-weight:bold; margin-top:8px;">✨ {len(group)} farklı kaynak bu olayı geçti.</div>' if len(group) > 1 else ""
+                
+                column_html += f"""
+                    <div class="news-card">
+                        {media_html}
+                        <div class="card-title">{title_part}</div>
+                        <div style="font-size:0.9rem; color:#475569; margin-top:5px;">{desc_part[:150]}...</div>
+                        <div class="card-meta">
+                            <span>🔹 {main_news['author']}</span>
+                            <span>🕒 {main_news['processed_at'].split(' ')[1][:5]}</span>
+                            <span>📖 5 Dakika Okuma</span>
+                            <span style="color:#2563eb;">{tag}</span>
                         </div>
-                    """
-                else:
-                    display_tag = tag if tag in GENERIC_TAGS else tag
-                    column_html += f"""
-                        <div class="topic-hashtag" style="background:#64748b;">{display_tag}</div>
-                        <div class="news-card">
-                            {media_html}
-                            <div class="tweet-content"><b>{main_news['author']}</b>: {clickable_main}</div>
-                        </div>
-                    """
+                        {count_info}
+                    </div>
+                """
             st.markdown(column_html, unsafe_allow_html=True)
 
 # Manuel Yenileme Butonu (Test İçin Sınırsız, Ancak Kota Dostu)
