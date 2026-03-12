@@ -10,7 +10,7 @@ from categorize_engine import run_categorization_process
 # GLOBAL CONFIG & INITIALIZATION
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="NucleusX AI V22.2 PREMIUM",
+    page_title="NucleusX AI V22.3 ULTIMATE",
     page_icon="⚡",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -77,20 +77,32 @@ st.markdown("""
        ======================================================= */
     @media (min-width: 992px) {
         .stApp { background-color: #f8fafc !important; }
-        section[data-testid="stSidebar"] { background-color: #0f172a !important; color: white !important; }
-        section[data-testid="stSidebar"] .stMarkdown p, section[data-testid="stSidebar"] .stHeader { color: white !important; }
         
+        /* SIDEBAR: CLEAN WHITE THEME */
+        section[data-testid="stSidebar"] { 
+            background-color: #ffffff !important; 
+            border-right: 1px solid #e2e8f0 !important;
+        }
+        section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p { 
+            color: #1e293b !important; 
+            font-weight: 500 !important;
+        }
+        section[data-testid="stSidebar"] h1, section[data-testid="stSidebar"] h3 { 
+            color: #0f172a !important; 
+        }
+
         .news-card {
             background: #ffffff !important;
-            border-radius: 6px;
+            border-radius: 8px;
             padding: 0px;
-            margin-bottom: 12px;
-            border-left: 4px solid #2563eb; /* Vertical Indicator */
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            margin-bottom: 15px;
+            border-left: 3px solid #e2e8f0; /* Default Indicator */
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            transition: all 0.2s ease;
             overflow: hidden;
+            border: 1px solid #f1f5f9;
         }
-        .news-card:hover { transform: scale(1.02); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .news-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
         
         /* Dynamic Category Indicators */
         .cat-turkiye { border-left-color: #ef4444 !important; }
@@ -102,17 +114,57 @@ st.markdown("""
         .cat-muzik { border-left-color: #06b6d4 !important; }
         
         .news-card-content { padding: 12px; }
-        .card-title a { color: #1e293b !important; font-weight: 700; font-size: 0.85rem; line-height: 1.4; text-decoration: none; }
-        .card-desc { font-size: 0.75rem; color: #64748b; margin-top: 5px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .card-meta { margin-top: 8px; font-size: 0.65rem; color: #94a3b8; display: flex; justify-content: space-between; align-items: center; }
+        .card-title a { 
+            color: #0f172a !important; 
+            font-weight: 700; 
+            font-size: 0.8rem !important; 
+            line-height: 1.3; 
+            text-decoration: none;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .card-desc { 
+            font-size: 0.7rem !important; 
+            color: #64748b; 
+            margin-top: 6px; 
+            line-height: 1.4; 
+            display: -webkit-box; 
+            -webkit-line-clamp: 2; 
+            -webkit-box-orient: vertical; 
+            overflow: hidden; 
+        }
+        .card-meta { 
+            margin-top: 10px; 
+            font-size: 0.6rem !important; 
+            color: #94a3b8; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            font-weight: 600;
+        }
         
-        .sparkline { width: 40px; height: 15px; background: linear-gradient(90deg, #e2e8f0 25%, #2563eb 50%, #e2e8f0 75%); border-radius: 2px; opacity: 0.5; }
+        .sparkline { width: 30px; height: 10px; background: #f1f5f9; border-radius: 2px; }
 
-        [data-testid="stHorizontalBlock"] { gap: 10px !important; }
-        [data-testid="column"] { flex: 0 0 280px !important; min-width: 280px !important; }
+        [data-testid="stHorizontalBlock"] { gap: 12px !important; }
+        [data-testid="column"] { flex: 0 0 260px !important; min-width: 260px !important; }
         
-        .column-header { background: #1e293b; color: white; padding: 10px; border-radius: 4px; margin-bottom: 10px; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
-        .column-header h3 { color: white !important; font-size: 0.75rem !important; margin: 0 !important; }
+        .column-header { 
+            background: #f8fafc; 
+            color: #1e293b; 
+            padding: 12px; 
+            border-radius: 8px; 
+            margin-bottom: 12px; 
+            border: 1px solid #e2e8f0;
+        }
+        .column-header h3 { 
+            color: #1e293b !important; 
+            font-size: 0.75rem !important; 
+            margin: 0 !important; 
+            font-weight: 800 !important;
+            letter-spacing: 0.5px;
+        }
     }
     </style>
 """, unsafe_allow_html=True)
@@ -127,11 +179,11 @@ def get_card_html(row, cat_name_override=None):
     # Robust Title/Desc Split
     if '.' in content_raw and len(content_raw.split('.')[0]) > 10:
         parts = content_raw.split('.')
-        news_title = parts[0].strip()[:80]
-        news_desc = ".".join(parts[1:]).strip()[:200]
+        news_title = parts[0].strip()[:60]
+        news_desc = ".".join(parts[1:]).strip()[:100]
     else:
-        news_title = content_raw[:80]
-        news_desc = content_raw[80:250]
+        news_title = content_raw[:60]
+        news_desc = content_raw[60:130]
     
     if len(content_raw) > len(news_title): news_title += "..."
     if len(news_desc) > 0 and len(content_raw) > (len(news_title) + 5): news_desc += "..."
@@ -156,7 +208,7 @@ def get_card_html(row, cat_name_override=None):
 def load_data():
     try:
         conn = get_db_connection()
-        query = "SELECT author, content, category, topic_tag, processed_at, media_url, tweet_url FROM tweets WHERE processed_at > NOW() - INTERVAL '48 hours' ORDER BY processed_at DESC LIMIT 200"
+        query = "SELECT author, content, category, topic_tag, processed_at, media_url, tweet_url FROM tweets WHERE processed_at > NOW() - INTERVAL '7 days' ORDER BY processed_at DESC LIMIT 500"
         df = pd.read_sql_query(query, conn)
         conn.close()
         if not df.empty:
@@ -192,8 +244,12 @@ with st.sidebar:
     # Nav Buttons
     for item in nav_items:
         is_active = st.session_state.get('current_page', 'Dashboard') == item["name"]
+        
+        # High contrast active state
         if is_active:
-            st.markdown(f'''<style>div[data-testid="stSidebar"] div.stButton > button[key="nav_{item['name']}"] {{ background: #2563eb !important; color: white !important; font-weight: 700 !important; }}</style>''', unsafe_allow_html=True)
+            st.markdown(f'''<style>div[data-testid="stSidebar"] div.stButton > button[key="nav_{item['name']}"] {{ background: #2563eb !important; color: #ffffff !important; font-weight: 800 !important; border: none !important; }}</style>''', unsafe_allow_html=True)
+        else:
+            st.markdown(f'''<style>div[data-testid="stSidebar"] div.stButton > button[key="nav_{item['name']}"] {{ background: #f8fafc !important; color: #1e293b !important; font-weight: 500 !important; border: 1px solid #e2e8f0 !important; }}</style>''', unsafe_allow_html=True)
         
         if st.button(item['label'], key=f"nav_{item['name']}", use_container_width=True):
             st.session_state.current_page = item["name"]

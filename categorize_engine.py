@@ -124,13 +124,13 @@ def get_fallback_category(text):
     """AI hata verdiğinde anahtar kelimelerle kategori tahmini yapar."""
     text = text.lower()
     keywords = {
-        "Ekonomi": ["dolar", "euro", "faiz", "enflasyon", "zam", "asgari", "maaş", "vergi", "borsa", "hisse", "temettü", "kripto", "bitcoin", "ihale", "şirket", "yatırım", "finans", "ekonomi"],
-        "Spor": ["gol", "maç", "skor", "futbol", "basketbol", "fenerbahçe", "galatasaray", "beşiktaş", "transfer", "kulüp", "başkan", "saran", "ali koç", "şampiyon", "lig", "antrenman"],
-        "Teknoloji": ["iphone", "apple", "android", "yazılım", "yapay zeka", "ai", "internet", "google", "çip", "uzay", "robot", "teknoloji", "aplikasyon"],
-        "Eğlence": ["film", "dizi", "netflix", "sinema", "oyuncu", "magazin", "ünlü", "televizyon"],
-        "Müzik": ["şarkı", "albüm", "konser", "klip", "single", "sanatçı", "spotify", "müzik"],
-        "Dünya": ["savaş", "abd", "rusya", "israil", "gazze", "nato", "avrupa", "bm"],
-        "Türkiye": ["siyaset", "seçim", "meclis", "parti", "istifa", "belediye", "trt", "aa", "ankara", "ak parti", "chp"]
+        "Ekonomi": ["dolar", "euro", "faiz", "enflasyon", "zam", "asgari", "maaş", "vergi", "borsa", "hisse", "temettü", "kripto", "bitcoin", "ihale", "şirket", "yatırım", "finans", "ekonomi", "merkez bankası", "tcmb"],
+        "Spor": ["gol", "maç", "skor", "futbol", "basketbol", "fenerbahçe", "galatasaray", "beşiktaş", "transfer", "kulüp", "başkan", "saran", "ali koç", "şampiyon", "lig", "antrenman", "sadettin saran", "volkan demirel", "mourinho", "fatih terim"],
+        "Teknoloji": ["iphone", "apple", "android", "yazılım", "yapay zeka", "ai", "internet", "google", "çip", "uzay", "robot", "teknoloji", "aplikasyon", "nvidia", "openai"],
+        "Eğlence": ["film", "dizi", "netflix", "sinema", "oyuncu", "magazin", "ünlü", "televizyon", "oscar", "altın portakal"],
+        "Müzik": ["şarkı", "albüm", "konser", "klip", "single", "sanatçı", "spotify", "müzik", "eurovision", "grammy"],
+        "Dünya": ["savaş", "abd", "rusya", "israil", "gazze", "nato", "avrupa", "bm", "pentagon", "beyaz saray"],
+        "Türkiye": ["siyaset", "seçim", "meclis", "parti", "istifa", "belediye", "trt", "aa", "ankara", "ak parti", "chp", "mhp", "iyi parti", "dem parti", "erdoğan", "özel", "imamoğlu", "yavaş"]
     }
     
     for cat, words in keywords.items():
