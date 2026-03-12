@@ -7,7 +7,7 @@ from categorize_engine import run_categorization_process
 
 # Sayfa Konfigürasyonu
 st.set_page_config(
-    page_title="NucleusX AI V17.3 TITAN",
+    page_title="NucleusX AI V21.0 DUAL-CORE",
     page_icon=None,
     layout="wide",
     initial_sidebar_state="expanded"
@@ -16,175 +16,96 @@ st.set_page_config(
 # Canlı yayında veritabanı yoksa oluştur
 init_db()
 
-# Premium CSS - Mockup Matching Design
+# Premium CSS - DUAL CORE DYNAMIC DESIGN
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
     
-    * { font-family: 'Inter', sans-serif; }
+    * { font-family: 'Inter', sans-serif; box-sizing: border-box; }
 
-    /* Ana Arka Plan - Premium Light */
-    .stApp {
-        background-color: #f8fafc !important;
-    }
-    
-    /* Header (Top Nav) - Fully Responsive */
+    /* Streamlit Background Fix */
+    .stApp { background-color: #ffffff !important; }
+
+    /* COMMON NAV (Responsive) */
     .top-nav {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 10px 15px;
-        background: rgba(255, 255, 255, 0.98);
-        backdrop-filter: blur(15px);
-        border-bottom: 1px solid #e2e8f0;
-        position: sticky;
-        top: 0;
-        z-index: 1000;
-        margin-bottom: 20px;
-        margin-top: -10px;
-        /* Dynamics: Margin adjustment for Streamlit container */
-        margin-left: calc(-1 * min(5rem, 5vw));
-        margin-right: calc(-1 * min(5rem, 5vw));
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 15px 25px; background: #ffffff; border-bottom: 2px solid #f1f5f9;
+        margin-left: -5rem; margin-right: -5rem; margin-top: -10px; margin-bottom: 20px;
     }
-    .logo-text {
-        font-weight: 800;
-        font-size: clamp(1.1rem, 3vw, 1.5rem);
-        color: #1e293b;
-        white-space: nowrap;
-    }
+    .logo-text { font-weight: 800; font-size: 1.3rem; color: #000; }
     .logo-text b { color: #2563eb; }
-    .search-box {
-        background: #f1f5f9;
-        border: none;
-        padding: 8px 15px;
-        border-radius: 8px;
-        flex: 1;
-        max-width: 400px;
-        margin: 0 15px;
-        color: #64748b;
-        font-size: 0.85rem;
-        display: block;
-    }
-    
-    @media (max-width: 600px) {
-        .search-box { display: none; } /* Hide search box on very small screens to save space */
-    }
 
-    /* Sidebar - CURRENT CLEAN STYLE (User requested same) */
-    section[data-testid="stSidebar"] {
-        background-color: #ffffff !important;
-        border-right: 1px solid #e2e8f0 !important;
-    }
-    section[data-testid="stSidebar"] .stMarkdown p {
-        color: #1e293b !important;
-    }
-    
-    /* Sidebar Buttons - Minimalist */
-    div[data-testid="stSidebar"] div.stButton > button {
-        background-color: #ffffff !important;
-        border: 1px solid #e2e8f0 !important;
-        color: #1e293b !important;
-        text-align: left !important;
-        padding: 10px 15px !important;
-        font-size: 0.9rem !important;
-        font-weight: 500 !important;
-        border-radius: 8px !important;
-        margin-bottom: 5px !important;
-        width: 100% !important;
-    }
-    div[data-testid="stSidebar"] div.stButton > button:hover {
-        background-color: #f8fafc !important;
-        border-color: #2563eb !important;
-    }
-
-    /* News Cards - REVERT TO PREMIUM */
-    .news-card {
-        background: #ffffff !important;
-        border-radius: 12px;
-        padding: 15px;
-        border: 1px solid #e2e8f0;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-        transition: all 0.2s;
-    }
-    .news-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 15px rgba(0,0,0,0.06);
-    }
-    .card-title {
-        color: #1e40af !important;
-        font-weight: 700;
-        font-size: 1.05rem;
-        line-height: 1.4;
-        margin-bottom: 10px;
-        text-decoration: none;
-    }
-    .card-meta {
-        color: #64748b !important;
-        font-size: 0.8rem;
-        font-weight: 400;
-        display: flex;
-        gap: 10px;
-    }
-
-    /* Column Headers - Grid Style */
-    .column-header {
-        background: #ffffff;
-        color: #1e40af;
-        padding: 12px;
-        border-radius: 12px;
-        font-weight: 700;
-        text-align: center;
-        border: 1px solid #e2e8f0;
-        margin-bottom: 20px;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.03);
-    }
-    .column-header h3 {
-        color: #1e40af !important;
-        font-size: 0.95rem !important;
-        font-weight: 700 !important;
-        margin: 0 !important;
-        white-space: nowrap;
-    }
-    .column-header small {
-        color: #64748b;
-        font-size: 0.75rem;
-    }
-
-    /* Horizontal Scroll Logic - Optimized */
-    [data-testid="stHorizontalBlock"] {
-        display: flex !important;
-        flex-direction: row !important;
-        flex-wrap: nowrap !important;
-        overflow-x: auto !important;
-        gap: 15px !important;
-        padding: 5px !important;
-        -webkit-overflow-scrolling: touch;
-    }
-    
-    [data-testid="column"] {
-        flex: 0 0 320px !important;
-        min-width: 320px !important;
-        max-width: 320px !important;
-    }
-    
-    /* Global Card Responsive Styles */
-    @media (max-width: 768px) {
-        [data-testid="column"] {
-            flex: 0 0 88% !important;
-            min-width: 88% !important;
+    /* =======================================================
+       MOBILE DESIGN: SLEEK FINTECH (Max 991px)
+       ======================================================= */
+    @media (max-width: 991px) {
+        .stApp { background-color: #ffffff !important; }
+        .top-nav { margin-left: -1rem; margin-right: -1rem; padding: 10px 15px; background: #2563eb; border: none; }
+        .logo-text { color: #ffffff !important; }
+        .logo-text b { color: #ffffff !important; opacity: 0.8; }
+        
+        .news-card {
+            background: #ffffff !important;
+            border: 1px solid #f1f5f9;
+            border-radius: 0px !important; /* Sharp corners */
+            padding: 0px;
+            margin-bottom: 25px;
+            box-shadow: 0 15px 35px rgba(37, 99, 235, 0.08); /* Soft blue shadow */
+            transition: transform 0.2s ease;
         }
-        .top-nav { margin-left: -1rem; margin-right: -1rem; }
+        .news-card-content { padding: 20px; }
+        .card-title a { color: #000000 !important; font-weight: 800; font-size: 1.2rem; line-height: 1.3; text-decoration: none; }
+        .card-desc { font-size: 0.95rem; color: #475569; margin-top: 10px; line-height: 1.5; }
+        .card-meta { margin-top: 15px; padding-top: 15px; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; color: #2563eb; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        /* Column stacking for mobile */
+        [data-testid="column"] { flex: 0 0 100% !important; min-width: 100% !important; margin-bottom: 20px; }
     }
-    
-    /* Ensure detail pages (vertical stack) are not forced horizontal */
-    .detail-view [data-testid="stHorizontalBlock"] {
-        flex-wrap: wrap !important;
-        overflow-x: visible !important;
-    }
-    .detail-view [data-testid="column"] {
-        flex: 1 1 30% !important;
-        min-width: 300px !important;
+
+    /* =======================================================
+       WEB DESIGN: DYNAMIC DASHBOARD (Min 992px)
+       ======================================================= */
+    @media (min-width: 992px) {
+        .stApp { background-color: #f8fafc !important; }
+        
+        /* Sidebar dark theme */
+        section[data-testid="stSidebar"] { background-color: #0f172a !important; color: white !important; }
+        section[data-testid="stSidebar"] .stMarkdown p, section[data-testid="stSidebar"] .stHeader { color: white !important; }
+        
+        /* Compact Data-Rich Cards */
+        .news-card {
+            background: #ffffff !important;
+            border-radius: 6px;
+            padding: 0px;
+            margin-bottom: 12px;
+            border-left: 4px solid #2563eb; /* Vertical Indicator */
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
+        }
+        .news-card:hover { transform: scale(1.02); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        
+        /* Dynamic Category Indicators */
+        .cat-turkiye { border-left-color: #ef4444; } /* Red */
+        .cat-ekonomi { border-left-color: #10b981; } /* Green */
+        .cat-teknoloji { border-left-color: #3b82f6; } /* Blue */
+        .cat-dunya { border-left-color: #f59e0b; } /* Orange */
+        
+        .news-card-content { padding: 12px; }
+        .card-title a { color: #1e293b !important; font-weight: 700; font-size: 0.85rem; line-height: 1.4; text-decoration: none; }
+        .card-desc { font-size: 0.75rem; color: #64748b; margin-top: 5px; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        
+        .card-meta { margin-top: 8px; font-size: 0.65rem; color: #94a3b8; display: flex; justify-content: space-between; align-items: center; }
+        
+        /* Simulated Sparkline for "Activity" */
+        .sparkline { width: 40px; height: 15px; background: linear-gradient(90deg, #e2e8f0 25%, #2563eb 50%, #e2e8f0 75%); border-radius: 2px; opacity: 0.5; }
+
+        /* Multi-Column Feed Arrangement */
+        [data-testid="stHorizontalBlock"] { gap: 10px !important; }
+        [data-testid="column"] { flex: 0 0 280px !important; min-width: 280px !important; }
+        
+        .column-header { background: #1e293b; color: white; padding: 10px; border-radius: 4px; margin-bottom: 10px; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.5px; }
+        .column-header h3 { color: white !important; font-size: 0.75rem !important; margin: 0 !important; }
     }
     </style>
 """, unsafe_allow_html=True)
@@ -241,12 +162,12 @@ st.sidebar.markdown("---")
 df = load_data()
 
 # LOG BİLGİSİ
-print("--- !!! TITAN V18.0 MOBILE-READY DEPLOY !!! ---")
+print("--- !!! NUCLEUS X V21.0 DUAL-CORE DEPLOY !!! ---")
 
 # Canlıda cache'i temizle
-if 'init_v18_0' not in st.session_state:
+if 'init_v21_0' not in st.session_state:
     st.cache_data.clear()
-    st.session_state.init_v18_0 = True
+    st.session_state.init_v21_0 = True
 
 # Oturum Durumu (Navigasyon ve Filtreler İçin)
 if 'current_page' not in st.session_state:
@@ -283,13 +204,10 @@ st.markdown("""
 # Sticky Top Nav (Logo & Search)
 st.markdown("""
     <div class="top-nav">
-        <div class="logo-text">
-            NUCLEUS <b>X</b> <span style="font-size: 0.7rem; opacity: 0.5;">v18.1 MOBILE</span>
-        </div>
-        <div class="search-box"> Haberlerde ara...</div>
-        <div style="display: flex; gap: 10px; align-items: center;">
-            <span style="background: #2563eb; color: white; padding: 5px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.5px; white-space: nowrap;">LIVE</span>
-            <span style="background: #f1f5f9; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid #e2e8f0; font-size: 0.65rem; font-weight: bold; color: #64748b;">ID</span>
+        <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v21.0</small></div>
+        <div style="display:flex; gap:15px; align-items:center;">
+            <span style="font-size:0.7rem; font-weight:700; color:#94a3b8; letter-spacing:1px;" class="mobile-hide">SYSTEM STATUS: ONLINE</span>
+            <div style="width:10px; height:10px; background:#22c55e; border-radius:50%; box-shadow:0 0 10px #22c55e;"></div>
         </div>
     </div>
 """, unsafe_allow_html=True)
@@ -368,13 +286,38 @@ if st.session_state.selected_tag:
     tag_cols = st.columns(3)
     for idx, row in tag_df.iterrows():
         with tag_cols[idx % 3]:
-            clickable_content = make_clickable(row['content'])
-            media_html = f'<img src="{row["media_url"]}" style="width:100%; border-radius:12px; margin-bottom:12px; object-fit:cover; height:220px; background:#f1f5f9;">' if row.get('media_url') else ""
+            # Başlık ve açıklama üretimi (ROBUST SPLIT)
+            content_clean = row['content'].replace("\n", " ")
+            if '.' in content_clean and len(content_clean.split('.')[0]) > 10:
+                parts = content_clean.split('.')
+                news_title = parts[0].strip()[:80]
+                news_desc = ".".join(parts[1:]).strip()[:200]
+            else:
+                news_title = content_clean[:80]
+                news_desc = content_clean[80:250]
             
-            # Başlığa Tıklandığında Twite Gitme Özelliği
-            title_html = f'<div class="card-title"><a href="{row["tweet_url"]}" target="_blank">{row["author"]}</a></div>' if row.get('tweet_url') else f'<div class="card-title">{row["author"]}</div>'
+            if len(content_clean) > len(news_title): news_title += "..."
+            if len(news_desc) > 0 and len(content_clean) > (len(news_title) + 5): news_desc += "..."
+
+            media_html = f'<div style="width:100%; height:180px; overflow:hidden;"><img src="{row["media_url"]}" style="width:100%; height:100%; object-fit:cover;"></div>' if row.get('media_url') else ""
+            title_html = f'<a href="{row["tweet_url"]}" target="_blank">{news_title}</a>' if row.get('tweet_url') else news_title
             
-            card_html = f'<div class="news-card">{media_html}{title_html}<div style="font-size:0.95rem; line-height:1.4;">{clickable_content}</div><div class="card-meta"><span>SAAT: {row["processed_at"]}</span><span style="color:#2563eb;">{row["category"]}</span></div></div>'
+            author_name = (row.get('author') or 'ANONYMOUS').upper()
+            
+            card_html = f'''
+            <div class="news-card">
+                {media_html}
+                <div class="news-card-content">
+                    <div class="card-title">{title_html}</div>
+                    <div class="card-desc">{news_desc}</div>
+                    <div class="card-meta">
+                        <span>{author_name}</span>
+                        <div class="sparkline"></div>
+                        <span>{row["processed_at"]}</span>
+                    </div>
+                </div>
+            </div>
+            '''
             st.markdown(card_html, unsafe_allow_html=True)
     
     if st.button("Ana Sayfaya Dön", on_click=clear_tag):
@@ -415,16 +358,38 @@ if st.session_state.current_page != "Dashboard":
         grid_cols = st.columns(3)
         for idx, row in cat_df.iterrows():
             with grid_cols[idx % 3]:
-                clickable_content = make_clickable(row['content'])
-                media_html = f'<img src="{row["media_url"]}" style="width:100%; border-radius:12px; margin-bottom:12px; object-fit:cover; height:220px; background:#f1f5f9;">' if row.get('media_url') else ""
+                # Başlık ve açıklama üretimi (ROBUST SPLIT)
+                content_clean = row['content'].replace("\n", " ")
+                if '.' in content_clean and len(content_clean.split('.')[0]) > 10:
+                    parts = content_clean.split('.')
+                    news_title = parts[0].strip()[:80]
+                    news_desc = ".".join(parts[1:]).strip()[:200]
+                else:
+                    news_title = content_clean[:80]
+                    news_desc = content_clean[80:250]
                 
-                title_html = f'<div class="card-title"><a href="{row["tweet_url"]}" target="_blank">{row["author"]}</a></div>' if row.get('tweet_url') else f'<div class="card-title">{row["author"]}</div>'
+                if len(content_clean) > len(news_title): news_title += "..."
+                if len(news_desc) > 0 and len(content_clean) > (len(news_title) + 5): news_desc += "..."
+
+                media_html = f'<div style="width:100%; height:180px; overflow:hidden;"><img src="{row["media_url"]}" style="width:100%; height:100%; object-fit:cover;"></div>' if row.get('media_url') else ""
+                title_html = f'<a href="{row["tweet_url"]}" target="_blank">{news_title}</a>' if row.get('tweet_url') else news_title
                 
-                # Topic Tag "None" gelmesini veya boş gelmesini engelle
-                tag_label = row["topic_tag"] if row["topic_tag"] and str(row["topic_tag"]) != "None" else row["category"]
-                if not tag_label.startswith("#"): tag_label = f"#{tag_label}"
+                author_name = (row.get('author') or 'ANONYMOUS').upper()
                 
-                card_html = f'<div class="news-card">{media_html}{title_html}<div style="font-size:0.95rem; line-height:1.4; color: #1e293b;">{clickable_content}</div><div class="card-meta"><span>SAAT: {row["processed_at"]}</span><span style="color:#2563eb;">{tag_label}</span></div></div>'
+                card_html = f'''
+                <div class="news-card">
+                    {media_html}
+                    <div class="news-card-content">
+                        <div class="card-title">{title_html}</div>
+                        <div class="card-desc">{news_desc}</div>
+                        <div class="card-meta">
+                            <span>{author_name}</span>
+                            <div class="sparkline"></div>
+                            <span>{row["processed_at"]}</span>
+                        </div>
+                    </div>
+                </div>
+                '''
                 st.markdown(card_html, unsafe_allow_html=True)
         st.markdown('</div>', unsafe_allow_html=True) # Detail View Wrapper End
     
@@ -463,32 +428,42 @@ if st.session_state.current_page == "Dashboard":
             topics = cat_df.groupby('topic_tag')
             
             for tag, group in topics:
-                # Deduplication: Aynı başlığı paylaşanları tek kartta göster
                 display_news = group.iloc[0]
                 content = display_news['content']
                 
-                # Başlık ve açıklama üretimi (Geliştirilmiş Split)
+                # Başlık ve açıklama üretimi (ROBUST SPLIT)
                 content_clean = content.replace("\n", " ")
-                if '.' in content_clean:
+                if '.' in content_clean and len(content_clean.split('.')[0]) > 10:
                     parts = content_clean.split('.')
-                    news_title_raw = parts[0].strip()[:80]
-                    news_desc_raw = ".".join(parts[1:]).strip()[:150]
+                    news_title = parts[0].strip()[:80]
+                    news_desc = ".".join(parts[1:]).strip()[:150]
                 else:
-                    news_title_raw = content_clean[:80]
-                    news_desc_raw = content_clean[80:200]
+                    news_title = content_clean[:80]
+                    news_desc = content_clean[80:200]
                 
-                news_title = news_title_raw + "..." if len(content_clean) > 80 and not news_title_raw.endswith("...") else news_title_raw
-                news_desc = news_desc_raw + "..." if len(content_clean) > len(news_title_raw) + 10 else news_desc_raw
+                if len(content_clean) > len(news_title): news_title += "..."
+                if len(news_desc) > 0 and len(content_clean) > (len(news_title) + 5): news_desc += "..."
                 
-                media_html = f'<img src="{display_news["media_url"]}" style="width:100%; border-radius:12px; margin-bottom:10px; object-fit:cover; height:160px; background:#f1f5f9;">' if display_news.get('media_url') else ""
+                media_html = f'<div style="width:100%; height:140px; overflow:hidden;"><img src="{display_news["media_url"]}" style="width:100%; height:100%; object-fit:cover;"></div>' if display_news.get('media_url') else ""
+                title_html = f'<a href="{display_news["tweet_url"]}" target="_blank">{news_title}</a>' if display_news.get('tweet_url') else news_title
                 
-                # Tıklanabilir linkler (Hız için sadece title'a link veriyoruz)
-                final_title = f'<a href="{display_news["tweet_url"]}" target="_blank" style="text-decoration:none; color:#1e40af;">{news_title}</a>' if display_news.get('tweet_url') else news_title
+                cat_class = f"cat-{category.lower().replace('ü', 'u').replace('ö', 'o').replace('ı', 'i').replace('ş', 's').replace('ç', 'c')}"
+                author_name = (display_news.get('author') or 'ANONYMOUS').upper()
                 
-                extra_info = f'<div style="color:#2563eb; font-size:0.75rem; margin-top:5px; font-weight:600;">{len(group)} Kaynak</div>' if len(group) > 1 else ""
-                
-                author_name = (display_news.get('author') or 'Anonim')[:25]
-                card_html = f'<div class="news-card">{media_html}<div class="card-title" style="font-size:0.9rem; margin-bottom:5px;">{final_title}</div><div style="font-size:0.8rem; color:#475569; line-height:1.4;">{news_desc}</div><div class="card-meta"><span>YAZAR: {author_name}</span><span>SAAT: {display_news["processed_at"]}</span><span style="color:#2563eb; font-weight:700;">{tag if str(tag).startswith("#") else f"#{tag}"}</span></div>{extra_info}</div>'
+                card_html = f'''
+                <div class="news-card {cat_class}">
+                    {media_html}
+                    <div class="news-card-content">
+                        <div class="card-title">{title_html}</div>
+                        <div class="card-desc">{news_desc}</div>
+                        <div class="card-meta">
+                            <span>{author_name}</span>
+                            <div class="sparkline"></div>
+                            <span>{display_news["processed_at"]}</span>
+                        </div>
+                    </div>
+                </div>
+                '''
                 column_html += card_html.strip()
             
             st.markdown(column_html, unsafe_allow_html=True)
@@ -552,5 +527,5 @@ if st.sidebar.button("Tüm Veritabanını Optimize Et"):
                 st.error(f"Optimizasyon hatası: {e}")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("NucleusX Engine v18.0 Mobile-Ready")
+st.sidebar.caption("NucleusX Engine v21.0 Dual-Core")
 st.sidebar.caption("Developed by Antigravity AI")
