@@ -7,8 +7,8 @@ from categorize_engine import run_categorization_process
 
 # Sayfa Konfigürasyonu
 st.set_page_config(
-    page_title="NucleusX AI V14.0 PLATINUM",
-    page_icon="⚛️",
+    page_title="NucleusX AI V15.0 CLEAN",
+    page_icon=None,
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -25,7 +25,7 @@ st.markdown("""
 
     /* Ana Arka Plan */
     .stApp {
-        background-color: #f8fafc !important;
+        background-color: #ffffff !important;
     }
     
     /* Header (Top Nav) */
@@ -33,9 +33,9 @@ st.markdown("""
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 15px 40px;
-        background: white;
-        border-bottom: 1px solid #e2e8f0;
+        padding: 10px 40px;
+        background: #ffffff;
+        border-bottom: 2px solid #000000;
         position: sticky;
         top: 0;
         z-index: 1000;
@@ -44,131 +44,93 @@ st.markdown("""
         margin-right: -5rem;
     }
     .logo-text {
-        font-weight: 800;
-        font-size: 1.5rem;
-        color: #1e293b;
-        display: flex;
-        align-items: center;
-        gap: 10px;
+        font-weight: 900;
+        font-size: 1.6rem;
+        color: #000000;
+        letter-spacing: -1px;
     }
     .search-box {
-        background: #f1f5f9;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 8px;
-        width: 400px;
-        color: #64748b;
-        font-size: 0.9rem;
+        background: #f8fafc;
+        border: 1px solid #000000;
+        padding: 8px 15px;
+        border-radius: 4px;
+        width: 350px;
+        color: #000000;
+        font-size: 0.85rem;
     }
 
-    /* Sidebar - DARK SLATE FORCE */
+    /* Sidebar - PURE WHITE CLEAN */
     section[data-testid="stSidebar"] {
-        background-color: #1e293b !important;
+        background-color: #ffffff !important;
+        border-right: 1px solid #000000 !important;
     }
     section[data-testid="stSidebar"] .stMarkdown p {
-        color: white !important;
+        color: #000000 !important;
     }
     
-    /* Premium Sidebar Buttons - V13.0 Clean Theme */
+    /* Premium Sidebar Buttons - V15.0 Minimalist */
     div[data-testid="stSidebar"] div.stButton > button {
-        background-color: transparent !important;
-        border: 2px solid rgba(255, 255, 255, 0.2) !important;
-        color: #ffffff !important;
-        text-align: center !important;
-        padding: 10px 15px !important;
-        font-size: 0.95rem !important;
-        font-weight: 600 !important;
-        border-radius: 10px !important;
-        transition: all 0.2s ease-in-out !important;
-        margin-bottom: 8px !important;
+        background-color: #ffffff !important;
+        border: 1px solid #000000 !important;
+        color: #000000 !important;
+        text-align: left !important;
+        padding: 10px 20px !important;
+        font-size: 1rem !important;
+        font-weight: 500 !important;
+        border-radius: 0px !important; /* Sharp corners for clean look */
+        transition: none !important;
+        margin-bottom: 5px !important;
         width: 100% !important;
     }
     div[data-testid="stSidebar"] div.stButton > button:hover {
-        background-color: rgba(255, 255, 255, 0.1) !important;
-        border-color: #ffffff !important;
-        color: #ffffff !important;
-    }
-    /* Active State for buttons (Forced via Logic ID) */
-
-    /* Trending Topics Bar */
-    .trending-title {
-        font-weight: 700;
-        font-size: 1.2rem;
-        color: #1e293b;
-        margin-bottom: 15px;
-    }
-    .trend-pill {
-        border: 1px solid #cbd5e1 !important;
-        border-radius: 30px !important;
-        padding: 8px 20px !important;
-        background: white !important;
-        color: #1e40af !important;
-        font-weight: 600 !important;
-        font-size: 0.85rem !important;
-        transition: all 0.2s;
-        text-align: center;
+        background-color: #e0e0e0 !important;
+        border-width: 1px !important;
     }
 
     /* News Cards */
     .news-card {
         background: #ffffff !important;
-        border-radius: 16px;
-        padding: 15px;
-        border: 1px solid #e2e8f0;
+        border-radius: 0px;
+        padding: 20px;
+        border: 1px solid #000000;
         margin-bottom: 20px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-        transition: transform 0.2s, box-shadow 0.2s;
-    }
-    .news-card:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        box-shadow: none !important;
     }
     .card-title {
-        color: #1e40af !important;
-        font-weight: 700;
-        font-size: 1rem;
-        line-height: 1.3;
-        margin-bottom: 8px;
-        cursor: pointer;
-    }
-    .card-title a {
-        color: inherit !important;
-        text-decoration: none !important;
-    }
-    .card-title a:hover {
-        text-decoration: underline !important;
+        color: #000000 !important;
+        font-weight: 800;
+        font-size: 1.1rem;
+        line-height: 1.4;
+        margin-bottom: 10px;
     }
     .card-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        font-size: 0.75rem;
-        color: #64748b;
-        margin-top: 12px;
+        color: #000000 !important;
+        font-size: 0.8rem;
+        font-weight: 600;
     }
 
     /* Column Headers - Grid Style */
     .column-header {
         height: 80px;
-        background: white;
-        border-radius: 12px;
+        background: #ffffff;
+        border-radius: 0px;
         display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;
         margin-bottom: 20px;
-        border: 1px solid #e2e8f0;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        border: 1px solid #000000;
+        box-shadow: none;
     }
     .column-header h3 {
-        color: #1e293b !important;
+        color: #000000 !important;
         font-size: 0.95rem !important;
         font-weight: 700 !important;
         margin: 0 !important;
         white-space: nowrap;
     }
     .column-header small {
-        color: #64748b;
+        color: #000000;
         font-size: 0.75rem;
     }
 
@@ -201,9 +163,9 @@ st.markdown("""
 def make_clickable(text):
     """Metindeki linkleri ve @kullanıcı adlarını tıklanabilir HTML yapar."""
     # Linkleri bul ve çevir
-    text = re.sub(r'(https?://[^\s]+)', r'<a href="\1" target="_blank" style="color: #60a5fa; text-decoration: none;">\1</a>', text)
+    text = re.sub(r'(https?://[^\s]+)', r'<a href="\1" target="_blank" style="color: #000000; text-decoration: none;">\1</a>', text)
     # @kullanıcı adlarını bul ve X.com linkine çevir
-    text = re.sub(r'@(\w+)', r'<a href="https://x.com/\1" target="_blank" style="color: #60a5fa; text-decoration: none;">@\1</a>', text)
+    text = re.sub(r'@(\w+)', r'<a href="https://x.com/\1" target="_blank" style="color: #000000; text-decoration: none;">@\1</a>', text)
     return text
 
 # Veritabanı verisini önbelleğe alalım (Hız İçin Kritik!)
@@ -233,14 +195,14 @@ def load_data():
         return pd.DataFrame()
 
 # Kenar Çubuğu
-st.sidebar.title("⚛️ NucleusX AI")
+st.sidebar.markdown("### NUCLEUS X")
 st.sidebar.markdown("---")
 
 # Sabit Değişkenler
 GENERIC_TAG_LIST = ["#GELISME", "#GELİŞME", "#GUNDEM", "#GÜNDEM", "#HABER", "#DETAY", "#SONDAKIKA", "#SONDAKİKA"]
 
 # Güvenlik ve Kotayı Korumak İçin: Admin Girişi
-with st.sidebar.expander("🔐 Yönetici Paneli"):
+with st.sidebar.expander("Yönetici Paneli"):
     admin_password = st.text_input("Tarama Şifresi", type="password")
     ADMIN_PASS = st.secrets.get("ADMIN_PASSWORD", "nucleus123")
 
@@ -250,12 +212,12 @@ st.sidebar.markdown("---")
 df = load_data()
 
 # LOG BİLGİSİ
-print("--- !!! NUCLEAR V14.0 FORCE DEPLOY !!! ---")
+print("--- CLEAN LIGHT V15.0 DEPLOY ---")
 
 # Canlıda cache'i temizle
-if 'init_v14' not in st.session_state:
+if 'init_v15' not in st.session_state:
     st.cache_data.clear()
-    st.session_state.init_v14 = True
+    st.session_state.init_v15 = True
 
 # Oturum Durumu (Navigasyon ve Filtreler İçin)
 if 'current_page' not in st.session_state:
@@ -275,10 +237,10 @@ def set_page(page_name):
 st.markdown("""
     <style>
     div.stButton > button:first-child[key^="t_"] {
-        border: 1px solid #cbd5e1 !important;
+        border: 1px solid #000000 !important;
         border-radius: 30px !important;
-        background: white !important;
-        color: #1e40af !important;
+        background: #ffffff !important;
+        color: #000000 !important;
         height: 40px !important;
     }
     </style>
@@ -286,13 +248,12 @@ st.markdown("""
 
 # Sticky Top Nav (Logo & Search)
 st.markdown("""
-    <div class="top-nav">
         <div class="logo-text">
-            <span>⚛️</span> NUCLEUS<b>X</b> <span style="font-size: 0.8rem; opacity: 0.5; font-weight: 400;">v14.0</span>
+            NUCLEUS <b>X</b> <span style="font-size: 0.8rem; opacity: 0.5;">v15.0 CLEAN</span>
         </div>
-        <div class="search-box">🔍 Haberlerde veya konularda ara...</div>
+        <div class="search-box"> Haberlerde veya konularda ara...</div>
         <div style="display: flex; gap: 20px; align-items: center; font-size: 1.2rem;">
-            <span>❓</span> <span>🔔</span> <span style="background: #e2e8f0; width: 35px; height: 35px; border-radius: 50%; padding: 5px; cursor: pointer;">👤</span>
+            <span></span> <span></span> <span style="background: #e0e0e0; width: 35px; height: 35px; border-radius: 50%; padding: 5px; cursor: pointer;"></span>
         </div>
     </div>
 """, unsafe_allow_html=True)
@@ -332,10 +293,8 @@ with st.sidebar:
             st.sidebar.markdown(f"""
                 <style>
                 div[data-testid="stSidebar"] div.stButton > button[key="nav_btn_{item['name']}"] {{
-                    background-color: #2563eb !important; /* Solid Blue for Active */
-                    border: none !important;
-                    color: white !important;
-                    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4) !important;
+                    background-color: #000000 !important;
+                    color: #ffffff !important;
                 }}
                 </style>
             """, unsafe_allow_html=True)
@@ -417,7 +376,7 @@ if st.session_state.current_page != "Dashboard":
                 tag_label = row["topic_tag"] if row["topic_tag"] and str(row["topic_tag"]) != "None" else row["category"]
                 if not tag_label.startswith("#"): tag_label = f"#{tag_label}"
                 
-                card_html = f'<div class="news-card">{media_html}{title_html}<div style="font-size:0.95rem; line-height:1.4;">{clickable_content}</div><div class="card-meta"><span>🕒 {row["processed_at"]}</span><span style="color:#2563eb;">{tag_label}</span></div></div>'
+                card_html = f'<div class="news-card">{media_html}{title_html}<div style="font-size:0.95rem; color:#000000; line-height:1.4;">{clickable_content}</div><div class="card-meta"><span>{row["processed_at"]}</span><span>{tag_label}</span></div></div>'
                 st.markdown(card_html, unsafe_allow_html=True)
     
     if st.button("⬅️ Tüm Haberlere Dön"):
@@ -546,5 +505,5 @@ if st.sidebar.button("🧹 Tüm Veritabanını Optimize Et"):
                 st.error(f"❌ Optimizasyon hatası: {e}")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("🚀 **NucleusX Engine v14.0 Platinum**")
+st.sidebar.caption("NucleusX Engine v15.0 Clean")
 st.sidebar.caption("Developed by Antigravity AI 🤖")
