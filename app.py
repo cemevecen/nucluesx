@@ -10,8 +10,8 @@ from categorize_engine import run_categorization_process
 # GLOBAL CONFIG & INITIALIZATION
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="NucleusX AI V22.3 ULTIMATE",
-    page_icon="⚡",
+    page_title="NucleusX AI V23.0 LUXURY",
+    page_icon="🗞️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -73,98 +73,114 @@ st.markdown("""
     }
 
     /* =======================================================
-       WEB DESIGN: DYNAMIC DASHBOARD (Min 992px)
+       PREMIUM LUXURY DESIGN (Scoopnest Inspired)
        ======================================================= */
-    @media (min-width: 992px) {
-        .stApp { background-color: #f8fafc !important; }
-        
-        /* SIDEBAR: CLEAN WHITE THEME */
-        section[data-testid="stSidebar"] { 
-            background-color: #ffffff !important; 
-            border-right: 1px solid #e2e8f0 !important;
-        }
-        section[data-testid="stSidebar"] [data-testid="stMarkdownContainer"] p { 
-            color: #1e293b !important; 
-            font-weight: 500 !important;
-        }
-        section[data-testid="stSidebar"] h1, section[data-testid="stSidebar"] h3 { 
-            color: #0f172a !important; 
-        }
+    .stApp { background-color: #ffffff !important; }
+    
+    /* TOP NAV: PRO & CLEAN */
+    .top-nav {
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 20px 40px; background: #ffffff; border-bottom: 1px solid #e2e8f0;
+        margin-left: -5rem; margin-right: -5rem; margin-top: -10px; margin-bottom: 30px;
+    }
+    .logo-text { font-weight: 900; font-size: 1.5rem; color: #000; letter-spacing: -0.5px; }
+    .logo-text b { color: #1e3a8a; } /* Dark Blue Accent */
 
-        .news-card {
-            background: #ffffff !important;
-            border-radius: 8px;
-            padding: 0px;
-            margin-bottom: 15px;
-            border-left: 3px solid #e2e8f0; /* Default Indicator */
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-            transition: all 0.2s ease;
-            overflow: hidden;
-            border: 1px solid #f1f5f9;
-        }
-        .news-card:hover { transform: translateY(-3px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
-        
-        /* Dynamic Category Indicators */
-        .cat-turkiye { border-left-color: #ef4444 !important; }
-        .cat-ekonomi { border-left-color: #10b981 !important; }
-        .cat-teknoloji { border-left-color: #3b82f6 !important; }
-        .cat-dunya { border-left-color: #f59e0b !important; }
-        .cat-spor { border-left-color: #8b5cf6 !important; }
-        .cat-eglence { border-left-color: #ec4899 !important; }
-        .cat-muzik { border-left-color: #06b6d4 !important; }
-        
-        .news-card-content { padding: 12px; }
-        .card-title a { 
-            color: #0f172a !important; 
-            font-weight: 700; 
-            font-size: 0.8rem !important; 
-            line-height: 1.3; 
-            text-decoration: none;
-            display: -webkit-box;
-            -webkit-line-clamp: 3;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-        .card-desc { 
-            font-size: 0.7rem !important; 
-            color: #64748b; 
-            margin-top: 6px; 
-            line-height: 1.4; 
-            display: -webkit-box; 
-            -webkit-line-clamp: 2; 
-            -webkit-box-orient: vertical; 
-            overflow: hidden; 
-        }
-        .card-meta { 
-            margin-top: 10px; 
-            font-size: 0.6rem !important; 
-            color: #94a3b8; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            font-weight: 600;
-        }
-        
-        .sparkline { width: 30px; height: 10px; background: #f1f5f9; border-radius: 2px; }
+    /* SIDEBAR: LUXURY MINIMALISM */
+    section[data-testid="stSidebar"] { 
+        background-color: #ffffff !important; 
+        border-right: 1px solid #e2e8f0 !important;
+    }
 
-        [data-testid="stHorizontalBlock"] { gap: 12px !important; }
-        [data-testid="column"] { flex: 0 0 260px !important; min-width: 260px !important; }
-        
-        .column-header { 
-            background: #f8fafc; 
-            color: #1e293b; 
-            padding: 12px; 
-            border-radius: 8px; 
-            margin-bottom: 12px; 
-            border: 1px solid #e2e8f0;
-        }
-        .column-header h3 { 
-            color: #1e293b !important; 
-            font-size: 0.75rem !important; 
-            margin: 0 !important; 
-            font-weight: 800 !important;
-            letter-spacing: 0.5px;
-        }
+    /* NEWS CARD: LUXURY TWIST */
+    .news-card {
+        background: #ffffff !important;
+        border: 1px solid #e2e8f0;
+        border-top: 3px solid #6366f1; /* Subtle Indigo Border */
+        border-radius: 4px;
+        padding: 0px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); /* Soft Elevation */
+        transition: all 0.25s ease;
+        overflow: hidden;
+    }
+    .news-card:hover { 
+        transform: translateY(-4px); 
+        box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); 
+        border-color: #6366f1;
+    }
+
+    /* TYPOGRAPHY: BOLD BLACK TITLES */
+    .news-card-content { padding: 16px; }
+    .card-title a { 
+        color: #000000 !important; 
+        font-weight: 800; 
+        font-size: 1.05rem !important; 
+        line-height: 1.35; 
+        text-decoration: none;
+        display: -webkit-box;
+        -webkit-line-clamp: 4;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    .card-title a:hover { color: #4338ca !important; }
+    
+    .card-desc { 
+        font-size: 0.85rem !important; 
+        color: #4b5563; 
+        margin-top: 10px; 
+        line-height: 1.5; 
+        display: -webkit-box; 
+        -webkit-line-clamp: 2; 
+        -webkit-box-orient: vertical; 
+        overflow: hidden; 
+    }
+    
+    .card-meta { 
+        margin-top: 15px; 
+        padding-top: 12px;
+        border-top: 1px solid #f3f4f6;
+        font-size: 0.7rem !important; 
+        color: #6b7280; 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    /* MULTI-COLUMN FEED OPTIMIZATION */
+    [data-testid="stHorizontalBlock"] { gap: 20px !important; }
+    [data-testid="column"] { flex: 0 0 320px !important; min-width: 320px !important; }
+    
+    .column-header { 
+        padding: 0 0 10px 0;
+        margin-bottom: 20px; 
+        border-bottom: 2px solid #000;
+    }
+    .column-header h3 { 
+        color: #000000 !important; 
+        font-size: 0.9rem !important; 
+        margin: 0 !important; 
+        font-weight: 900 !important;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    /* INTERACTION ELEMENTS: DARK BLUE */
+    div.stButton > button {
+        border-radius: 4px !important;
+        background-color: #f8fafc !important;
+        color: #1e3a8a !important;
+        border: 1px solid #e2e8f0 !important;
+        font-weight: 600 !important;
+        transition: all 0.2s !important;
+    }
+    div.stButton > button:hover {
+        background-color: #1e3a8a !important;
+        color: #ffffff !important;
+        border-color: #1e3a8a !important;
     }
     </style>
 """, unsafe_allow_html=True)
@@ -176,14 +192,14 @@ def get_card_html(row, cat_name_override=None):
     """Generates standardized HTML for a news card (Escaped & Sanitized)."""
     content_raw = str(row.get('content', '')).replace("\n", " ")
     
-    # Robust Title/Desc Split
+    # Robust Title/Desc Split (Luxury Limits)
     if '.' in content_raw and len(content_raw.split('.')[0]) > 10:
         parts = content_raw.split('.')
-        news_title = parts[0].strip()[:60]
-        news_desc = ".".join(parts[1:]).strip()[:100]
+        news_title = parts[0].strip()[:100]
+        news_desc = ".".join(parts[1:]).strip()[:120]
     else:
-        news_title = content_raw[:60]
-        news_desc = content_raw[60:130]
+        news_title = content_raw[:100]
+        news_desc = content_raw[100:200]
     
     if len(content_raw) > len(news_title): news_title += "..."
     if len(news_desc) > 0 and len(content_raw) > (len(news_title) + 5): news_desc += "..."
@@ -245,11 +261,11 @@ with st.sidebar:
     for item in nav_items:
         is_active = st.session_state.get('current_page', 'Dashboard') == item["name"]
         
-        # High contrast active state
+        # High contrast Luxury state
         if is_active:
-            st.markdown(f'''<style>div[data-testid="stSidebar"] div.stButton > button[key="nav_{item['name']}"] {{ background: #2563eb !important; color: #ffffff !important; font-weight: 800 !important; border: none !important; }}</style>''', unsafe_allow_html=True)
+            st.markdown(f'''<style>div[data-testid="stSidebar"] div.stButton > button[key="nav_{item['name']}"] {{ background: #1e3a8a !important; color: #ffffff !important; font-weight: 800 !important; border: none !important; }}</style>''', unsafe_allow_html=True)
         else:
-            st.markdown(f'''<style>div[data-testid="stSidebar"] div.stButton > button[key="nav_{item['name']}"] {{ background: #f8fafc !important; color: #1e293b !important; font-weight: 500 !important; border: 1px solid #e2e8f0 !important; }}</style>''', unsafe_allow_html=True)
+            st.markdown(f'''<style>div[data-testid="stSidebar"] div.stButton > button[key="nav_{item['name']}"] {{ background: #ffffff !important; color: #1e1e1e !important; font-weight: 600 !important; border-bottom: 1px solid #f1f5f9 !important; border-radius: 0 !important; text-align: left !important; }}</style>''', unsafe_allow_html=True)
         
         if st.button(item['label'], key=f"nav_{item['name']}", use_container_width=True):
             st.session_state.current_page = item["name"]
