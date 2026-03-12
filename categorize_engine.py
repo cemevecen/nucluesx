@@ -63,22 +63,23 @@ def generate_topic_tag(text):
     if client_gemini:
         try:
             prompt = f"""
-            Bu haberin ana konusunu/öznesini SADECE bir adet hashtag olarak belirle.
+            Aşağıdaki haber metninden SADECE ana özneyi ve olayı içeren bir hashtag üret.
             KURALLAR:
-            1. #Gundem, #Gelisme, #Sondakika gibi genel ifadeler ASLA kullanma.
-            2. Haberin ana kişisini, kurumunu veya olay yerini kullan. (Örn: #SALIH_MUSLIM, #ASGARI_UCRET, #FENERBAHCE)
-            3. Sadece etiketi dön, açıklama yapma.
-            4. Türkçe karakterleri İngilizce karakterlere çevirme (Ş -> S gibi yapabilirsin ama zorunlu değil, AI karar verir).
+            1. Genel etiketler (#HABER, #GUNDEM, #SONDAKIKA) KESİNLİKLE YASAKTIR.
+            2. Haberin ana kişisini VE ana konusunu birleştirerek tek bir etiket yap. (Örn: #FENERBAHCE_DIARRA, #BESIKTAS_TRANSFER, #ASGARI_UCRET_ZAMMI)
+            3. Eğer haber bir kişi hakkındaysa SADECE o kişinin adını kullanabilirsin. (Örn: #RECEP_TAYYIP_ERDOGAN)
+            4. SADECE etiketi dön, başka hiçbir şey yazma.
+            5. Boşluk kullanma, kelimeleri alt tire (_) ile ayır.
             
             Metin: {text}
             """
             response = client_gemini.models.generate_content(model='gemini-2.0-flash', contents=prompt)
-            res = response.text.strip().split()[0].replace(".", "").replace(",", "").replace('"', '').replace("'", "")
+            res = response.text.upper().strip().split()[0].replace(".", "").replace(",", "").replace('"', '').replace("'", "")
             if not res.startswith("#"): res = f"#{res}"
-            # Eğer hala çok kısaysa veya jenerikse son çare anahtar kelimeye bak
-            if len(res) < 3 or res.upper() in ["#GUNDEM", "#GELISME", "#HABER"]:
+            
+            if len(res) < 3 or res in ["#GUNDEM", "#GELISME", "#HABER"]:
                 return "#DETAY"
-            return res.upper()
+            return res
         except: pass
     return "#HABER"
 
