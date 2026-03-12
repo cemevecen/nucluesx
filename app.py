@@ -10,7 +10,7 @@ from categorize_engine import run_categorization_process
 # GLOBAL CONFIG & INITIALIZATION
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="NucleusX AI V31.0 LUXURY",
+    page_title="NucleusX AI V32.0 LUXURY",
     page_icon="🗞️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -104,7 +104,8 @@ st.markdown("""
         cursor: pointer;
     }
     
-    /* V29.0 Coordinated Tab Colors */
+    /* V32.0 Functional Links */
+    .nav-tab-item { text-decoration: none !important; color: inherit; display: inline-block; }
     .nav-tab-item.tab-turkiye { color: #fca5a5; border-color: #fca5a5; }
     .nav-tab-item.tab-turkiye.active, .nav-tab-item.tab-turkiye:hover { background: #fca5a5 !important; color: #ffffff !important; }
     
@@ -334,8 +335,12 @@ def load_data():
         return pd.DataFrame(columns=['author', 'content', 'category', 'topic_tag', 'processed_at', 'media_url', 'tweet_url'])
 
 # -----------------------------------------------------------------------------
-# APP LOGIC
+# APP LOGIC - V32.0 ROUTING
 # -----------------------------------------------------------------------------
+# Query Parameter Routing Bridge
+if "page" in st.query_params:
+    st.session_state.current_page = st.query_params["page"]
+
 df = load_data()
 
 # Navigation Items
@@ -388,23 +393,21 @@ with st.sidebar:
 # Top Nav
 st.markdown(f"""
     <div class="top-nav">
-        <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v31.0</small></div>
-        <div style="display:flex; gap:15px; align-items:center;">
-            <div style="width:10px; height:10px; background:#22c55e; border-radius:50%; box-shadow:0 0 10px #22c55e;"></div>
-        </div>
-    </div>
+        <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v32.0</small></div>
 """, unsafe_allow_html=True)
 
 # Main Navigation Router
 current_page = st.session_state.get('current_page', 'Dashboard')
 selected_tag = st.session_state.get('selected_tag')
 
-# V29.0 - SYNCHRONIZED NAV TABS
+# V32.0 - DYNAMIC NAV TABS (Functional Links)
 nav_tabs_html = '<div class="nav-tabs-wrapper">'
 for item in nav_items:
     active_class = "active" if current_page == item["name"] else ""
     cat_class = f"tab-{item['name'].lower().replace('ü', 'u').replace('ö', 'o').replace('ı', 'i').replace('ş', 's').replace('ç', 'c')}"
-    nav_tabs_html += f'<div class="nav-tab-item {active_class} {cat_class}">{item["label"]}</div>'
+    # Link to query param
+    link_url = f"/?page={item['name']}"
+    nav_tabs_html += f'<a href="{link_url}" target="_self" class="nav-tab-item {active_class} {cat_class}">{item["label"]}</a>'
 nav_tabs_html += '</div>'
 st.markdown(nav_tabs_html, unsafe_allow_html=True)
 
@@ -423,20 +426,22 @@ if selected_tag:
     st.stop()
 
 if current_page != "Dashboard":
-    # Category Detail View
+    # Category Detail View - V32.0 WIDE LAYOUT
     cat_label = next((i['label'] for i in nav_items if i['name'] == current_page), current_page)
-    st.markdown(f'<div class="detail-view"><h2>{cat_label}</h2></div>', unsafe_allow_html=True)
+    st.markdown(f'<div style="padding: 20px 0; border-bottom: 2px solid #f1f5f9; margin-bottom: 30px;"><h2 style="font-weight:800; color:#1e3a8a;">{cat_label}</h2></div>', unsafe_allow_html=True)
     
     cat_df = df[df['category'] == current_page].head(60)
     if not cat_df.empty:
-        grid = st.columns(3)
+        # Wide Layout: Use 1 or 2 wide columns depending on user taste, but "geniş yapı" usually means fewer columns
+        wide_cols = st.columns([2, 1]) # Focus on main column
         for idx, row in cat_df.iterrows():
-            with grid[idx % 3]:
-                st.markdown(get_card_html(row), unsafe_allow_html=True)
+            with wide_cols[0 if idx % 2 == 0 else 1]:
+                 st.markdown(get_card_html(row), unsafe_allow_html=True)
     else:
         st.info("Bu kategoride henüz haber yok.")
     
-    if st.button("Ana Sayfa"):
+    if st.button("← Ana Sayfaya Dön"):
+        st.query_params.clear()
         st.session_state.current_page = "Dashboard"
         st.rerun()
     st.stop()
@@ -479,4 +484,4 @@ if current_page == "Dashboard":
         st.warning("Henüz haber verisi bulunmuyor. Lütfen yönetici panelinden tarama yapın.")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("NucleusX V31.0 Ultimate - Developed by Antigravity AI")
+st.sidebar.caption("NucleusX V32.0 Ultimate - Developed by Antigravity AI")
