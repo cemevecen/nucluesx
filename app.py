@@ -10,7 +10,7 @@ from categorize_engine import run_categorization_process
 # GLOBAL CONFIG & INITIALIZATION
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="NucleusX AI V23.2 LUXURY",
+    page_title="NucleusX AI V23.3 LUXURY",
     page_icon="🗞️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -94,8 +94,8 @@ st.markdown("""
     [data-testid="stHorizontalBlock"]::-webkit-scrollbar-thumb:hover { background: #6366f1; }
 
     [data-testid="column"] { 
-        flex: 0 0 320px !important; 
-        min-width: 320px !important; 
+        flex: 0 0 calc(25% - 18px) !important; 
+        min-width: 280px !important; 
     }
     
     /* TOP NAV: PRO & CLEAN */
