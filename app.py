@@ -346,8 +346,11 @@ for i, category in enumerate(all_categories):
                         display_news = group.iloc[0]
                         # Haber başlığını içerikten türet (İlk cümle veya ilk 10 kelime)
                         content = display_news['content']
-                        news_title = content.split('.')[0][:80] + "..." if len(content) > 80 else content
-                        news_desc = content[len(news_title):][:150] + "..." if len(content) > 150 else content
+                        news_title_raw = content.split('.')[0][:80] if '.' in content else content[:80]
+                        news_title = make_clickable(news_title_raw + "...") if len(content) > 80 else make_clickable(content)
+                        
+                        news_desc_raw = content[len(news_title_raw):][:150]
+                        news_desc = make_clickable(news_desc_raw + "...") if len(content[len(news_title_raw):]) > 150 else make_clickable(content[len(news_title_raw):])
                         
                         media_html = f'<img src="{display_news["media_url"]}" style="width:100%; border-radius:12px; margin-bottom:12px; object-fit:cover; height:180px; background:#f1f5f9;">' if display_news.get('media_url') else ""
                         count_info = f'<div style="color:#2563eb; font-weight:bold; margin-top:8px; font-size:0.8rem;">✨ {len(group)} farklı kaynak bu konuyu geçti.</div>' if len(group) > 1 else ""
@@ -356,7 +359,8 @@ for i, category in enumerate(all_categories):
                         break # Grup için sadece bir kart bas
                     else:
                         # Jenerik taglerde her haberi bas
-                        row_title = row['content'].split('.')[0][:80] + "..."
+                        row_title_raw = row['content'].split('.')[0][:80] if '.' in row['content'] else row['content'][:80]
+                        row_title = make_clickable(row_title_raw + "...")
                         media_html = f'<img src="{row["media_url"]}" style="width:100%; border-radius:12px; margin-bottom:12px; object-fit:cover; height:180px; background:#f1f5f9;">' if row.get('media_url') else ""
                         column_html += f'<div class="news-card">{media_html}<div class="card-title">{row_title}</div><div class="card-meta"><span>🔹 {row["author"]}</span><span>🕒 {row["processed_at"].split(" ")[1][:5]}</span><span>📖 5 Dak.</span></div></div>'
             
