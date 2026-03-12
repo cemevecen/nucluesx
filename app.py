@@ -69,20 +69,22 @@ st.markdown("""
     [data-testid="stSidebar"] * {
         color: white !important;
     }
-    .sidebar-item {
-        padding: 12px 20px;
-        display: flex;
-        align-items: center;
-        gap: 15px;
-        border-radius: 8px;
-        margin-bottom: 5px;
-        transition: all 0.2s;
-        cursor: pointer;
-        font-size: 0.9rem;
+    /* Sidebar Buttons styling */
+    div.stButton > button[key^="nav_"] {
+        background-color: transparent !important;
+        border: none !important;
         color: #94a3b8 !important;
+        text-align: left !important;
+        padding: 12px 20px !important;
+        font-size: 0.95rem !important;
+        border-radius: 8px !important;
+        transition: all 0.2s !important;
+        margin-bottom: 2px !important;
+        display: flex !important;
+        align-items: center !important;
     }
-    .sidebar-item:hover, .sidebar-item.active {
-        background: rgba(255,255,255,0.1);
+    div.stButton > button[key^="nav_"]:hover {
+        background: rgba(255,255,255,0.1) !important;
         color: white !important;
     }
 
@@ -236,19 +238,22 @@ st.sidebar.markdown("---")
 # Veriyi Yükle
 df = load_data()
 
-# Kenar Çubuğu Filtreleme
-categories = ["Tümü"] + list(df['category'].unique()) if not df.empty else ["Tümü"]
-selected_cat = st.sidebar.selectbox("Kategori Filtrele", categories)
+# LOG BİLGİSİ (Sadece Terminal İçin)
+print("--- NucleusX UI V8.0 Başlatıldı ---")
 
-if selected_cat != "Tümü" and not df.empty:
-    df = df[df['category'] == selected_cat]
+# Oturum Durumu (Navigasyon ve Filtreler İçin)
+if 'current_page' not in st.session_state:
+    st.session_state.current_page = "Dashboard"
 
-# Oturum Durumu (Hashtag Filtresi İçin)
 if 'selected_tag' not in st.session_state:
     st.session_state.selected_tag = None
 
 def clear_tag():
     st.session_state.selected_tag = None
+
+def set_page(page_name):
+    st.session_state.current_page = page_name
+    st.session_state.selected_tag = None # Sayfa değişince etiketi sıfırla
 
 # CSS Override for stButton to match trend-pill
 st.markdown("""
@@ -267,7 +272,7 @@ st.markdown("""
 st.markdown("""
     <div class="top-nav">
         <div class="logo-text">
-            <span>⚛️</span> NUCLEUS<b>X</b> <span style="font-size: 0.8rem; opacity: 0.6; font-weight: 400;">AI NEWSROOM</span>
+            <span>⚛️</span> NUCLEUS<b>X</b> <span style="font-size: 0.8rem; opacity: 0.9; font-weight: 700; color: #ef4444;">V8 - GÜNCEL</span>
         </div>
         <div class="search-box">🔍 Search news, events or topics...</div>
         <div style="display: flex; gap: 20px; align-items: center; font-size: 1.2rem;">
@@ -276,20 +281,45 @@ st.markdown("""
     </div>
 """, unsafe_allow_html=True)
 
-# Custom Sidebar content
+# Custom Sidebar navigation (Premium Style)
 with st.sidebar:
-    st.markdown("""
-        <div style="margin-top: 20px;">
-            <div class="sidebar-item active">📊 Dashboard</div>
-            <div class="sidebar-item">🧭 Explore</div>
-            <div class="sidebar-item">⚖️ Politics</div>
-            <div class="sidebar-item">💼 Business</div>
-            <div class="sidebar-item">📈 Economy</div>
-            <div class="sidebar-item">💻 Tech</div>
-            <div class="sidebar-item">🌍 World</div>
-            <div class="sidebar-item">🔬 Science</div>
-        </div>
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # Active item highlight CSS
+    active_btn_name = st.session_state.current_page
+    st.markdown(f"""
+        <style>
+        /* Highlight the active button by its label text (hacky but works in some ST versions) or just use logic */
+        /* Since keys are internal, we use a simpler approach: adding a indicator */
+        </style>
     """, unsafe_allow_html=True)
+
+    # Navigasyon Menüsü (Site Kategorileri ile Eşleşen Türkçe Başlıklar)
+    nav_items = [
+        {"name": "Dashboard", "icon": "📊", "label": "Panel Ana Sayfa"},
+        {"name": "Türkiye", "icon": "⚖️", "label": "Siyaset - Türkiye"},
+        {"name": "Ekonomi", "icon": "📈", "label": "Ekonomi & İş"},
+        {"name": "Teknoloji", "icon": "💻", "label": "Teknoloji & AI"},
+        {"name": "Spor", "icon": "⚽", "label": "Spor Dünyası"},
+        {"name": "Dünya", "icon": "🌍", "label": "Dünya Gündemi"},
+        {"name": "Eğlence", "icon": "🎭", "label": "Magazin & Eğlence"},
+        {"name": "Müzik", "icon": "🎵", "label": "Müzik & Sanat"}
+    ]
+    
+    for item in nav_items:
+        is_active = st.session_state.current_page == item["name"]
+        
+        # Premium aktif durum göstergesi
+        btn_label = f" {item['icon']} {item['label']}"
+        if is_active:
+            btn_label = f"▶️ {item['icon']} {item['label']}"
+        
+        if st.sidebar.button(btn_label, key=f"nav_btn_{item['name']}", use_container_width=True):
+            st.session_state.current_page = item["name"]
+            st.session_state.selected_tag = None
+            st.rerun()
+
+    st.markdown("---")
     st.info("Bu panel, Twitter'dan çekilen ve AI tarafından kategorize edilen haberleri gösterir.")
 
 # TREND HASHTAGLER
@@ -328,18 +358,64 @@ if st.session_state.selected_tag:
         st.rerun()
     st.stop()
 
-# NORMAL GÖRÜNÜM (Scoopnest Dikey Kolon Düzeni)
+# ANA İÇERİK MANTİĞİ
+if st.session_state.current_page != "Dashboard":
+    # TEK KATEGORİ GÖRÜNÜMÜ - ÖZEL SAYFA
+    cat_name = st.session_state.current_page
+    # Başlığı bulalım
+    cat_label = next((item["label"] for item in nav_items if item["name"] == cat_name), cat_name)
+    
+    st.markdown(f"""
+        <div style="padding: 20px; background: white; border-bottom: 2px solid #3b82f6; border-radius: 12px; margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+            <h2 style="margin: 0; color: #1e293b; font-size: 1.8rem;">📍 {cat_label}</h2>
+            <p style="margin: 5px 0 0 0; color: #64748b; font-size: 0.9rem;">En son {cat_name} haberleri ve gelişmeleri.</p>
+        </div>
+    """, unsafe_allow_html=True)
+    
+    # Filtreleme
+    cat_df = df[df['category'] == cat_name].head(60)
+    
+    if cat_df.empty:
+        st.warning(f"Bu kategoriye ait henüz haber bulunamadı.")
+    else:
+        # 3 Kolonlu Grid
+        grid_cols = st.columns(3)
+        for idx, row in cat_df.iterrows():
+            with grid_cols[idx % 3]:
+                clickable_content = make_clickable(row['content'])
+                media_html = f'<img src="{row["media_url"]}" style="width:100%; border-radius:12px; margin-bottom:12px; object-fit:cover; height:220px; background:#f1f5f9;">' if row.get('media_url') else ""
+                
+                title_html = f'<div class="card-title"><a href="{row["tweet_url"]}" target="_blank">{row["author"]}</a></div>' if row.get('tweet_url') else f'<div class="card-title">{row["author"]}</div>'
+                
+                # Topic Tag "None" gelmesini veya boş gelmesini engelle
+                tag_label = row["topic_tag"] if row["topic_tag"] and str(row["topic_tag"]) != "None" else row["category"]
+                if not tag_label.startswith("#"): tag_label = f"#{tag_label}"
+                
+                card_html = f'<div class="news-card">{media_html}{title_html}<div style="font-size:0.95rem; line-height:1.4;">{clickable_content}</div><div class="card-meta"><span>🕒 {row["processed_at"].split(" ")[1][:5]}</span><span style="color:#2563eb;">{tag_label}</span></div></div>'
+                st.markdown(card_html, unsafe_allow_html=True)
+    
+    if st.button("⬅️ Tüm Haberlere Dön"):
+        set_page("Dashboard")
+        st.rerun()
+    st.stop()
 
+# NORMAL DASHBOARD GÖRÜNÜMÜ (Scoopnest Dikey Kolon Düzeni)
 # Veriyi Kategorilere Göre Hazırla
-# Ekonomi ve Finans birleştiği için Finans'ı listeden siliyoruz
 all_categories = ["Türkiye", "Dünya", "Ekonomi", "Teknoloji", "Spor", "Eğlence", "Müzik"]
 
-cols = st.columns(len(all_categories))
+# Sadece haber olan kategorileri göster (User Request: Boş kolonlar görünmesin)
+visible_categories = [cat for cat in all_categories if not df[df['category'] == cat].empty]
 
-for i, category in enumerate(all_categories):
-    with cols[i]:
-        # Kolon Başlığı
-        st.markdown(f'<div class="column-header"><h3 style="font-size: 0.9rem;">{category}</h3><small>{len(df[df["category"] == category])} Haber</small></div>', unsafe_allow_html=True)
+if not visible_categories:
+    st.info("Son 3 gün içinde henüz kategorize edilmiş haber bulunamadı.")
+else:
+    cols = st.columns(len(visible_categories))
+
+    for i, category in enumerate(visible_categories):
+        with cols[i]:
+            # Kolon Başlığı
+            count = len(df[df["category"] == category])
+            st.markdown(f'<div class="column-header"><h3 style="font-size: 0.9rem;">{category}</h3><small>{count} Haber</small></div>', unsafe_allow_html=True)
         
         cat_df = df[df['category'] == category].head(30)
         
@@ -448,5 +524,5 @@ if st.sidebar.button("🧹 Tüm Veritabanını Optimize Et"):
                 st.error(f"❌ Optimizasyon hatası: {e}")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("🚀 **NucleusX Engine v7.0**")
+st.sidebar.caption("🚀 **NucleusX Engine v8.0**")
 st.sidebar.caption("Developed by Antigravity AI 🤖")

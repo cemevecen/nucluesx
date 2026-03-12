@@ -59,7 +59,8 @@ def init_db():
             "ALTER TABLE tweets ADD COLUMN IF NOT EXISTS media_url TEXT",
             "ALTER TABLE tweets ADD COLUMN IF NOT EXISTS tweet_url TEXT",
             "UPDATE tweets SET category = 'Ekonomi' WHERE category = 'Finans'", # Finans kategorisini Ekonomi ile birleştir
-            "UPDATE tweets SET category = 'Türkiye' WHERE category = 'Ülke Gündemi'" # Ülke Gündemi adını Türkiye yap
+            "UPDATE tweets SET category = 'Türkiye' WHERE category = 'Ülke Gündemi'", # Ülke Gündemi adını Türkiye yap
+            "UPDATE tweets SET category = 'Spor' WHERE content ILIKE '%Sadettin Saran%' AND category = 'Teknoloji'" # Misclassified Saran tweets
         ]
         for m in migrations:
             try:

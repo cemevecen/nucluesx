@@ -34,11 +34,19 @@ def categorize_with_groq(text):
         "Content-Type": "application/json"
     }
     
-    prompt = f"Categorize this news/tweet into ONE of these: Ekonomi, Spor, Teknoloji, Eğlence, Müzik, Dünya, Türkiye. Respond with ONLY the category name.\n\nText: {text}"
+    prompt = f"""Bir haber editörü gibi davranarak metni SADECE bir kategoriye ata: Ekonomi, Spor, Teknoloji, Eğlence, Müzik, Dünya, Türkiye.
+
+Rehber:
+- EKONOMİ: Borsa, şirket, ihale, döviz, zam, vergi, banka.
+- SPOR: Futbol, basketbol, transfer, kulüp başkanları (Sadettin Saran, Ali Koç) ve maçlar.
+- TEKNOLOJİ: AI, yazılım, cihaz, bilim.
+
+SADECE kategori adını yaz. Başka hiçbir şey yazma.
+
+Haber: {text}"""
     
-    # 8B modeli çok daha hızlıdır ve kotası daha yüksektir, kategori için yeterlidir.
     data = {
-        "model": "llama3-8b-8192",
+        "model": "llama-3.1-8b-instant", # Daha yeni Llama 3.1 modelini dene
         "messages": [{"role": "user", "content": prompt}],
         "temperature": 0
     }
@@ -46,11 +54,11 @@ def categorize_with_groq(text):
     try:
         response = requests.post(url, headers=headers, json=data, timeout=5)
         if response.status_code == 200:
-            res = response.json()['choices'][0]['message']['content'].strip().replace(".", "")
-            if res in ["Ekonomi", "Spor", "Teknoloji", "Eğlence", "Müzik", "Dünya", "Türkiye"]:
-                return res
-        elif response.status_code == 429: # Rate limit dursa da sistem anahtar kelimeye geçmeli
-             return None
+            res = response.json()['choices'][0]['message']['content'].strip()
+            # Şık cevapları temizle (Örn: "Category: Spor" -> "Spor")
+            for cat in ["Ekonomi", "Spor", "Teknoloji", "Eğlence", "Müzik", "Dünya", "Türkiye"]:
+                if cat in res:
+                    return cat
         return None
     except Exception:
         return None
@@ -73,7 +81,7 @@ def generate_topic_tag(text):
             
             Metin: {text}
             """
-            response = client_gemini.models.generate_content(model='gemini-2.0-flash', contents=prompt)
+            response = client_gemini.models.generate_content(model='gemini-flash-latest', contents=prompt)
             res = response.text.upper().strip().split()[0].replace(".", "").replace(",", "").replace('"', '').replace("'", "")
             if not res.startswith("#"): res = f"#{res}"
             
@@ -94,19 +102,20 @@ def categorize_with_mistral(text):
         "Content-Type": "application/json"
     }
     
-    prompt = f"Categorize into ONE: Ekonomi, Spor, Teknoloji, Eğlence, Müzik, Dünya, Türkiye. Respond with ONLY the category name.\n\nText: {text}"
+    prompt = f"Kategori seç (Ekonomi, Spor, Teknoloji, Eğlence, Müzik, Dünya, Türkiye). SADECE kategori adını yaz. Metin: {text}"
     
     data = {
-        "model": "open-mistral-7b", 
+        "model": "mistral-tiny", 
         "messages": [{"role": "user", "content": prompt}]
     }
     
     try:
         response = requests.post(url, headers=headers, json=data, timeout=5)
         if response.status_code == 200:
-            res = response.json()['choices'][0]['message']['content'].strip().replace(".", "")
-            if res in ["Ekonomi", "Spor", "Teknoloji", "Eğlence", "Müzik", "Dünya", "Türkiye"]:
-                return res
+            res = response.json()['choices'][0]['message']['content'].strip()
+            for cat in ["Ekonomi", "Spor", "Teknoloji", "Eğlence", "Müzik", "Dünya", "Türkiye"]:
+                if cat in res:
+                    return cat
         return None
     except Exception:
         return None
@@ -115,13 +124,13 @@ def get_fallback_category(text):
     """AI hata verdiğinde anahtar kelimelerle kategori tahmini yapar."""
     text = text.lower()
     keywords = {
-        "Ekonomi": ["dolar", "euro", "faiz", "enflasyon", "zam", "asgari", "maaş", "bakanlık", "vergi", "borsa", "hisse", "temettü", "kripto", "bitcoin", "altın", "btc", "eth", "yatırım"],
-        "Spor": ["gol", "maç", "skor", "futbol", "basketbol", "fenerbahçe", "galatasaray", "beşiktaş", "transfer"],
-        "Teknoloji": ["iphone", "apple", "android", "yazılım", "yapay zeka", "ai", "internet", "google", "çip"],
-        "Eğlence": ["film", "dizi", "netflix", "sinema", "oyuncu", "magazin", "ünlü"],
-        "Müzik": ["şarkı", "albüm", "konser", "klip", "single", "sanatçı", "spotify"],
+        "Ekonomi": ["dolar", "euro", "faiz", "enflasyon", "zam", "asgari", "maaş", "vergi", "borsa", "hisse", "temettü", "kripto", "bitcoin", "ihale", "şirket", "yatırım", "finans", "ekonomi"],
+        "Spor": ["gol", "maç", "skor", "futbol", "basketbol", "fenerbahçe", "galatasaray", "beşiktaş", "transfer", "kulüp", "başkan", "saran", "ali koç", "şampiyon", "lig", "antrenman"],
+        "Teknoloji": ["iphone", "apple", "android", "yazılım", "yapay zeka", "ai", "internet", "google", "çip", "uzay", "robot", "teknoloji", "aplikasyon"],
+        "Eğlence": ["film", "dizi", "netflix", "sinema", "oyuncu", "magazin", "ünlü", "televizyon"],
+        "Müzik": ["şarkı", "albüm", "konser", "klip", "single", "sanatçı", "spotify", "müzik"],
         "Dünya": ["savaş", "abd", "rusya", "israil", "gazze", "nato", "avrupa", "bm"],
-        "Türkiye": ["siyaset", "seçim", "meclis", "parti", "istifa", "belediye", "trt", "aa"]
+        "Türkiye": ["siyaset", "seçim", "meclis", "parti", "istifa", "belediye", "trt", "aa", "ankara", "ak parti", "chp"]
     }
     
     for cat, words in keywords.items():
@@ -138,9 +147,19 @@ def categorize_tweet(tweet_text):
     # 1. Aşama: Gemini Dene
     if client_gemini:
         try:
-            prompt = f"Metni şu kategorilerden birine yerleştir: Ekonomi, Spor, Teknoloji, Eğlence, Müzik, Dünya, Türkiye. SADECE kategorinin ismini yaz.\nMetin: {tweet_text}"
+            prompt = f"""Aşağıdaki haberi bu kategorilerden birine yerleştir: Ekonomi, Spor, Teknoloji, Eğlence, Müzik, Dünya, Türkiye.
+
+KATEGORİ REHBERİ:
+- Spor: Maçlar, futbolcular, kulüp başkanları (Sadettin Saran, Ali Koç vb.) ve transferler.
+- Ekonomi: Para, borsa, banka, şirket yönetimi, fiyat artışları.
+- Teknoloji: Dijital yenilikler, telefonlar, AI, bilim (İnsan transferleri teknoloji DEĞİLDİR).
+- Türkiye: Genel iç siyaset ve sosyal olaylar.
+
+SADECE kategorinin adını dön.
+
+Metin: {tweet_text}"""
             response = client_gemini.models.generate_content(
-                model='gemini-2.0-flash', # Güncel ve ücretsiz kotası geniş olan model
+                model='gemini-flash-latest', # Çalışan ve güncel alias
                 contents=prompt
             )
             res = response.text.strip().replace("[", "").replace("]", "").replace(".", "")
