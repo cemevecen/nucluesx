@@ -284,7 +284,7 @@ st.markdown("""
 st.markdown("""
     <div class="top-nav">
         <div class="logo-text">
-            NUCLEUS <b>X</b> <span style="font-size: 0.7rem; opacity: 0.5;">v18.0 MOBILE</span>
+            NUCLEUS <b>X</b> <span style="font-size: 0.7rem; opacity: 0.5;">v18.1 MOBILE</span>
         </div>
         <div class="search-box"> Haberlerde ara...</div>
         <div style="display: flex; gap: 10px; align-items: center;">
@@ -456,7 +456,7 @@ if st.session_state.current_page == "Dashboard":
         with cols[i]:
             # Kolon Başlığı
             icon = cat_icons.get(category, "")
-            st.markdown(f'<div class="column-header"><h3>{category}</h3><small>{len(cat_df)} Gelişme</small></div>', unsafe_allow_html=True)
+            st.markdown(f'<div class="column-header"><h3>{category}</h3></div>', unsafe_allow_html=True)
             
             # Kolon İçeriği
             column_html = ""
