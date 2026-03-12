@@ -11,7 +11,7 @@ import streamlit.components.v1 as components
 # GLOBAL CONFIG & INITIALIZATION
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="NucleusX AI V36.0 LUXURY",
+    page_title="NucleusX AI V37.2 LUXURY",
     page_icon="🗞️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -285,6 +285,10 @@ st.markdown("""
 # -----------------------------------------------------------------------------
 def render_twitter_embed(tweet_url):
     """Renders a live Twitter embed using components.html."""
+    if not tweet_url or tweet_url in ["#", "None", ""]:
+        st.info("💡 Bu haberin detaylı tweeti şu an yüklenemiyor veya kaynak silinmiş olabilir.")
+        return
+
     embed_code = f"""
     <div style="display: flex; justify-content: center; width: 100%; border-radius: 12px; background: #ffffff; padding: 20px; border: 1px solid #e2e8f0; margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
         <div style="width: 550px; max-width: 100%;">
@@ -410,7 +414,7 @@ with st.sidebar:
 # Top Nav
 st.markdown(f"""
     <div class="top-nav">
-        <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v36.0 Luxury</small></div>
+        <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v37.2 Luxury</small></div>
 """, unsafe_allow_html=True)
 
 # Main Navigation Router
@@ -486,25 +490,33 @@ if current_page == "Dashboard":
     visible_cats = [c for c in all_cats if not df[df['category'] == c].empty]
     
     if visible_cats:
-        dashboard_html = '<div class="dashboard-wrapper">'
-        for cat in visible_cats:
-            cat_df = df[df['category'] == cat].head(15)
-            # Use label consistency for headers
-            cat_label = next((i['label'] for i in nav_items if i['name'] == cat), cat)
-            
-            # Group by topic tag to avoid duplicates in the same column
-            topics = cat_df.groupby('topic_tag')
-            
-            column_content = f'<div class="category-column"><div class="column-header"><h3>{cat_label}</h3></div>'
-            for t, group in topics:
-                column_content += get_card_html(group.iloc[0], current_page=current_page).strip() + "\n"
-            column_content += '</div>'
-            dashboard_html += column_content
+        # Use a single container for the horizontal scroll
+        st.markdown('<div class="dashboard-wrapper">', unsafe_allow_html=True)
         
-        dashboard_html += '</div>'
-        st.markdown(dashboard_html, unsafe_allow_html=True)
+        # Determine column structure
+        num_cats = len(visible_cats)
+        dashboard_cols = st.columns(num_cats)
+        
+        for i, cat in enumerate(visible_cats):
+            with dashboard_cols[i]:
+                # Render column within the scrollable wrapper logic via CSS
+                st.markdown(f'<div class="category-column">', unsafe_allow_html=True)
+                
+                cat_label = next((item['label'] for item in nav_items if item['name'] == cat), cat)
+                st.markdown(f'<div class="column-header"><h3>{cat_label}</h3></div>', unsafe_allow_html=True)
+                
+                cat_df = df[df['category'] == cat].head(15)
+                topics = cat_df.groupby('topic_tag')
+                
+                for t, group in topics:
+                    # Individual markdown calls are safer and prevent raw HTML leaks
+                    st.markdown(get_card_html(group.iloc[0], current_page=current_page), unsafe_allow_html=True)
+                
+                st.markdown('</div>', unsafe_allow_html=True)
+        
+        st.markdown('</div>', unsafe_allow_html=True)
     else:
         st.warning("Henüz haber verisi bulunmuyor. Lütfen yönetici panelinden tarama yapın.")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("NucleusX V36.0 Luxury - Developed by Antigravity AI")
+st.sidebar.caption("NucleusX V37.2 Luxury - Developed by Antigravity AI")
