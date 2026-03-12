@@ -11,7 +11,7 @@ import streamlit.components.v1 as components
 # GLOBAL CONFIG & INITIALIZATION
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="NucleusX AI V35.0 LUXURY",
+    page_title="NucleusX AI V36.0 LUXURY",
     page_icon="🗞️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -177,12 +177,7 @@ st.markdown("""
         .category-column { flex: 0 0 85vw !important; min-width: 85vw !important; }
     }
     
-    /* TOP NAV: PRO & CLEAN */
-    .top-nav {
-        display: flex; justify-content: space-between; align-items: center;
-        padding: 15px 40px; background: #ffffff; border-bottom: 1px solid #e2e8f0;
-        margin-left: -5rem; margin-right: -5rem; margin-top: -10px; margin-bottom: 20px;
-    }
+    /* Fixed V35.1 - Removed white override */
     .logo-text { font-weight: 900; font-size: 1.5rem; color: #000; letter-spacing: -0.5px; }
     .logo-text b { color: #1e3a8a; }
 
@@ -291,17 +286,19 @@ st.markdown("""
 def render_twitter_embed(tweet_url):
     """Renders a live Twitter embed using components.html."""
     embed_code = f"""
-    <div style="display: flex; justify-content: center; width: 100%; border-radius: 12px; overflow: hidden; background: #f8fafc; padding: 20px; border: 1px solid #e2e8f0;">
-        <blockquote class="twitter-tweet" data-theme="light" data-width="100%">
-            <a href="{tweet_url}"></a>
-        </blockquote>
+    <div style="display: flex; justify-content: center; width: 100%; border-radius: 12px; background: #ffffff; padding: 20px; border: 1px solid #e2e8f0; margin-bottom: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.05);">
+        <div style="width: 550px; max-width: 100%;">
+            <blockquote class="twitter-tweet" data-theme="light">
+                <a href="{tweet_url}"></a>
+            </blockquote>
+            <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+        </div>
     </div>
-    <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
     """
-    components.html(embed_code, height=600, scrolling=True)
+    components.html(embed_code, height=750)
 
-def get_card_html(row, cat_name_override=None, current_page="Dashboard"):
-    """Generates standardized HTML for a news card (Escaped & Sanitized)."""
+def get_card_html(row, current_page="Dashboard"):
+    """Generates standardized HTML for a news card (Strictly Flattened)."""
     content_raw = str(row.get('content', '')).replace("\n", " ")
     
     # Robust Title/Desc Split (Luxury Limits)
@@ -324,7 +321,7 @@ def get_card_html(row, cat_name_override=None, current_page="Dashboard"):
     tweet_url = row.get('tweet_url', '#')
     media_url = row.get('media_url')
     
-    cat_val = cat_name_override or row.get('category', 'HABER')
+    cat_val = row.get('category', 'HABER')
     cat_class = f"cat-{cat_val.lower().replace('ü', 'u').replace('ö', 'o').replace('ı', 'i').replace('ş', 's').replace('ç', 'c')}"
 
     media_html = f'<div style="width:100%; height:160px; overflow:hidden;"><img src="{media_url}" style="width:100%; height:100%; object-fit:cover;"></div>' if media_url else ""
@@ -333,22 +330,7 @@ def get_card_html(row, cat_name_override=None, current_page="Dashboard"):
     # expansión routing bridge link
     expand_url = f"/?page={current_page}&expand={tweet_url}"
     
-    return f'''
-    <a href="{expand_url}" target="_self" style="text-decoration:none; color:inherit; display:block;">
-        <div class="news-card {cat_class}">
-            {media_html}
-            <div class="news-card-content">
-                <div class="card-title">{title_html}</div>
-                <div class="card-desc">{news_desc}</div>
-                <div class="card-meta">
-                    <span>{author_name}</span>
-                    <div class="sparkline"></div>
-                    <span>{processed_at}</span>
-                </div>
-            </div>
-        </div>
-    </a>
-    '''
+    return f'<a href="{expand_url}" target="_self" style="text-decoration:none; color:inherit; display:block;"><div class="news-card {cat_class}">{media_html}<div class="news-card-content"><div class="card-title">{title_html}</div><div class="card-desc">{news_desc}</div><div class="card-meta"><span>{author_name}</span><div class="sparkline"></div><span>{processed_at}</span></div></div></div></a>'
 
 @st.cache_data(ttl=600)
 def load_data():
@@ -428,7 +410,7 @@ with st.sidebar:
 # Top Nav
 st.markdown(f"""
     <div class="top-nav">
-        <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v35.0</small></div>
+        <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v36.0 Luxury</small></div>
 """, unsafe_allow_html=True)
 
 # Main Navigation Router
@@ -436,22 +418,21 @@ current_page = st.session_state.get('current_page', 'Dashboard')
 selected_tag = st.session_state.get('selected_tag')
 expand_url = st.session_state.get('expand_url')
 
-# FOCUS VIEW (Expanded Tweet) - V35.0
-if expand_url:
-    st.markdown(f'<div style="padding: 10px 0; border-bottom: 2px solid #f1f5f9; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;"><h3 style="margin:0; color:#1e3a8a;">Haber Detayı</h3><a href="/?page={current_page}" target="_self" style="text-decoration:none; background:#f1f5f9; padding:8px 15px; border-radius:8px; color:#475569; font-weight:700;">✕ Kapat</a></div>', unsafe_allow_html=True)
-    render_twitter_embed(expand_url)
-    st.markdown("<br><hr><br>", unsafe_allow_html=True)
-
-# V32.0 - DYNAMIC NAV TABS (Functional Links)
+# V32.0 - DYNAMIC NAV TABS (Functional Links - MOVED UP FOR PERSISTENCE)
 nav_tabs_html = '<div class="nav-tabs-wrapper">'
 for item in nav_items:
     active_class = "active" if current_page == item["name"] else ""
     cat_class = f"tab-{item['name'].lower().replace('ü', 'u').replace('ö', 'o').replace('ı', 'i').replace('ş', 's').replace('ç', 'c')}"
-    # Link to query param
     link_url = f"/?page={item['name']}"
     nav_tabs_html += f'<a href="{link_url}" target="_self" class="nav-tab-item {active_class} {cat_class}">{item["label"]}</a>'
 nav_tabs_html += '</div>'
 st.markdown(nav_tabs_html, unsafe_allow_html=True)
+
+# FOCUS VIEW (Expanded Tweet)
+if expand_url:
+    st.markdown(f'<div style="padding: 10px 0; border-bottom: 2px solid #f1f5f9; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;"><h3 style="margin:0; color:#1e3a8a; font-weight:800;">HABER DETAYI</h3><a href="/?page={current_page}" target="_self" style="text-decoration:none; background:#f1f5f9; padding:8px 20px; border-radius:8px; color:#1e3a8a; font-weight:800;">✕ KAPAT</a></div>', unsafe_allow_html=True)
+    render_twitter_embed(expand_url)
+    st.markdown("<hr style='margin: 30px 0; opacity: 0.1;'>", unsafe_allow_html=True)
 
 if selected_tag:
     # Tag View
@@ -526,4 +507,4 @@ if current_page == "Dashboard":
         st.warning("Henüz haber verisi bulunmuyor. Lütfen yönetici panelinden tarama yapın.")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("NucleusX V35.0 Ultimate - Developed by Antigravity AI")
+st.sidebar.caption("NucleusX V36.0 Luxury - Developed by Antigravity AI")
