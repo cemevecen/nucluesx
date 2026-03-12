@@ -7,7 +7,7 @@ from categorize_engine import run_categorization_process
 
 # Sayfa Konfigürasyonu
 st.set_page_config(
-    page_title="NucleusX AI V17.3 TITAN",
+    page_title="NucleusX AI V19.0 HYBRID",
     page_icon=None,
     layout="wide",
     initial_sidebar_state="expanded"
@@ -23,128 +23,106 @@ st.markdown("""
     
     * { font-family: 'Inter', sans-serif; }
 
-    /* Ana Arka Plan - Premium Light */
+    /* Ana Arka Plan - Luxury White */
     .stApp {
-        background-color: #f8fafc !important;
+        background-color: #ffffff !important;
     }
     
-    /* Header (Top Nav) - Fully Responsive */
+    /* Header (Top Nav) - Premium Luxury */
     .top-nav {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        padding: 10px 15px;
-        background: rgba(255, 255, 255, 0.98);
-        backdrop-filter: blur(15px);
-        border-bottom: 1px solid #e2e8f0;
+        padding: 15px 30px;
+        background: #ffffff;
+        border-bottom: 2px solid #f1f5f9;
         position: sticky;
         top: 0;
         z-index: 1000;
-        margin-bottom: 20px;
+        margin-bottom: 30px;
         margin-top: -10px;
-        /* Dynamics: Margin adjustment for Streamlit container */
         margin-left: calc(-1 * min(5rem, 5vw));
         margin-right: calc(-1 * min(5rem, 5vw));
+        box-shadow: 0 2px 10px rgba(0,0,0,0.02);
     }
     .logo-text {
-        font-weight: 800;
-        font-size: clamp(1.1rem, 3vw, 1.5rem);
-        color: #1e293b;
-        white-space: nowrap;
+        font-weight: 900;
+        font-size: 1.4rem;
+        color: #0f172a;
+        letter-spacing: -0.5px;
     }
-    .logo-text b { color: #2563eb; }
+    .logo-text b { color: #1e3a8a; }
+    
     .search-box {
-        background: #f1f5f9;
-        border: none;
-        padding: 8px 15px;
-        border-radius: 8px;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        padding: 10px 20px;
+        border-radius: 30px;
         flex: 1;
-        max-width: 400px;
-        margin: 0 15px;
+        max-width: 500px;
+        margin: 0 40px;
         color: #64748b;
         font-size: 0.85rem;
-        display: block;
-    }
-    
-    @media (max-width: 600px) {
-        .search-box { display: none; } /* Hide search box on very small screens to save space */
     }
 
-    /* Sidebar - CURRENT CLEAN STYLE (User requested same) */
+    /* Sidebar - Luxury Clean */
     section[data-testid="stSidebar"] {
         background-color: #ffffff !important;
-        border-right: 1px solid #e2e8f0 !important;
-    }
-    section[data-testid="stSidebar"] .stMarkdown p {
-        color: #1e293b !important;
+        border-right: 1px solid #f1f5f9 !important;
     }
     
-    /* Sidebar Buttons - Minimalist */
-    div[data-testid="stSidebar"] div.stButton > button {
-        background-color: #ffffff !important;
-        border: 1px solid #e2e8f0 !important;
-        color: #1e293b !important;
-        text-align: left !important;
-        padding: 10px 15px !important;
-        font-size: 0.9rem !important;
-        font-weight: 500 !important;
-        border-radius: 8px !important;
-        margin-bottom: 5px !important;
-        width: 100% !important;
-    }
-    div[data-testid="stSidebar"] div.stButton > button:hover {
-        background-color: #f8fafc !important;
-        border-color: #2563eb !important;
-    }
-
-    /* News Cards - REVERT TO PREMIUM */
+    /* News Cards - Luxury Hybrid Style */
     .news-card {
         background: #ffffff !important;
-        border-radius: 12px;
-        padding: 15px;
-        border: 1px solid #e2e8f0;
-        margin-bottom: 20px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-        transition: all 0.2s;
+        border: 1px solid #e0e7ff; /* Subtle Indigo */
+        border-radius: 1px; /* Sharper, more editorial feel */
+        padding: 0px;
+        margin-bottom: 25px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        overflow: hidden;
     }
     .news-card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 8px 15px rgba(0,0,0,0.06);
+        transform: translateY(-5px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+        border-color: #c7d2fe;
+    }
+    .news-card-content {
+        padding: 15px;
     }
     .card-title {
-        color: #1e40af !important;
-        font-weight: 700;
-        font-size: 1.05rem;
-        line-height: 1.4;
-        margin-bottom: 10px;
-        text-decoration: none;
+        color: #000000 !important;
+        font-weight: 800;
+        font-size: 1.1rem;
+        line-height: 1.3;
+        margin-bottom: 8px;
+        letter-spacing: -0.2px;
     }
     .card-meta {
         color: #64748b !important;
-        font-size: 0.8rem;
-        font-weight: 400;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
         display: flex;
-        gap: 10px;
+        justify-content: space-between;
+        margin-top: 12px;
+        padding-top: 10px;
+        border-top: 1px solid #f8fafc;
     }
-
-    /* Column Headers - Grid Style */
+    
+    /* Multi-Column Layout (Scoopnest Feed) */
     .column-header {
-        background: #ffffff;
-        color: #1e40af;
-        padding: 12px;
-        border-radius: 12px;
-        font-weight: 700;
-        text-align: center;
-        border: 1px solid #e2e8f0;
-        margin-bottom: 20px;
-        box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+        border-top: 3px solid #1e3a8a;
+        padding: 15px 0;
+        margin-bottom: 15px;
     }
     .column-header h3 {
-        color: #1e40af !important;
-        font-size: 0.95rem !important;
-        font-weight: 700 !important;
-        margin: 0 !important;
-        white-space: nowrap;
+        color: #0f172a !important;
+        font-size: 1.2rem !important;
+        font-weight: 900 !important;
+        text-transform: uppercase;
+        letter-spacing: 1px;
     }
     .column-header small {
         color: #64748b;
@@ -241,12 +219,12 @@ st.sidebar.markdown("---")
 df = load_data()
 
 # LOG BİLGİSİ
-print("--- !!! TITAN V18.0 MOBILE-READY DEPLOY !!! ---")
+print("--- !!! TITAN V19.0 PREMIUM HYBRID DEPLOY !!! ---")
 
 # Canlıda cache'i temizle
-if 'init_v18_0' not in st.session_state:
+if 'init_v19_0' not in st.session_state:
     st.cache_data.clear()
-    st.session_state.init_v18_0 = True
+    st.session_state.init_v19_0 = True
 
 # Oturum Durumu (Navigasyon ve Filtreler İçin)
 if 'current_page' not in st.session_state:
@@ -284,12 +262,12 @@ st.markdown("""
 st.markdown("""
     <div class="top-nav">
         <div class="logo-text">
-            NUCLEUS <b>X</b> <span style="font-size: 0.7rem; opacity: 0.5;">v18.1 MOBILE</span>
+            NUCLEUS <b>X</b> <span style="font-size: 0.7rem; opacity: 0.4;">v19.0 HYBRID</span>
         </div>
-        <div class="search-box"> Haberlerde ara...</div>
-        <div style="display: flex; gap: 10px; align-items: center;">
-            <span style="background: #2563eb; color: white; padding: 5px 10px; border-radius: 20px; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.5px; white-space: nowrap;">LIVE</span>
-            <span style="background: #f1f5f9; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid #e2e8f0; font-size: 0.65rem; font-weight: bold; color: #64748b;">ID</span>
+        <div class="search-box"> Haberlerde anahtar kelime ile ara...</div>
+        <div style="display: flex; gap: 15px; align-items: center;">
+            <span style="background: #1e3a8a; color: white; padding: 6px 16px; border-radius: 4px; font-size: 0.7rem; font-weight: 900; letter-spacing: 1px;">LIVE FEED</span>
+            <div style="width: 32px; height: 32px; border-radius: 50%; background: #f1f5f9; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; font-weight: bold; color: #1e3a8a; border: 1px solid #e2e8f0;">AX</div>
         </div>
     </div>
 """, unsafe_allow_html=True)
@@ -488,7 +466,20 @@ if st.session_state.current_page == "Dashboard":
                 extra_info = f'<div style="color:#2563eb; font-size:0.75rem; margin-top:5px; font-weight:600;">{len(group)} Kaynak</div>' if len(group) > 1 else ""
                 
                 author_name = (display_news.get('author') or 'Anonim')[:25]
-                card_html = f'<div class="news-card">{media_html}<div class="card-title" style="font-size:0.9rem; margin-bottom:5px;">{final_title}</div><div style="font-size:0.8rem; color:#475569; line-height:1.4;">{news_desc}</div><div class="card-meta"><span>YAZAR: {author_name}</span><span>SAAT: {display_news["processed_at"]}</span><span style="color:#2563eb; font-weight:700;">{tag if str(tag).startswith("#") else f"#{tag}"}</span></div>{extra_info}</div>'
+                card_html = f'''
+                <div class="news-card">
+                    {media_html}
+                    <div class="news-card-content">
+                        <div class="card-title">{final_title}</div>
+                        <div style="font-size:0.85rem; color:#475569; line-height:1.5;">{news_desc}</div>
+                        <div class="card-meta">
+                            <span>{author_name}</span>
+                            <span style="color:#1e3a8a;">#{tag if str(tag).startswith("#") else f"{tag}"}</span>
+                        </div>
+                        {extra_info}
+                    </div>
+                </div>
+                '''
                 column_html += card_html.strip()
             
             st.markdown(column_html, unsafe_allow_html=True)
@@ -552,5 +543,5 @@ if st.sidebar.button("Tüm Veritabanını Optimize Et"):
                 st.error(f"Optimizasyon hatası: {e}")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("NucleusX Engine v18.0 Mobile-Ready")
+st.sidebar.caption("NucleusX Engine v19.0 Hybrid")
 st.sidebar.caption("Developed by Antigravity AI")
