@@ -69,24 +69,25 @@ st.markdown("""
     [data-testid="stSidebar"] * {
         color: white !important;
     }
-    /* Sidebar Buttons styling */
-    div.stButton > button[key^="nav_"] {
+    /* Premium Sidebar Buttons */
+    div[data-testid="stSidebar"] div.stButton > button {
         background-color: transparent !important;
-        border: none !important;
-        color: #94a3b8 !important;
+        border: 1px solid rgba(255,255,255,0.1) !important;
+        color: #cbd5e1 !important;
         text-align: left !important;
-        padding: 12px 20px !important;
-        font-size: 0.95rem !important;
-        border-radius: 8px !important;
-        transition: all 0.2s !important;
-        margin-bottom: 2px !important;
-        display: flex !important;
-        align-items: center !important;
+        padding: 10px 15px !important;
+        font-size: 0.9rem !important;
+        border-radius: 10px !important;
+        transition: all 0.3s ease !important;
+        margin-bottom: 8px !important;
     }
-    div.stButton > button[key^="nav_"]:hover {
-        background: rgba(255,255,255,0.1) !important;
+    div[data-testid="stSidebar"] div.stButton > button:hover {
+        background-color: rgba(255,255,255,0.05) !important;
         color: white !important;
+        border-color: rgba(255,255,255,0.3) !important;
+        transform: translateX(5px);
     }
+    /* Active State for buttons handled via Logic */
 
     /* Trending Topics Bar */
     .trending-title {
@@ -238,8 +239,8 @@ st.sidebar.markdown("---")
 # Veriyi Yükle
 df = load_data()
 
-# LOG BİLGİSİ (Sadece Terminal İçin)
-print("--- NucleusX UI V8.0 Başlatıldı ---")
+# LOG BİLGİSİ
+print("--- NucleusX UI V9.0 Başlatıldı ---")
 
 # Oturum Durumu (Navigasyon ve Filtreler İçin)
 if 'current_page' not in st.session_state:
@@ -294,16 +295,16 @@ with st.sidebar:
         </style>
     """, unsafe_allow_html=True)
 
-    # Navigasyon Menüsü (Site Kategorileri ile Eşleşen Türkçe Başlıklar)
+    # Navigasyon Menüsü - Sadeleştirilmiş (V9.0)
     nav_items = [
-        {"name": "Dashboard", "icon": "📊", "label": "Panel Ana Sayfa"},
-        {"name": "Türkiye", "icon": "⚖️", "label": "Siyaset - Türkiye"},
-        {"name": "Ekonomi", "icon": "📈", "label": "Ekonomi & İş"},
-        {"name": "Teknoloji", "icon": "💻", "label": "Teknoloji & AI"},
-        {"name": "Spor", "icon": "⚽", "label": "Spor Dünyası"},
-        {"name": "Dünya", "icon": "🌍", "label": "Dünya Gündemi"},
-        {"name": "Eğlence", "icon": "🎭", "label": "Magazin & Eğlence"},
-        {"name": "Müzik", "icon": "🎵", "label": "Müzik & Sanat"}
+        {"name": "Dashboard", "icon": "🏠", "label": "Ana Sayfa"},
+        {"name": "Türkiye", "icon": "🇹🇷", "label": "Siyaset"},
+        {"name": "Ekonomi", "icon": "💰", "label": "Ekonomi"},
+        {"name": "Teknoloji", "icon": "⚡", "label": "Teknoloji"},
+        {"name": "Spor", "icon": "⚽", "label": "Spor"},
+        {"name": "Dünya", "icon": "🌍", "label": "Dünya"},
+        {"name": "Eğlence", "icon": "🍿", "label": "Magazin"},
+        {"name": "Müzik", "icon": "🎵", "label": "Müzik"}
     ]
     
     for item in nav_items:
@@ -312,7 +313,17 @@ with st.sidebar:
         # Premium aktif durum göstergesi
         btn_label = f" {item['icon']} {item['label']}"
         if is_active:
-            btn_label = f"▶️ {item['icon']} {item['label']}"
+            # Aktif sayfa için özel stil
+            st.sidebar.markdown(f"""
+                <style>
+                div.stButton > button[key="nav_btn_{item['name']}"] {{
+                    background-color: #3b82f6 !important;
+                    color: white !important;
+                    border: none !important;
+                    font-weight: 700 !important;
+                }}
+                </style>
+            """, unsafe_allow_html=True)
         
         if st.sidebar.button(btn_label, key=f"nav_btn_{item['name']}", use_container_width=True):
             st.session_state.current_page = item["name"]
@@ -524,5 +535,5 @@ if st.sidebar.button("🧹 Tüm Veritabanını Optimize Et"):
                 st.error(f"❌ Optimizasyon hatası: {e}")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("🚀 **NucleusX Engine v8.0**")
+st.sidebar.caption("🚀 **NucleusX Engine v9.0**")
 st.sidebar.caption("Developed by Antigravity AI 🤖")
