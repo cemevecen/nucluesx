@@ -248,7 +248,8 @@ nav_items = [
     {"name": "Teknoloji", "label": "Teknoloji"},
     {"name": "Spor", "label": "Spor"},
     {"name": "Dünya", "label": "Dünya"},
-    {"name": "Eğlence", "label": "Magazin"}
+    {"name": "Eğlence", "label": "Magazin"},
+    {"name": "Müzik", "label": "Müzik"}
 ]
 
 # Sidebar
@@ -346,7 +347,7 @@ if current_page == "Dashboard":
                     st.rerun()
 
     # Multi Column Feed
-    all_cats = ["Türkiye", "Dünya", "Ekonomi", "Teknoloji", "Spor", "Eğlence"]
+    all_cats = ["Türkiye", "Dünya", "Ekonomi", "Teknoloji", "Spor", "Eğlence", "Müzik"]
     visible_cats = [c for c in all_cats if not df[df['category'] == c].empty]
     
     if visible_cats:

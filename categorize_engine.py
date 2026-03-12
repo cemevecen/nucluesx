@@ -34,13 +34,12 @@ def categorize_with_groq(text):
         "Content-Type": "application/json"
     }
     
-    prompt = f"""Bir haber editörü gibi davranarak metni SADECE bir kategoriye ata: Ekonomi, Spor, Teknoloji, Eğlence, Dünya, Türkiye.
+    prompt = f"""Bir haber editörü gibi davranarak metni SADECE bir kategoriye ata: Ekonomi, Spor, Teknoloji, Eğlence, Müzik, Dünya, Türkiye.
 
 Rehber:
 - EKONOMİ: Borsa, şirket, ihale, döviz, zam, vergi, banka.
 - SPOR: Futbol, basketbol, transfer, kulüp başkanları (Sadettin Saran, Ali Koç) ve maçlar.
 - TEKNOLOJİ: AI, yazılım, cihaz, bilim.
-- EĞLENCE: Film, dizi, konser, sanatçı, magazin, ünlüler.
 
 SADECE kategori adını yaz. Başka hiçbir şey yazma.
 
@@ -103,7 +102,7 @@ def categorize_with_mistral(text):
         "Content-Type": "application/json"
     }
     
-    prompt = f"Kategori seç (Ekonomi, Spor, Teknoloji, Eğlence, Dünya, Türkiye). SADECE kategori adını yaz. Metin: {text}"
+    prompt = f"Kategori seç (Ekonomi, Spor, Teknoloji, Eğlence, Müzik, Dünya, Türkiye). SADECE kategori adını yaz. Metin: {text}"
     
     data = {
         "model": "mistral-tiny", 
@@ -128,7 +127,8 @@ def get_fallback_category(text):
         "Ekonomi": ["dolar", "euro", "faiz", "enflasyon", "zam", "asgari", "maaş", "vergi", "borsa", "hisse", "temettü", "kripto", "bitcoin", "ihale", "şirket", "yatırım", "finans", "ekonomi", "merkez bankası", "tcmb"],
         "Spor": ["gol", "maç", "skor", "futbol", "basketbol", "fenerbahçe", "galatasaray", "beşiktaş", "transfer", "kulüp", "başkan", "saran", "ali koç", "şampiyon", "lig", "antrenman", "sadettin saran", "volkan demirel", "mourinho", "fatih terim"],
         "Teknoloji": ["iphone", "apple", "android", "yazılım", "yapay zeka", "ai", "internet", "google", "çip", "uzay", "robot", "teknoloji", "aplikasyon", "nvidia", "openai"],
-        "Eğlence": ["film", "dizi", "netflix", "sinema", "oyuncu", "magazin", "ünlü", "televizyon", "oscar", "altın portakal", "şarkı", "albüm", "konser", "klip", "single", "sanatçı", "spotify", "müzik", "eurovision", "grammy"],
+        "Eğlence": ["film", "dizi", "netflix", "sinema", "oyuncu", "magazin", "ünlü", "televizyon", "oscar", "altın portakal"],
+        "Müzik": ["şarkı", "albüm", "konser", "klip", "single", "sanatçı", "spotify", "müzik", "eurovision", "grammy"],
         "Dünya": ["savaş", "abd", "rusya", "israil", "gazze", "nato", "avrupa", "bm", "pentagon", "beyaz saray"],
         "Türkiye": ["siyaset", "seçim", "meclis", "parti", "istifa", "belediye", "trt", "aa", "ankara", "ak parti", "chp", "mhp", "iyi parti", "dem parti", "erdoğan", "özel", "imamoğlu", "yavaş"]
     }
@@ -147,13 +147,12 @@ def categorize_tweet(tweet_text):
     # 1. Aşama: Gemini Dene
     if client_gemini:
         try:
-            prompt = f"""Aşağıdaki haberi bu kategorilerden birine yerleştir: Ekonomi, Spor, Teknoloji, Eğlence, Dünya, Türkiye.
+            prompt = f"""Aşağıdaki haberi bu kategorilerden birine yerleştir: Ekonomi, Spor, Teknoloji, Eğlence, Müzik, Dünya, Türkiye.
 
 KATEGORİ REHBERİ:
 - Spor: Maçlar, futbolcular, kulüp başkanları (Sadettin Saran, Ali Koç vb.) ve transferler.
 - Ekonomi: Para, borsa, banka, şirket yönetimi, fiyat artışları.
-- Teknoloji: Dijital yenilikler, telefonlar, AI, bilim.
-- Eğlence: Magazin, ünlüler, dizi, film, müzik, konserler.
+- Teknoloji: Dijital yenilikler, telefonlar, AI, bilim (İnsan transferleri teknoloji DEĞİLDİR).
 - Türkiye: Genel iç siyaset ve sosyal olaylar.
 
 SADECE kategorinin adını dön.
@@ -164,9 +163,8 @@ Metin: {tweet_text}"""
                 contents=prompt
             )
             res = response.text.strip().replace("[", "").replace("]", "").replace(".", "")
-            if res in ["Ekonomi", "Spor", "Teknoloji", "Eğlence", "Dünya", "Türkiye"]:
+            if res in ["Ekonomi", "Spor", "Teknoloji", "Eğlence", "Müzik", "Dünya", "Türkiye"]:
                 return res
-            if res == "Müzik": return "Eğlence"
         except Exception as e:
             print(f"⚠️ Gemini Hatası (Yedeğe geçiliyor): {e}")
             pass
