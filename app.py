@@ -7,7 +7,7 @@ from categorize_engine import run_categorization_process
 
 # Sayfa Konfigürasyonu
 st.set_page_config(
-    page_title="NucleusX AI V10.0 | Canlı",
+    page_title="NucleusX AI V14.0 PLATINUM",
     page_icon="⚛️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -250,12 +250,12 @@ st.sidebar.markdown("---")
 df = load_data()
 
 # LOG BİLGİSİ
-print("--- !!! NUCLEAR V13.0 DEPLOY !!! ---")
+print("--- !!! NUCLEAR V14.0 FORCE DEPLOY !!! ---")
 
 # Canlıda cache'i temizle
-if 'init_v13' not in st.session_state:
+if 'init_v14' not in st.session_state:
     st.cache_data.clear()
-    st.session_state.init_v13 = True
+    st.session_state.init_v14 = True
 
 # Oturum Durumu (Navigasyon ve Filtreler İçin)
 if 'current_page' not in st.session_state:
@@ -288,7 +288,7 @@ st.markdown("""
 st.markdown("""
     <div class="top-nav">
         <div class="logo-text">
-            <span>⚛️</span> NUCLEUS<b>X</b> <span style="font-size: 0.8rem; opacity: 0.5; font-weight: 400;">v13.0</span>
+            <span>⚛️</span> NUCLEUS<b>X</b> <span style="font-size: 0.8rem; opacity: 0.5; font-weight: 400;">v14.0</span>
         </div>
         <div class="search-box">🔍 Haberlerde veya konularda ara...</div>
         <div style="display: flex; gap: 20px; align-items: center; font-size: 1.2rem;">
@@ -546,5 +546,5 @@ if st.sidebar.button("🧹 Tüm Veritabanını Optimize Et"):
                 st.error(f"❌ Optimizasyon hatası: {e}")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("🚀 **NucleusX Engine v13.0 Platinum**")
+st.sidebar.caption("🚀 **NucleusX Engine v14.0 Platinum**")
 st.sidebar.caption("Developed by Antigravity AI 🤖")
