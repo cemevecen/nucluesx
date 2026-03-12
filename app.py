@@ -219,12 +219,12 @@ st.sidebar.markdown("---")
 df = load_data()
 
 # LOG BİLGİSİ
-print("--- !!! HYBRID TITAN V16.0 DEPLOY !!! ---")
+print("--- !!! TITAN V16.1 DEPLOY !!! ---")
 
 # Canlıda cache'i temizle
-if 'init_v16' not in st.session_state:
+if 'init_v16_1' not in st.session_state:
     st.cache_data.clear()
-    st.session_state.init_v16 = True
+    st.session_state.init_v16_1 = True
 
 # Oturum Durumu (Navigasyon ve Filtreler İçin)
 if 'current_page' not in st.session_state:
@@ -262,7 +262,7 @@ st.markdown("""
 st.markdown("""
     <div class="top-nav">
         <div class="logo-text">
-            ⚛️ NUCLEUS <b>X</b> <span style="font-size: 0.8rem; opacity: 0.5;">v16.0 TITAN</span>
+            NUCLEUS <b>X</b> <span style="font-size: 0.8rem; opacity: 0.5;">v16.1 TITAN</span>
         </div>
         <div class="search-box">🔍 Haberlerde veya konularda ara...</div>
         <div style="display: flex; gap: 20px; align-items: center; font-size: 1.2rem;">
@@ -467,7 +467,7 @@ else:
                     <div class="card-title" style="font-size:0.9rem; margin-bottom:5px;">{final_title}</div>
                     <div style="font-size:0.8rem; color:#475569; line-height:1.4;">{news_desc}</div>
                     <div class="card-meta">
-                        <span>👤 {display_news["author"][:15]}</span>
+                        <span>👤 {str(display_news.get('author', 'Anonim'))[:15]}</span>
                         <span>🕒 {display_news["processed_at"]}</span>
                         <span style="color:#2563eb; font-weight:700;">#{tag}</span>
                     </div>
@@ -536,5 +536,5 @@ if st.sidebar.button("🧹 Tüm Veritabanını Optimize Et"):
                 st.error(f"❌ Optimizasyon hatası: {e}")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("🚀 **NucleusX Engine v16.0 Titan**")
+st.sidebar.caption("🚀 **NucleusX Engine v16.1 Titan**")
 st.sidebar.caption("Developed by Antigravity AI 🤖")
