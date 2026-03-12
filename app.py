@@ -221,12 +221,12 @@ st.sidebar.markdown("---")
 df = load_data()
 
 # LOG BİLGİSİ
-print("--- !!! ULTIMATE TITAN V17.1 FINAL DEPLOY !!! ---")
+print("--- !!! TITAN V17.2 STABILITY PATCH !!! ---")
 
 # Canlıda cache'i temizle
-if 'init_v17_1' not in st.session_state:
+if 'init_v17_2' not in st.session_state:
     st.cache_data.clear()
-    st.session_state.init_v17_1 = True
+    st.session_state.init_v17_2 = True
 
 # Oturum Durumu (Navigasyon ve Filtreler İçin)
 if 'current_page' not in st.session_state:
@@ -264,12 +264,12 @@ st.markdown("""
 st.markdown("""
     <div class="top-nav">
         <div class="logo-text">
-            NUCLEUS <b>X</b> <span style="font-size: 0.8rem; opacity: 0.5;">v17.1 FINAL</span>
+            NUCLEUS <b>X</b> <span style="font-size: 0.8rem; opacity: 0.5;">v17.2 TITAN</span>
         </div>
         <div class="search-box"> Haberlerde ara...</div>
         <div style="display: flex; gap: 15px; align-items: center;">
-            <span style="background: #2563eb; color: white; padding: 6px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 700;">LIVE</span>
-            <span style="background: #e2e8f0; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer;">👤</span>
+            <span style="background: #2563eb; color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.75rem; font-weight: 800; letter-spacing: 0.5px;">SYSTEM LIVE</span>
+            <span style="background: #f1f5f9; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1px solid #e2e8f0;">👤</span>
         </div>
     </div>
 """, unsafe_allow_html=True)
@@ -464,7 +464,9 @@ if st.session_state.current_page == "Dashboard":
                 
                 extra_info = f'<div style="color:#2563eb; font-size:0.75rem; margin-top:5px; font-weight:600;">✨ {len(group)} Kaynak</div>' if len(group) > 1 else ""
                 
-                column_html += f'<div class="news-card">{media_html}<div class="card-title" style="font-size:0.9rem; margin-bottom:5px;">{final_title}</div><div style="font-size:0.8rem; color:#475569; line-height:1.4;">{news_desc}</div><div class="card-meta"><span>👤 {str(display_news.get("author", "Anonim"))[:25]}</span><span>🕒 {display_news["processed_at"]}</span><span style="color:#2563eb; font-weight:700;">{tag if str(tag).startswith("#") else f"#{tag}"}</span></div>{extra_info}</div>'
+                author_name = (display_news.get('author') or 'Anonim')[:25]
+                card_html = f'<div class="news-card">{media_html}<div class="card-title" style="font-size:0.9rem; margin-bottom:5px;">{final_title}</div><div style="font-size:0.8rem; color:#475569; line-height:1.4;">{news_desc}</div><div class="card-meta"><span>👤 {author_name}</span><span>🕒 {display_news["processed_at"]}</span><span style="color:#2563eb; font-weight:700;">{tag if str(tag).startswith("#") else f"#{tag}"}</span></div>{extra_info}</div>'
+                column_html += card_html.strip()
             
             st.markdown(column_html, unsafe_allow_html=True)
 
@@ -527,5 +529,5 @@ if st.sidebar.button("🧹 Tüm Veritabanını Optimize Et"):
                 st.error(f"❌ Optimizasyon hatası: {e}")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("🚀 **NucleusX Engine v17.0 Titan Final**")
+st.sidebar.caption("🚀 **NucleusX Engine v17.2 Stability Patch**")
 st.sidebar.caption("Developed by Antigravity AI 🤖")
