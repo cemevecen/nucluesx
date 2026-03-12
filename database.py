@@ -58,7 +58,8 @@ def init_db():
             "ALTER TABLE tweets ADD COLUMN IF NOT EXISTS topic_tag TEXT DEFAULT '#HABER'",
             "ALTER TABLE tweets ADD COLUMN IF NOT EXISTS media_url TEXT",
             "ALTER TABLE tweets ADD COLUMN IF NOT EXISTS tweet_url TEXT",
-            "UPDATE tweets SET category = 'Ekonomi' WHERE category = 'Finans'" # Finans kategorisini Ekonomi ile birleştir
+            "UPDATE tweets SET category = 'Ekonomi' WHERE category = 'Finans'", # Finans kategorisini Ekonomi ile birleştir
+            "UPDATE tweets SET category = 'Türkiye' WHERE category = 'Ülke Gündemi'" # Ülke Gündemi adını Türkiye yap
         ]
         for m in migrations:
             try:

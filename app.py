@@ -332,7 +332,7 @@ if st.session_state.selected_tag:
 
 # Veriyi Kategorilere Göre Hazırla
 # Ekonomi ve Finans birleştiği için Finans'ı listeden siliyoruz
-all_categories = ["Ülke Gündemi", "Dünya", "Ekonomi", "Teknoloji", "Spor", "Eğlence", "Müzik"]
+all_categories = ["Türkiye", "Dünya", "Ekonomi", "Teknoloji", "Spor", "Eğlence", "Müzik"]
 
 cols = st.columns(len(all_categories))
 

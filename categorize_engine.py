@@ -34,7 +34,7 @@ def categorize_with_groq(text):
         "Content-Type": "application/json"
     }
     
-    prompt = f"Categorize this news/tweet into ONE of these: Ekonomi, Spor, Teknoloji, Eğlence, Müzik, Dünya, Ülke Gündemi. Respond with ONLY the category name.\n\nText: {text}"
+    prompt = f"Categorize this news/tweet into ONE of these: Ekonomi, Spor, Teknoloji, Eğlence, Müzik, Dünya, Türkiye. Respond with ONLY the category name.\n\nText: {text}"
     
     # 8B modeli çok daha hızlıdır ve kotası daha yüksektir, kategori için yeterlidir.
     data = {
@@ -47,7 +47,7 @@ def categorize_with_groq(text):
         response = requests.post(url, headers=headers, json=data, timeout=5)
         if response.status_code == 200:
             res = response.json()['choices'][0]['message']['content'].strip().replace(".", "")
-            if res in ["Ekonomi", "Spor", "Teknoloji", "Eğlence", "Müzik", "Dünya", "Ülke Gündemi"]:
+            if res in ["Ekonomi", "Spor", "Teknoloji", "Eğlence", "Müzik", "Dünya", "Türkiye"]:
                 return res
         elif response.status_code == 429: # Rate limit dursa da sistem anahtar kelimeye geçmeli
              return None
@@ -94,7 +94,7 @@ def categorize_with_mistral(text):
         "Content-Type": "application/json"
     }
     
-    prompt = f"Categorize into ONE: Ekonomi, Spor, Teknoloji, Eğlence, Müzik, Dünya, Ülke Gündemi. Respond with ONLY the category name.\n\nText: {text}"
+    prompt = f"Categorize into ONE: Ekonomi, Spor, Teknoloji, Eğlence, Müzik, Dünya, Türkiye. Respond with ONLY the category name.\n\nText: {text}"
     
     data = {
         "model": "open-mistral-7b", 
@@ -105,7 +105,7 @@ def categorize_with_mistral(text):
         response = requests.post(url, headers=headers, json=data, timeout=5)
         if response.status_code == 200:
             res = response.json()['choices'][0]['message']['content'].strip().replace(".", "")
-            if res in ["Ekonomi", "Spor", "Teknoloji", "Eğlence", "Müzik", "Dünya", "Ülke Gündemi"]:
+            if res in ["Ekonomi", "Spor", "Teknoloji", "Eğlence", "Müzik", "Dünya", "Türkiye"]:
                 return res
         return None
     except Exception:
@@ -121,13 +121,13 @@ def get_fallback_category(text):
         "Eğlence": ["film", "dizi", "netflix", "sinema", "oyuncu", "magazin", "ünlü"],
         "Müzik": ["şarkı", "albüm", "konser", "klip", "single", "sanatçı", "spotify"],
         "Dünya": ["savaş", "abd", "rusya", "israil", "gazze", "nato", "avrupa", "bm"],
-        "Ülke Gündemi": ["siyaset", "seçim", "meclis", "parti", "istifa", "belediye", "trt", "aa"]
+        "Türkiye": ["siyaset", "seçim", "meclis", "parti", "istifa", "belediye", "trt", "aa"]
     }
     
     for cat, words in keywords.items():
         if any(word in text for word in words):
             return cat
-    return "Ülke Gündemi" # Varsayılan kategori
+    return "Türkiye" # Varsayılan kategori
 
 def categorize_tweet(tweet_text):
     """
@@ -138,13 +138,13 @@ def categorize_tweet(tweet_text):
     # 1. Aşama: Gemini Dene
     if client_gemini:
         try:
-            prompt = f"Metni şu kategorilerden birine yerleştir: Ekonomi, Spor, Teknoloji, Eğlence, Müzik, Dünya, Ülke Gündemi. SADECE kategorinin ismini yaz.\nMetin: {tweet_text}"
+            prompt = f"Metni şu kategorilerden birine yerleştir: Ekonomi, Spor, Teknoloji, Eğlence, Müzik, Dünya, Türkiye. SADECE kategorinin ismini yaz.\nMetin: {tweet_text}"
             response = client_gemini.models.generate_content(
                 model='gemini-2.0-flash', # Güncel ve ücretsiz kotası geniş olan model
                 contents=prompt
             )
             res = response.text.strip().replace("[", "").replace("]", "").replace(".", "")
-            if res in ["Ekonomi", "Spor", "Teknoloji", "Eğlence", "Müzik", "Dünya", "Ülke Gündemi"]:
+            if res in ["Ekonomi", "Spor", "Teknoloji", "Eğlence", "Müzik", "Dünya", "Türkiye"]:
                 return res
         except Exception as e:
             print(f"⚠️ Gemini Hatası (Yedeğe geçiliyor): {e}")
@@ -172,7 +172,7 @@ def get_full_analysis(tweet_text):
 def run_categorization_process():
     """Tüm hedef hesaplardan tweetleri çeker, kategorize eder ve kaydeder."""
     target_accounts = [
-        # Ülke Gündemi
+        # Türkiye
         "pusholder", "ajans_muhbir", "haskologlu", "darkwebhaber",
         # Dünya
         "bbcturkce", "euronews_tr", "dw_turkce", "voaturkce",
