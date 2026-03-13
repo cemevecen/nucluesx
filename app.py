@@ -624,10 +624,9 @@ if current_page == "Ana Sayfa": # Changed from "Dashboard" to "Ana Sayfa"
                 
                 # Get display label and slug for the category
                 config = next(c for c in category_config if c["db"] == db_cat)
-                cat_label = config["label"]
-                cat_slug = config["slug"]
                 
-                st.markdown(f'<div class="column-header"><h3>{cat_label}</h3></div>', unsafe_allow_html=True)
+                # V39.1 - Removed redundant headers and lines from dashboard view as requested
+                # st.markdown(f'<div class="column-header"><h3>{config["label"]}</h3></div>', unsafe_allow_html=True)
                 
                 cat_df = df[df['category'] == db_cat].head(15)
                 topics = cat_df.groupby('topic_tag')
