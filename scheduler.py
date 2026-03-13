@@ -19,9 +19,9 @@ def main():
     # İlk çalıştırma
     run_engine()
     
-    # 30 dakikada bir çalıştır (Saniyeye çeviriyoruz: 30 * 60)
-    # Bütçeni / API kotanı korumak için bu süreyi çok kısa tutmuyoruz.
-    INTERVAL = 30 * 60 
+    # 10 dakikada bir çalıştır (Saniyeye çeviriyoruz: 10 * 60)
+    # AI maliyeti sıfırlandığı için daha sık çekim yapabiliriz.
+    INTERVAL = 10 * 60 
     
     print(f"🤖 Otomasyon devrede. Her {INTERVAL/60} dakikada bir yeni tweetler toplanacak.")
     print("Durdurmak için: CTRL+C")
