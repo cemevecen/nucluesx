@@ -6,7 +6,6 @@ import html
 from database import init_db, get_db_connection
 from categorize_engine import run_categorization_process
 import streamlit.components.v1 as components
-import urllib.parse
 
 # -----------------------------------------------------------------------------
 # GLOBAL CONFIG & INITIALIZATION
@@ -443,13 +442,12 @@ def get_card_html(row, current_page_slug="home"):
 
     media_html = f'<div style="width:100%; height:160px; overflow:hidden;"><img src="{media_url}" style="width:100%; height:100%; object-fit:cover;"></div>' if media_url else ""
     
-    # V38.9 - FIXED: Removed inner <a> to prevent nested links. 
-    # Entire card is wrapped in the expansion link.
+    # V38.7 - FIXED: Removed inner <a> to prevent nested links. 
+    # The entire card is wrapped in the expansion link already.
     title_html = f'<div style="color: #000000; font-weight: 800; font-size: 0.80rem; line-height: 1.35;">{news_title}</div>'
     
-    # V38.9 - ROBUST ENCODING: URL encoding to prevent browser misinterpretation
-    safe_tweet_url = urllib.parse.quote_plus(tweet_url)
-    expand_url = f"/?page={current_page_slug}&expand={safe_tweet_url}"
+    # expansion routing bridge link - V38.7
+    expand_url = f"/?page={current_page_slug}&expand={tweet_url}"
     
     return f'<a href="{expand_url}" target="_self" style="text-decoration:none; color:inherit; display:block;"><div class="news-card {cat_class}">{media_html}<div class="news-card-content"><div class="card-title">{title_html}</div><div class="card-desc">{news_desc}</div><div class="card-meta"><span>{author_name}</span><div class="sparkline"></div><span>{processed_at}</span></div></div></div></a>'
 
