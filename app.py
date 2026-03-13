@@ -338,23 +338,22 @@ st.markdown("""
         animation: slideDown 0.3s ease-out;
     }
 
-    /* V39.7 - UNIFIED DASHBOARD SCROLL SYSTEM */
     .dashboard-scroll-container [data-testid="stHorizontalBlock"] {
         display: flex !important;
         flex-wrap: nowrap !important;
         overflow-x: auto !important;
         overflow-y: hidden !important;
         gap: 25px !important;
-        padding: 10px 0 30px 0 !important;
+        padding: 5px 0 30px 0 !important;
         -webkit-overflow-scrolling: touch;
         scrollbar-width: none;
     }
     .dashboard-scroll-container [data-testid="stHorizontalBlock"]::-webkit-scrollbar { display: none; }
     
     .dashboard-scroll-container [data-testid="stHorizontalBlock"] > div {
-        flex: 0 0 420px !important;
-        min-width: 420px !important;
-        max-width: 420px !important;
+        flex: 0 0 calc(25% - 18.75px) !important;
+        min-width: calc(25% - 18.75px) !important;
+        max-width: calc(25% - 18.75px) !important;
     }
 
     .nav-chip {
@@ -547,7 +546,7 @@ df = load_data()
 header_html = f"""
     <div class="top-nav">
         <a href="/?page=home" target="_self" style="text-decoration: none; color: inherit;">
-            <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v39.7 Luxury</small></div>
+            <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v39.8 Luxury</small></div>
         </a>
     </div>
 """
