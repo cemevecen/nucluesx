@@ -11,11 +11,16 @@ import streamlit.components.v1 as components
 # GLOBAL CONFIG & INITIALIZATION
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="NucleusX AI V37.2 LUXURY",
+    page_title="NucleusX AI V38.6 LUXURY",
     page_icon="🗞️",
     layout="wide",
     initial_sidebar_state="expanded"
 )
+
+def slugify(text):
+    """Turkish to English slug converter."""
+    char_map = str.maketrans("çğıöşü ", "cgiosu-")
+    return text.lower().translate(char_map).replace(" ", "-")
 
 # Canlı yayında veritabanı yoksa oluştur
 init_db()
@@ -277,6 +282,94 @@ st.markdown("""
         color: #ffffff !important;
         border-color: #1e3a8a !important;
     }
+
+    /* V38.0 Category Chips */
+    .nav-chip {
+        display: inline-block;
+        padding: 8px 18px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        text-decoration: none;
+        white-space: nowrap;
+        transition: all 0.25s;
+        cursor: pointer;
+        margin-right: 10px;
+        margin-bottom: 10px;
+        color: #ffffff; /* Default text color for chips */
+        border: 1px solid transparent; /* Default border */
+    }
+
+    .nav-chip.active {
+        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        transform: translateY(-2px);
+    }
+
+    .nav-chip:hover {
+        opacity: 0.85;
+        transform: translateY(-2px);
+    }
+
+    .category-spor { border-color: #86efac !important; }
+    .category-ekonomi { border-color: #fde047 !important; }
+    .category-teknoloji { border-color: #93c5fd !important; }
+    .category-siyaset { border-color: #fca5a5 !important; }
+    .category-dunya { border-color: #d6d3d1 !important; }
+    .category-magazin { border-color: #fdba74 !important; }
+    .category-muzik { border-color: #c4b5fd !important; }
+    .category-home { border-color: #1e3a8a !important; }
+    .category-turkiye { border-color: #fca5a5 !important; }
+    .category-eglence { border-color: #fdba74 !important; }
+
+    /* V38.4 Active State Styling */
+    .nav-chip.active {
+        border-width: 3px !important;
+        box-shadow: 0 6px 15px rgba(0,0,0,0.06) !important;
+        transform: translateY(-2px);
+    }
+
+    /* V38.4 Inline Expansion Styling */
+    .inline-detail {
+        grid-column: 1 / -1; 
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 5px;
+        margin: 5px 0 25px 0;
+        border: 1px solid #f8fafc;
+        animation: slideDown 0.3s ease-out;
+    }
+
+    .inline-detail-mini {
+        background: #ffffff;
+        border-radius: 12px;
+        padding: 0px;
+        margin: 5px 0 15px 0;
+        border: none;
+        animation: slideDown 0.3s ease-out;
+    }
+
+    /* Fixed Nav Wrapper for 5+2 style */
+    .nav-tabs-wrapper {
+        padding: 20px 40px !important;
+        display: flex !important;
+        overflow-x: auto !important;
+        scrollbar-width: none;
+    }
+    .nav-chip {
+        flex: 0 0 18% !important; /* Roughly 5 items per row visible */
+        min-width: 140px;
+        text-align: center;
+        color: #000000 !important;
+        background: #ffffff !important;
+        border: 2px solid #e2e8f0;
+        margin-right: 15px;
+    }
+
+    @keyframes slideDown {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
     </style>
 """, unsafe_allow_html=True)
 
@@ -299,23 +392,33 @@ def render_twitter_embed(tweet_url):
         </div>
     </div>
     """
-    components.html(embed_code, height=750)
+    components.html(embed_code, height=650)
 
-def get_card_html(row, current_page="Dashboard"):
-    """Generates standardized HTML for a news card (Strictly Flattened)."""
+def get_card_html(row, current_page_slug="home"):
+    """Generates standardized HTML for a news card with URL sanitization."""
     content_raw = str(row.get('content', '')).replace("\n", " ")
     
-    # Robust Title/Desc Split (Luxury Limits)
-    if '.' in content_raw and len(content_raw.split('.')[0]) > 10:
-        parts = content_raw.split('.')
-        news_title = parts[0].strip()[:100]
-        news_desc = ".".join(parts[1:]).strip()[:120]
-    else:
-        news_title = content_raw[:100]
-        news_desc = content_raw[100:200]
+    # V38.7 - Robust URL cleaning (Catches fragments like t.co, https://t, co/...)
+    # 1. Standard URLs
+    # 2. Fragmented t.co links (t.co/XYZ, co/XYZ)
+    # 3. Cut-off https://t
+    url_pattern = r'(https?://\S+|t\.co/\S+|co/\S+|https?://t\b)'
+    clean_content = re.sub(url_pattern, '', content_raw).strip()
     
-    if len(content_raw) > len(news_title): news_title += "..."
-    if len(news_desc) > 0 and len(content_raw) > (len(news_title) + 5): news_desc += "..."
+    if not clean_content: clean_content = content_raw
+    
+    # Robust Title/Desc Split using Regex (Avoiding dots in URLs)
+    sentences = re.split(r'\.\s+', clean_content)
+    
+    if len(sentences) > 0 and len(sentences[0]) > 10:
+        news_title = sentences[0].strip()[:100]
+        news_desc = ". ".join(sentences[1:]).strip()[:120]
+    else:
+        news_title = clean_content[:100]
+        news_desc = clean_content[100:200]
+    
+    if len(clean_content) > len(news_title): news_title += "..."
+    if len(news_desc) > 0 and len(clean_content) > (len(news_title) + 5): news_desc += "..."
     
     # Escape for HTML safety
     news_title = html.escape(news_title)
@@ -329,10 +432,13 @@ def get_card_html(row, current_page="Dashboard"):
     cat_class = f"cat-{cat_val.lower().replace('ü', 'u').replace('ö', 'o').replace('ı', 'i').replace('ş', 's').replace('ç', 'c')}"
 
     media_html = f'<div style="width:100%; height:160px; overflow:hidden;"><img src="{media_url}" style="width:100%; height:100%; object-fit:cover;"></div>' if media_url else ""
-    title_html = f'<a href="{tweet_url}" target="_blank" style="pointer-events: none;">{news_title}</a>'
     
-    # expansión routing bridge link
-    expand_url = f"/?page={current_page}&expand={tweet_url}"
+    # V38.7 - FIXED: Removed inner <a> to prevent nested links. 
+    # The entire card is wrapped in the expansion link already.
+    title_html = f'<div style="color: #000000; font-weight: 800; font-size: 0.80rem; line-height: 1.35;">{news_title}</div>'
+    
+    # expansion routing bridge link - V38.7
+    expand_url = f"/?page={current_page_slug}&expand={tweet_url}"
     
     return f'<a href="{expand_url}" target="_self" style="text-decoration:none; color:inherit; display:block;"><div class="news-card {cat_class}">{media_html}<div class="news-card-content"><div class="card-title">{title_html}</div><div class="card-desc">{news_desc}</div><div class="card-meta"><span>{author_name}</span><div class="sparkline"></div><span>{processed_at}</span></div></div></div></a>'
 
@@ -352,29 +458,33 @@ def load_data():
         return pd.DataFrame(columns=['author', 'content', 'category', 'topic_tag', 'processed_at', 'media_url', 'tweet_url'])
 
 # -----------------------------------------------------------------------------
-# APP LOGIC - V32.0 ROUTING
+# APP LOGIC & ROUTING
 # -----------------------------------------------------------------------------
-# Query Parameter Routing Bridge
-if "page" in st.query_params:
-    st.session_state.current_page = st.query_params["page"]
-if "expand" in st.query_params:
-    st.session_state.expand_url = st.query_params["expand"]
-else:
-    st.session_state.expand_url = None
-
-df = load_data()
-
-# Navigation Items
-nav_items = [
-    {"name": "Dashboard", "label": "Ana Sayfa"},
-    {"name": "Türkiye", "label": "Siyaset"},
-    {"name": "Ekonomi", "label": "Ekonomi"},
-    {"name": "Teknoloji", "label": "Teknoloji"},
-    {"name": "Spor", "label": "Spor"},
-    {"name": "Dünya", "label": "Dünya"},
-    {"name": "Eğlence", "label": "Magazin"},
-    {"name": "Müzik", "label": "Müzik"}
+# V38.5 - Internal Category Mapping (DB Name -> UI Label -> Slug)
+category_config = [
+    {"db": "Türkiye", "name": "Siyaset", "label": "Siyaset", "slug": "siyaset"},
+    {"db": "Ekonomi", "name": "Ekonomi", "label": "Ekonomi", "slug": "ekonomi"},
+    {"db": "Teknoloji", "name": "Teknoloji", "label": "Teknoloji", "slug": "teknoloji"},
+    {"db": "Spor", "name": "Spor", "label": "Spor", "slug": "spor"},
+    {"db": "Dünya", "name": "Dünya", "label": "Dünya", "slug": "dunya"},
+    {"db": "Eğlence", "name": "Magazin", "label": "Magazin", "slug": "magazin"},
+    {"db": "Müzik", "name": "Müzik", "label": "Müzik", "slug": "muzik"}
 ]
+
+nav_items = [{"name": "Ana Sayfa", "label": "Ana Sayfa", "slug": "home"}] + [
+    {"name": c["name"], "label": c["label"], "slug": c["slug"]} for c in category_config
+]
+
+# Query Parameter Routing Bridge
+params = st.query_params
+raw_slug = params.get("page", ["home"])[0] if isinstance(params.get("page"), list) else params.get("page", "home")
+current_slug = slugify(raw_slug) # Force English slug
+expand_url = params.get("expand")
+
+# Determine Current Page Name & DB Category
+current_item = next((item for item in nav_items if item["slug"] == current_slug or slugify(item["name"]) == current_slug), nav_items[0])
+current_page = current_item["name"]
+current_db_cat = next((c["db"] for c in category_config if c["name"] == current_page), None)
 
 # Sidebar
 with st.sidebar:
@@ -383,7 +493,7 @@ with st.sidebar:
     
     # Nav Buttons
     for item in nav_items:
-        is_active = st.session_state.get('current_page', 'Dashboard') == item["name"]
+        is_active = current_page == item["name"]
         
         # High contrast Luxury state
         if is_active:
@@ -392,7 +502,8 @@ with st.sidebar:
             st.markdown(f'''<style>div[data-testid="stSidebar"] div.stButton > button[key="nav_{item['name']}"] {{ background: #ffffff !important; color: #1e1e1e !important; font-weight: 600 !important; border-bottom: 1px solid #f1f5f9 !important; border-radius: 0 !important; text-align: left !important; }}</style>''', unsafe_allow_html=True)
         
         if st.button(item['label'], key=f"nav_{item['name']}", use_container_width=True):
-            st.session_state.current_page = item["name"]
+            st.query_params["page"] = item["slug"]
+            st.query_params.pop("expand", None) # Clear expand param
             st.session_state.selected_tag = None
             st.rerun()
             
@@ -414,29 +525,25 @@ with st.sidebar:
 # Top Nav
 st.markdown(f"""
     <div class="top-nav">
-        <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v37.2 Luxury</small></div>
+        <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v38.6 Luxury</small></div>
 """, unsafe_allow_html=True)
 
-# Main Navigation Router
-current_page = st.session_state.get('current_page', 'Dashboard')
-selected_tag = st.session_state.get('selected_tag')
-expand_url = st.session_state.get('expand_url')
+df = load_data()
 
-# V32.0 - DYNAMIC NAV TABS (Functional Links - MOVED UP FOR PERSISTENCE)
-nav_tabs_html = '<div class="nav-tabs-wrapper">'
-for item in nav_items:
-    active_class = "active" if current_page == item["name"] else ""
-    cat_class = f"tab-{item['name'].lower().replace('ü', 'u').replace('ö', 'o').replace('ı', 'i').replace('ş', 's').replace('ç', 'c')}"
-    link_url = f"/?page={item['name']}"
-    nav_tabs_html += f'<a href="{link_url}" target="_self" class="nav-tab-item {active_class} {cat_class}">{item["label"]}</a>'
-nav_tabs_html += '</div>'
-st.markdown(nav_tabs_html, unsafe_allow_html=True)
+# V38.0 - DYNAMIC NAV TABS (Functional Links - MOVED UP FOR PERSISTENCE)
+st.markdown('<div class="nav-tabs-wrapper">', unsafe_allow_html=True)
+cols = st.columns(len(nav_items))
+for i, item in enumerate(nav_items):
+    with cols[i]:
+        active_class = "active" if current_page == item["name"] else ""
+        cat_class = f"category-{item['slug']}"
+        st.markdown(f'<a href="/?page={item["slug"]}" target="_self" class="nav-chip {cat_class} {active_class}">{item["label"]}</a>', unsafe_allow_html=True)
 
-# FOCUS VIEW (Expanded Tweet)
-if expand_url:
-    st.markdown(f'<div style="padding: 10px 0; border-bottom: 2px solid #f1f5f9; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center;"><h3 style="margin:0; color:#1e3a8a; font-weight:800;">HABER DETAYI</h3><a href="/?page={current_page}" target="_self" style="text-decoration:none; background:#f1f5f9; padding:8px 20px; border-radius:8px; color:#1e3a8a; font-weight:800;">✕ KAPAT</a></div>', unsafe_allow_html=True)
-    render_twitter_embed(expand_url)
-    st.markdown("<hr style='margin: 30px 0; opacity: 0.1;'>", unsafe_allow_html=True)
+st.markdown('</div>', unsafe_allow_html=True)
+
+# FOCUS VIEW REMOVED FROM TOP (V38.1)
+
+selected_tag = st.session_state.get('selected_tag') # Keep selected_tag in session_state for now
 
 if selected_tag:
     # Tag View
@@ -446,35 +553,42 @@ if selected_tag:
         t_cols = st.columns(3)
         for idx, row in tag_df.iterrows():
             with t_cols[idx % 3]:
-                st.markdown(get_card_html(row), unsafe_allow_html=True)
+                st.markdown(get_card_html(row, current_page_slug=current_slug), unsafe_allow_html=True)
     if st.button("Geri Dön"):
         st.session_state.selected_tag = None
         st.rerun()
     st.stop()
 
-if current_page != "Dashboard":
+if current_page != "Ana Sayfa":
     # Category Detail View - V33.0 3-COLUMN GRID
-    cat_label = next((i['label'] for i in nav_items if i['name'] == current_page), current_page)
+    cat_label = current_item["label"]
     st.markdown(f'<div style="padding: 20px 0; border-bottom: 2px solid #f1f5f9; margin-bottom: 30px;"><h2 style="font-weight:800; color:#1e3a8a;">{cat_label}</h2></div>', unsafe_allow_html=True)
     
-    cat_df = df[df['category'] == current_page].head(60)
+    # Filter by DB Category mapping
+    cat_df = df[df['category'] == current_db_cat].head(60)
     if not cat_df.empty:
         # 3-column grid as requested (3erli yan yana)
         grid = st.columns(3)
         for idx, row in cat_df.iterrows():
             with grid[idx % 3]:
-                 st.markdown(get_card_html(row, current_page=current_page), unsafe_allow_html=True)
+                 st.markdown(get_card_html(row, current_page_slug=current_slug), unsafe_allow_html=True)
+                 
+                 # Inline Expansion for Categories
+                 if expand_url and row.get('tweet_url') == expand_url:
+                     st.markdown('<div class="inline-detail">', unsafe_allow_html=True)
+                     render_twitter_embed(expand_url)
+                     st.markdown('</div>', unsafe_allow_html=True)
     else:
         st.info("Bu kategoride henüz haber yok.")
     
     if st.button("← Ana Sayfaya Dön"):
-        st.query_params.clear()
-        st.session_state.current_page = "Dashboard"
+        st.query_params["page"] = "home" # Set to home slug
+        st.query_params.pop("expand", None)
         st.rerun()
     st.stop()
 
 # Dashboard View
-if current_page == "Dashboard":
+if current_page == "Ana Sayfa": # Changed from "Dashboard" to "Ana Sayfa"
     # Trending Pills
     if not df.empty:
         pop_tags = df[~df['topic_tag'].isin(["#HABER", "#GUNDEM", "#DETAY"])]['topic_tag'].value_counts().head(7).index.tolist()
@@ -485,32 +599,41 @@ if current_page == "Dashboard":
                     st.session_state.selected_tag = pt
                     st.rerun()
 
-    # Multi Column Feed
-    all_cats = ["Türkiye", "Dünya", "Ekonomi", "Müzik", "Teknoloji", "Spor", "Eğlence"]
-    visible_cats = [c for c in all_cats if not df[df['category'] == c].empty]
+    # Multi Column Feed - V38.3 Definitive
+    visible_db_cats = [c["db"] for c in category_config if not df[df['category'] == c["db"]].empty]
     
-    if visible_cats:
+    if visible_db_cats:
         # Use a single container for the horizontal scroll
         st.markdown('<div class="dashboard-wrapper">', unsafe_allow_html=True)
         
         # Determine column structure
-        num_cats = len(visible_cats)
+        num_cats = len(visible_db_cats)
         dashboard_cols = st.columns(num_cats)
         
-        for i, cat in enumerate(visible_cats):
+        for i, db_cat in enumerate(visible_db_cats):
             with dashboard_cols[i]:
-                # Render column within the scrollable wrapper logic via CSS
                 st.markdown(f'<div class="category-column">', unsafe_allow_html=True)
                 
-                cat_label = next((item['label'] for item in nav_items if item['name'] == cat), cat)
+                # Get display label and slug for the category
+                config = next(c for c in category_config if c["db"] == db_cat)
+                cat_label = config["label"]
+                cat_slug = config["slug"]
+                
                 st.markdown(f'<div class="column-header"><h3>{cat_label}</h3></div>', unsafe_allow_html=True)
                 
-                cat_df = df[df['category'] == cat].head(15)
+                cat_df = df[df['category'] == db_cat].head(15)
                 topics = cat_df.groupby('topic_tag')
                 
                 for t, group in topics:
+                    tweet = group.iloc[0]
                     # Individual markdown calls are safer and prevent raw HTML leaks
-                    st.markdown(get_card_html(group.iloc[0], current_page=current_page), unsafe_allow_html=True)
+                    st.markdown(get_card_html(tweet, current_page_slug=current_slug), unsafe_allow_html=True)
+                    
+                    # Inline Expansion in Dashboard
+                    if expand_url and tweet.get('tweet_url') == expand_url:
+                        st.markdown('<div class="inline-detail-mini">', unsafe_allow_html=True)
+                        render_twitter_embed(expand_url)
+                        st.markdown('</div>', unsafe_allow_html=True)
                 
                 st.markdown('</div>', unsafe_allow_html=True)
         
@@ -519,4 +642,4 @@ if current_page == "Dashboard":
         st.warning("Henüz haber verisi bulunmuyor. Lütfen yönetici panelinden tarama yapın.")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("NucleusX V37.2 Luxury - Developed by Antigravity AI")
+st.sidebar.caption("NucleusX V38.6 Luxury - Developed by Antigravity AI")
