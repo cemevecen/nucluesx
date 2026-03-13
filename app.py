@@ -542,6 +542,7 @@ df = load_data()
 # V38.8 - 5+2 DYNAMIC NAV TABS (Direct HTML for Scroll Support)
 nav_html = '<div class="nav-tabs-wrapper">'
 for item in nav_items:
+    if item["slug"] == "home": continue # Hide Home tab from header but keep as functionality
     active_class = "active" if current_page == item["name"] else ""
     cat_class = f"category-{item['slug']}"
     nav_html += f'<a href="/?page={item["slug"]}" target="_self" class="nav-chip {cat_class} {active_class}">{item["label"]}</a>'
