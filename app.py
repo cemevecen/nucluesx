@@ -1,8 +1,9 @@
-import streamlit as st # V43.0 SYNC
+import streamlit as st # V44.0 SYNC
 import re
 import pandas as pd
 import time
 import html
+import urllib.parse
 from database import init_db, get_db_connection
 from categorize_engine import run_categorization_process
 import streamlit.components.v1 as components
@@ -11,7 +12,7 @@ import streamlit.components.v1 as components
 # GLOBAL CONFIG & INITIALIZATION
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="NucleusX AI V43.0 LUXURY",
+    page_title="NucleusX AI V44.0 LUXURY",
     page_icon="🗞️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -35,272 +36,103 @@ if 'init_v22_0' not in st.session_state:
 # -----------------------------------------------------------------------------
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
-    
-    * { font-family: 'Inter', sans-serif; box-sizing: border-box; }
+    /* GLOBAL X THEME V44.0 LUXURY */
+    * {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif !important;
+        box-sizing: border-box;
+    }
 
-    /* Streamlit Global Background */
     .stApp { background-color: #ffffff !important; }
 
-    /* COMMON NAV (Responsive) */
+    /* TOP NAV */
     .top-nav {
         display: flex; justify-content: space-between; align-items: center;
-        padding: 15px 0; background: #ffffff !important; border-bottom: 1px solid #f1f5f9;
+        padding: 15px 0; background: #ffffff !important; border-bottom: 1px solid #eff3f4;
         margin-top: -10px; margin-bottom: 25px;
     }
-    .logo-text { font-weight: 800; font-size: 1.4rem; color: #000; letter-spacing: -0.5px; }
-    .logo-text b { color: #1e3a8a; }
+    .logo-text { font-weight: 800; font-size: 1.4rem; color: #0f1419; letter-spacing: -0.5px; }
+    .logo-text b { color: #1d9bf0; }
 
-    /* =======================================================
-       MOBILE DESIGN: SLEEK FINTECH (Max 991px)
-       ======================================================= */
-    @media (max-width: 991px) {
-        .stApp { background-color: #ffffff !important; }
-        .top-nav { padding: 10px 15px; background: #2563eb; border: none; }
-        .logo-text { color: #ffffff !important; }
-        .logo-text b { color: #ffffff !important; opacity: 0.8; }
-        
-        .news-card {
-            background: #ffffff !important;
-            border: 1px solid #f1f5f9;
-            border-radius: 0px !important; /* Sharp corners for fintech look */
-            padding: 0px;
-            margin-bottom: 25px;
-            box-shadow: 0 15px 35px rgba(37, 99, 235, 0.08); 
-            transition: transform 0.2s ease;
-            overflow: hidden;
-        }
-        .news-card-content { padding: 20px; }
-        .card-title a { color: #000000 !important; font-weight: 800; font-size: 1.2rem; line-height: 1.3; text-decoration: none; }
-        .card-desc { font-size: 0.95rem; color: #475569; margin-top: 10px; line-height: 1.5; }
-        .card-meta { margin-top: 15px; padding-top: 15px; border-top: 1px solid #f1f5f9; display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 700; color: #2563eb; text-transform: uppercase; letter-spacing: 0.5px; }
-        
-        [data-testid="column"] { flex: 0 0 100% !important; min-width: 100% !important; margin-bottom: 20px; }
-    }
-
-    /* NAV TABS: SCROLLABLE BAR */
-    .nav-tabs-wrapper {
-        display: flex !important;
-        flex-wrap: nowrap !important;
-        overflow-x: auto !important;
-        overflow-y: hidden !important;
-        gap: 12px !important;
-        padding: 5px 0 25px 0 !important;
-        margin-top: -10px;
-        margin-bottom: 30px;
-        scrollbar-width: none; /* Hide for clean look */
-    }
-    .nav-tabs-wrapper::-webkit-scrollbar { display: none; }
-    
-    .nav-tab-item {
-        flex: 0 0 auto !important;
-        padding: 8px 20px;
-        background: #ffffff;
-        border: 1px solid #e2e8f0;
-        border-radius: 20px;
-        color: #475569;
-        font-weight: 700;
-        font-size: 0.85rem;
-        text-decoration: none;
-        white-space: nowrap;
-        transition: all 0.25s;
-        cursor: pointer;
-    }
-    
-    /* V32.0 Functional Links */
-    .nav-tab-item { text-decoration: none !important; color: inherit; display: inline-block; }
-    .nav-tab-item.tab-turkiye { color: #fca5a5; border-color: #fca5a5; }
-    .nav-tab-item.tab-turkiye.active, .nav-tab-item.tab-turkiye:hover { background: #fca5a5 !important; color: #ffffff !important; }
-    
-    .nav-tab-item.tab-ekonomi { color: #fde047; border-color: #fde047; }
-    .nav-tab-item.tab-ekonomi.active, .nav-tab-item.tab-ekonomi:hover { background: #fde047 !important; color: #78350f !important; }
-    
-    .nav-tab-item.tab-spor { color: #86efac; border-color: #86efac; }
-    .nav-tab-item.tab-spor.active, .nav-tab-item.tab-spor:hover { background: #86efac !important; color: #14532d !important; }
-    
-    .nav-tab-item.tab-muzik { color: #c4b5fd; border-color: #c4b5fd; }
-    .nav-tab-item.tab-muzik.active, .nav-tab-item.tab-muzik:hover { background: #c4b5fd !important; color: #ffffff !important; }
-    
-    .nav-tab-item.tab-teknoloji { color: #93c5fd; border-color: #93c5fd; }
-    .nav-tab-item.tab-teknoloji.active, .nav-tab-item.tab-teknoloji:hover { background: #93c5fd !important; color: #ffffff !important; }
-    
-    .nav-tab-item.tab-dunya { color: #a8a29e; border-color: #d6d3d1; }
-    .nav-tab-item.tab-dunya.active, .nav-tab-item.tab-dunya:hover { background: #d6d3d1 !important; color: #ffffff !important; }
-    
-    .nav-tab-item.tab-eglence { color: #fdba74; border-color: #fdba74; }
-    .nav-tab-item.tab-eglence.active, .nav-tab-item.tab-eglence:hover { background: #fdba74 !important; color: #7c2d12 !important; }
-    
-    /* Dashboard button fallback */
-    .nav-tab-item.tab-dashboard.active { background: #1e3a8a; color: #ffffff; border-color: #1e3a8a; }
-
-    /* DASHBOARD GRID: ROCK SOLID V26.0 */
     .dashboard-wrapper {
         display: flex !important;
         flex-wrap: nowrap !important;
         overflow-x: auto !important;
-        overflow-y: hidden !important;
         gap: 15px !important;
-        padding: 10px 0 40px 0 !important;
+        padding: 5px 0 20px 0 !important;
         width: 100% !important;
         scroll-behavior: smooth;
-        scrollbar-width: none; /* Firefox: Hide scrollbar */
+        scrollbar-width: thin;
+        -webkit-overflow-scrolling: touch;
     }
-    .dashboard-wrapper::-webkit-scrollbar { display: none; } /* Chrome/Safari: Hide scrollbar */
-    
-    .category-column { 
-        flex: 0 0 19% !important; /* Precision for 4.5 columns visible at 1400px+ */
+
+    .category-column {
+        flex: 0 0 19% !important;
         min-width: 280px !important;
-        flex-shrink: 0 !important;
-    }
-    
-    /* V28.0 Pastel Category Colors */
-    .cat-turkiye { border-top-color: #fca5a5 !important; } /* Pastel Kırmızı */
-    .cat-ekonomi { border-top-color: #fde047 !important; } /* Pastel Sarı */
-    .cat-muzik { border-top-color: #c4b5fd !important; }    /* Pastel Eflatun */
-    .cat-dunya { border-top-color: #d6d3d1 !important; }   /* Pastel Kahverengi */
-    .cat-teknoloji { border-top-color: #93c5fd !important; } /* Pastel Mavi */
-    .cat-spor { border-top-color: #86efac !important; }      /* Pastel Yeşil */
-    .cat-eglence { border-top-color: #fdba74 !important; }  /* Pastel Turuncu */
-
-    /* Category Specific Hover Glows (Soft Pastel) */
-    .news-card.cat-turkiye:hover { box-shadow: 0 15px 30px rgba(252, 165, 165, 0.25) !important; border-color: #fca5a5 !important; }
-    .news-card.cat-ekonomi:hover { box-shadow: 0 15px 30px rgba(253, 224, 71, 0.25) !important; border-color: #fde047 !important; }
-    .news-card.cat-muzik:hover { box-shadow: 0 15px 30px rgba(196, 181, 253, 0.25) !important; border-color: #c4b5fd !important; }
-    .news-card.cat-dunya:hover { box-shadow: 0 15px 30px rgba(214, 211, 209, 0.25) !important; border-color: #d6d3d1 !important; }
-    .news-card.cat-teknoloji:hover { box-shadow: 0 15px 30px rgba(147, 197, 253, 0.25) !important; border-color: #93c5fd !important; }
-    .news-card.cat-spor:hover { box-shadow: 0 15px 30px rgba(134, 239, 172, 0.25) !important; border-color: #86efac !important; }
-    .news-card.cat-eglence:hover { box-shadow: 0 15px 30px rgba(253, 186, 116, 0.25) !important; border-color: #fdba74 !important; }
-
-    @media (max-width: 768px) {
-        .category-column { flex: 0 0 85vw !important; min-width: 85vw !important; }
-    }
-
-    /* SIDEBAR: LUXURY MINIMALISM */
-    section[data-testid="stSidebar"] { 
-        background-color: #ffffff !important; 
-        border-right: 1px solid #e2e8f0 !important;
-    }
-
-    /* NEWS CARD: TWITTER REDESIGN V42.0 */
-    .news-card {
-        background: #ffffff !important;
-        border: 1px solid #eff3f4 !important;
-        border-left: 3px solid #6366f1 !important; /* Will be overridden by cat classes */
-        border-radius: 0px !important;
-        padding: 12px 16px !important;
-        margin-bottom: 0px !important; /* Tight spacing, divider handled by border */
-        box-shadow: none !important;
-        transition: none !important;
-        overflow: hidden;
-        cursor: pointer;
-    }
-    .news-card:hover { 
-        transform: none !important; 
-        box-shadow: none !important;
-        background: #f7f9f9 !important; /* Subtle hover background like Twitter */
-    }
-
-    .card-meta-header {
-        display: flex;
-        align-items: flex-start;
-        margin-bottom: 4px;
-    }
-
-    /* EXPANDED PANEL: TWITTER DETAIL V43.0 */
-    .expanded-panel {
-        background: #ffffff !important;
-        border: 1px solid #eff3f4 !important;
-        border-top: none !important;
-        padding: 16px !important;
-        margin-top: -1px;
-        position: relative;
-        animation: slideDown 0.2s ease-out;
-    }
-    @keyframes slideDown {
-        from { opacity: 0; transform: translateY(-10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    .close-btn {
-        position: absolute;
-        top: 12px;
-        right: 16px;
-        color: #536471;
-        font-size: 1.2rem;
-        text-decoration: none;
-        font-weight: bold;
-        cursor: pointer;
-        padding: 4px 8px;
-        border-radius: 50%;
-    }
-    .close-btn:hover { background: #f7f9f9; color: #0f1419; }
-
-    .expanded-text {
-        font-size: 1.35rem !important;
-        color: #0f1419 !important;
-        line-height: 1.3 !important;
-        margin-bottom: 12px;
-        font-weight: 400;
-        white-space: pre-wrap;
-    }
-
-    .expanded-media {
-        width: 100% !important;
-        border-radius: 16px !important;
-        border: 1px solid #eff3f4;
-        margin: 12px 0;
-    }
-
-    .expanded-metadata {
-        padding: 12px 0;
-        border-top: 1px solid #eff3f4;
-        color: #536471 !important;
-        font-size: 0.95rem !important;
-        display: flex;
-        gap: 15px;
-    }
-
-    .action-bar {
-        padding: 12px 0 4px 0;
-        border-top: 1px solid #eff3f4;
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-    }
-
-    .action-item {
-        color: #536471;
-        font-size: 1.1rem;
-        cursor: not-allowed;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        transition: color 0.2s;
-    }
-    .action-item:hover { color: #1d9bf0; }
-
-    .author-info {
         display: flex;
         flex-direction: column;
+        gap: 0px !important;
+        border-right: 1px solid #eff3f4;
     }
 
-    .author-name {
-        color: #000000 !important;
+    /* NAV CHIPS: X STYLE */
+    .category-column .nav-chip, .nav-tabs-wrapper .nav-chip {
+        display: block !important;
+        background: #ffffff !important;
+        color: #0f1419 !important;
+        border: 1px solid #eff3f4 !important;
+        border-radius: 24px !important;
+        padding: 10px 20px !important;
         font-weight: 700 !important;
         font-size: 0.9rem !important;
-        line-height: 1.2;
+        text-align: center;
+        text-decoration: none !important;
+        margin: 12px 16px !important;
+        transition: all 0.2s ease;
+    }
+    .nav-tabs-wrapper .nav-chip { margin: 0 !important; }
+    .nav-chip:hover { background: #f7f9f9 !important; }
+    .nav-chip.active { border-width: 3px !important; }
+
+    /* NEWS CARD: X STYLE REDESIGN */
+    .news-card {
+        background: #ffffff !important;
+        border: none !important;
+        border-bottom: 1px solid #eff3f4 !important;
+        border-left: 3px solid #6366f1 !important;
+        border-radius: 0px !important;
+        padding: 12px 16px !important;
+        box-shadow: none !important;
+        transition: background 0.2s ease;
+        overflow: hidden;
+        cursor: pointer;
+        position: relative;
+    }
+    .news-card:hover { background: #f7f9f9 !important; }
+
+    .author-avatar-small {
+        width: 40px !important;
+        height: 40px !important;
+        border-radius: 50% !important;
+        margin-right: 12px !important;
+        object-fit: cover;
     }
 
-    .author-handle {
-        color: #536471 !important;
-        font-size: 0.8rem !important;
-        font-weight: 400 !important;
+    .author-avatar-large {
+        width: 48px !important;
+        height: 48px !important;
+        border-radius: 50% !important;
+        margin-right: 12px !important;
+        object-fit: cover;
     }
+
+    .author-info { display: flex; flex-direction: column; }
+    .author-name { color: #0f1419; font-weight: 700; font-size: 0.95rem; }
+    .author-handle { color: #536471; font-size: 0.9rem; }
 
     .tweet-text {
-        font-size: 0.95rem !important;
-        color: #0f1419 !important;
-        line-height: 1.5 !important;
+        font-size: 0.95rem;
+        color: #0f1419;
+        line-height: 1.5;
         margin-top: 4px;
         display: -webkit-box;
         -webkit-line-clamp: 4;
@@ -308,26 +140,100 @@ st.markdown("""
         overflow: hidden;
     }
 
-    .card-media {
-        width: 100% !important;
-        max-height: 200px !important;
-        border-radius: 12px !important;
+    .card-media-dashboard {
+        width: 100%;
+        max-height: 240px;
+        border-radius: 12px;
         object-fit: cover;
         margin-top: 12px;
         border: 1px solid #eff3f4;
     }
 
-    .card-footer {
-        margin-top: 12px;
+    .card-stats-row {
+        margin-top: 10px;
+        padding-top: 8px;
+        border-top: 1px solid #eff3f4;
         display: flex;
-        justify-content: flex-end;
+        justify-content: space-between;
+        max-width: 90%;
     }
 
-    .timestamp {
-        color: #536471 !important;
-        font-size: 0.8rem !important;
-        font-weight: 400 !important;
+    .stat-item {
+        color: #536471;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 4px;
     }
+
+    /* EXPANDED PANEL: X DETAIL V44.0 */
+    .expanded-panel {
+        background: #ffffff !important;
+        border-bottom: 1px solid #eff3f4 !important;
+        padding: 16px !important;
+        position: relative;
+        animation: fadeIn 0.3s ease-out;
+    }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+    .expanded-text {
+        font-size: 1.1rem !important;
+        color: #0f1419 !important;
+        line-height: 1.6 !important;
+        margin: 12px 0;
+        white-space: pre-wrap;
+    }
+
+    .expanded-media {
+        width: 100%;
+        max-height: 480px;
+        border-radius: 16px;
+        object-fit: cover;
+        margin: 16px 0;
+        border: 1px solid #eff3f4;
+    }
+
+    .expanded-metadata {
+        padding: 12px 0;
+        border-top: 1px solid #eff3f4;
+        color: #536471;
+        font-size: 0.875rem;
+    }
+
+    .expanded-action-bar {
+        padding: 12px 0;
+        border-top: 1px solid #eff3f4;
+        border-bottom: 1px solid #eff3f4;
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+    }
+
+    .action-icon {
+        color: #536471;
+        font-size: 1.1rem;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: color 0.15s;
+    }
+    .action-reply:hover { color: #1d9bf0 !important; }
+    .action-rt:hover { color: #00ba7c !important; }
+    .action-like:hover { color: #f91880 !important; }
+
+    .close-btn-x {
+        position: absolute;
+        top: 12px;
+        right: 16px;
+        color: #0f1419;
+        font-size: 1.25rem;
+        text-decoration: none !important;
+        padding: 8px;
+        border-radius: 50%;
+        line-height: 1;
+    }
+    .close-btn-x:hover { background: rgba(15, 20, 25, 0.1); }
 
     /* Category Specific Borders */
     .news-card.cat-turkiye { border-left-color: #fca5a5 !important; }
@@ -337,137 +243,10 @@ st.markdown("""
     .news-card.cat-dunya { border-left-color: #d6d3d1 !important; }
     .news-card.cat-eglence { border-left-color: #fdba74 !important; }
     .news-card.cat-muzik { border-left-color: #c4b5fd !important; }
-    
-    .column-header { 
-        padding: 0 0 10px 0;
-        margin-bottom: 15px; 
-        border-bottom: 2px solid #000;
-        position: sticky;
-        top: 0;
-        background: white;
-        z-index: 10;
-    }
-    .column-header h3 { 
-        color: #000000 !important; 
-        font-size: 0.9rem !important; 
-        margin: 0 !important; 
-        font-weight: 900 !important;
-        letter-spacing: 1px;
-        text-transform: uppercase;
-    }
-
-    /* INTERACTION ELEMENTS: DARK BLUE */
-    div.stButton > button {
-        border-radius: 4px !important;
-        background-color: #f8fafc !important;
-        color: #1e3a8a !important;
-        border: 1px solid #e2e8f0 !important;
-        font-weight: 600 !important;
-        transition: all 0.2s !important;
-    }
-    div.stButton > button:hover {
-        background-color: #1e3a8a !important;
-        color: #ffffff !important;
-        border-color: #1e3a8a !important;
-    }
-
-    /* V38.0 Category Chips */
-    .nav-chip {
-        display: inline-block;
-        padding: 8px 18px;
-        border-radius: 20px;
-        font-weight: 700;
-        font-size: 0.85rem;
-        text-decoration: none;
-        white-space: nowrap;
-        transition: all 0.25s;
-        cursor: pointer;
-        margin-right: 10px;
-        margin-bottom: 10px;
-        color: #ffffff; /* Default text color for chips */
-        border: 1px solid transparent; /* Default border */
-    }
-
-    .nav-chip.active {
-        box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        transform: translateY(-2px);
-    }
-
-    .nav-chip:hover {
-        opacity: 0.85;
-        transform: translateY(-2px);
-    }
-
-    .category-spor { border-color: #86efac !important; }
-    .category-ekonomi { border-color: #fde047 !important; }
-    .category-teknoloji { border-color: #93c5fd !important; }
-    .category-siyaset { border-color: #fca5a5 !important; }
-    .category-dunya { border-color: #d6d3d1 !important; }
-    .category-magazin { border-color: #fdba74 !important; }
-    .category-muzik { border-color: #c4b5fd !important; }
-    .category-home { border-color: #1e3a8a !important; }
-    .category-turkiye { border-color: #fca5a5 !important; }
-    .category-eglence { border-color: #fdba74 !important; }
-
-    /* V38.4 Active State Styling */
-    .nav-chip.active {
-        border-width: 3px !important;
-        box-shadow: 0 6px 15px rgba(0,0,0,0.06) !important;
-        transform: translateY(-2px);
-    }
-
-    /* V38.4 Inline Expansion Styling */
-    .inline-detail {
-        grid-column: 1 / -1; 
-        background: #ffffff;
-        border-radius: 12px;
-        padding: 5px;
-        margin: 5px 0 25px 0;
-        border: 1px solid #f8fafc;
-        animation: slideDown 0.3s ease-out;
-    }
-
-    .inline-detail-mini {
-        background: #ffffff;
-        border-radius: 12px;
-        padding: 0px;
-        margin: 5px 0 15px 0;
-        border: none;
-        animation: slideDown 0.3s ease-out;
-    }
-
-    .category-column .nav-chip {
-        display: block !important;
-        width: 100% !important;
-        text-align: center;
-        color: #000000 !important;
-        background: #ffffff !important;
-        border: 2px solid #e2e8f0;
-        padding: 12px 5px !important;
-        font-size: 0.85rem !important;
-        font-weight: 700 !important;
-        text-decoration: none !important;
-        border-radius: 20px;
-        transition: all 0.25s ease;
-        margin-bottom: 20px;
-        box-sizing: border-box;
-    }
-    
-    .category-column .nav-chip:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-    .category-column .nav-chip.active { border-width: 3px !important; box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important; }
 
     @media (max-width: 991px) {
-        .category-column {
-            flex: 0 0 85vw !important;
-            min-width: 85vw !important;
-        }
+        .category-column { flex: 0 0 85vw !important; min-width: 85vw !important; }
     }
-
-    @keyframes slideDown {
-        from { opacity: 0; transform: translateY(-10px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
     </style>
 """, unsafe_allow_html=True)
 
@@ -493,50 +272,56 @@ def render_twitter_embed(tweet_url):
     components.html(embed_code, height=650)
 
 def get_expanded_panel_html(row, current_page_slug="home"):
-    """Generates Twitter-style detail view for expanded news cards."""
-    content_raw = str(row.get('content', '')).replace("\n", " ").strip()
+    """Generates X-style detail view for expanded news cards."""
+    content_raw = str(row.get('content', '')).strip()
     media_url = row.get('media_url')
+    author_name = html.escape(str(row.get('author') or 'ANONYMOUS'))
+    author_image = row.get('author_image') or 'https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png'
     processed_at = row.get('processed_at', '00:00')
     tweet_url = row.get('tweet_url', '#')
+    handle = f"@{slugify(author_name)}"
     
     close_url = f"/?page={current_page_slug}"
     media_html = f'<img src="{media_url}" class="expanded-media">' if media_url else ""
     
-    # Twitter Detail Layout
+    # Twitter Detail Layout V44.0
     html_out = f"""
     <div class="expanded-panel">
-        <a href="{close_url}" target="_self" class="close-btn">✕</a>
+        <a href="{close_url}" target="_self" class="close-btn-x">✕</a>
+        <div style="display: flex; align-items: flex-start;">
+            <img src="{author_image}" class="author-avatar-large">
+            <div style="display: flex; flex-direction: column;">
+                <span class="author-name" style="font-size: 1.1rem !important;">{author_name}</span>
+                <span class="author-handle" style="font-size: 0.9rem !important;">{handle}</span>
+            </div>
+        </div>
         <div class="expanded-text">{content_raw}</div>
         {media_html}
         <div class="expanded-metadata">
-            <span>{processed_at}</span>
-            <span>·</span>
-            <span style="font-weight:700; color:#0f1419;">1.2K</span> <span style="color:#536471;">Views</span>
+            {processed_at} · <span style="font-weight:700; color:#0f1419;">1.2B</span> Görüntülenme
         </div>
-        <div class="action-bar">
-            <div class="action-item">💬 <span style="font-size:0.8rem">12</span></div>
-            <div class="action-item">🔁 <span style="font-size:0.8rem">45</span></div>
-            <div class="action-item">❤️ <span style="font-size:0.8rem">156</span></div>
-            <div class="action-item">🔖 <span style="font-size:0.8rem">8</span></div>
-            <div class="action-item">📤</div>
+        <div class="expanded-action-bar">
+            <div class="action-icon action-reply">💬 <span style="font-size:0.85rem">12</span></div>
+            <div class="action-icon action-rt">🔁 <span style="font-size:0.85rem">45</span></div>
+            <div class="action-icon action-like">❤️ <span style="font-size:0.85rem">156</span></div>
+            <div class="action-icon action-share">🔖</div>
+            <div class="action-icon action-share">📤</div>
         </div>
     </div>
     """
     return html_out.replace('\n', ' ')
 
 def get_card_html(row, current_page_slug="home"):
-    """Generates standardized HTML for a news card with URL sanitization."""
+    """Generates standardized HTML for a news card with onclick interaction V44.0."""
     content_raw = str(row.get('content', '')).replace("\n", " ")
     
     # V38.7 - Robust URL cleaning
     url_pattern = r'(https?://\S+|t\.co/\S+|co/\S+|https?://t\b)'
     clean_content = re.sub(url_pattern, '', content_raw).strip()
-    
     if not clean_content: clean_content = content_raw
     
-    # Robust Title/Desc Split
+    # Title/Desc Split
     sentences = re.split(r'\.\s+', clean_content)
-    
     if len(sentences) > 0 and len(sentences[0]) > 10:
         news_title = sentences[0].strip()[:100]
         news_desc = ". ".join(sentences[1:]).strip()[:120]
@@ -550,28 +335,55 @@ def get_card_html(row, current_page_slug="home"):
     # Escape for HTML safety
     news_title = html.escape(news_title)
     news_desc = html.escape(news_desc)
-    author_name = html.escape(str(row.get('author') or 'ANONYMOUS')).upper()
+    author_name = html.escape(str(row.get('author') or 'ANONYMOUS'))
     processed_at = html.escape(str(row.get('processed_at', '00:00')))
     tweet_url = row.get('tweet_url', '#')
     media_url = row.get('media_url')
-    author_image = row.get('author_image')
+    author_image = row.get('author_image') or 'https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png'
     
     cat_val = row.get('category', 'HABER')
-    cat_class = f"cat-{cat_val.lower().replace('ü', 'u').replace('ö', 'o').replace('ı', 'i').replace('ş', 's').replace('ç', 'c')}"
+    cat_mapping = cat_val.lower().replace('ü', 'u').replace('ö', 'o').replace('ı', 'i').replace('ş', 's').replace('ç', 'c')
+    if cat_mapping == "turkiye": cat_mapping = "turkiye" # Specific fix for Türkiye -> turkiye
+    cat_class = f"cat-{cat_mapping}"
 
-    # Author handle logic
     handle = f"@{slugify(author_name)}"
-    media_html = f'<img src="{media_url}" class="card-media">' if media_url else ""
+    media_html = f'<img src="{media_url}" class="card-media-dashboard">' if media_url else ""
     
     # Determine if this card IS expanded
     current_expanded = st.query_params.get("expand")
     is_open = current_expanded == tweet_url
     
-    # Toggle expansion: if open, next link collapses it.
-    expand_url = f"/?page={current_page_slug}" if is_open else f"/?page={current_page_slug}&expand={tweet_url}"
+    # URL for onclick redirection
+    target_url = f"/?page={current_page_slug}" if is_open else f"/?page={current_page_slug}&expand={urllib.parse.quote_plus(tweet_url)}"
     
-    # Return single-line string to prevent Streamlit HTML leak
-    html_card = f'<a href="{expand_url}" target="_self" style="text-decoration:none; color:inherit; display:block;"><div class="news-card {cat_class}"><div class="card-meta-header"><img src="{author_image or "https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png"}" class="author-avatar"><div class="author-info"><span class="author-name">{author_name}</span><span class="author-handle">{handle}</span></div></div><div class="tweet-text">{news_title} {news_desc}</div>{media_html}<div class="card-footer"><span class="timestamp">{processed_at}</span></div></div></a>'
+    # Stats Row for all cards
+    stats_html = f"""
+    <div class="card-stats-row">
+        <div class="stat-item">💬 8</div>
+        <div class="stat-item">🔁 24</div>
+        <div class="stat-item">❤️ 89</div>
+        <div class="stat-item">📤</div>
+    </div>
+    """
+    
+    # Return single-line string with onclick interaction model
+    html_card = f"""
+    <div class="news-card {cat_class}" onclick="window.location.href='{target_url}'">
+        <div class="card-meta-header">
+            <img src="{author_image}" class="author-avatar-small">
+            <div class="author-info">
+                <span class="author-name">{author_name.upper()}</span>
+                <span class="author-handle">{handle}</span>
+            </div>
+        </div>
+        <div class="tweet-text">{news_title} {news_desc}</div>
+        {media_html}
+        {stats_html}
+        <div style="display: flex; justify-content: flex-end; margin-top: 4px;">
+            <span class="timestamp" style="font-size: 0.75rem;">{processed_at}</span>
+        </div>
+    </div>
+    """
     return html_card.replace('\n', ' ')
 
 @st.cache_data(ttl=600)
@@ -660,7 +472,7 @@ df = load_data()
 header_html = f"""
     <div class="top-nav">
         <a href="/?page=home" target="_self" style="text-decoration: none; color: inherit;">
-            <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v43.0 Luxury</small></div>
+            <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v44.0 Luxury</small></div>
         </a>
     </div>
 """
@@ -761,4 +573,4 @@ if current_page == "Ana Sayfa":
         st.warning("Henüz haber verisi bulunmuyor. Lütfen yönetici panelinden tarama yapın.")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("NucleusX v43.0 Luxury - Developed by Antigravity AI")
+st.sidebar.caption("NucleusX v44.0 Luxury - Developed by Antigravity AI")
