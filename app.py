@@ -1,12 +1,12 @@
-import streamlit as st # V44.0 SYNC
+import streamlit as st # type: ignore
 import re
-import pandas as pd
+import pandas as pd # type: ignore
 import time
 import html
 import urllib.parse
-from database import init_db, get_db_connection
-from categorize_engine import run_categorization_process
-import streamlit.components.v1 as components
+from database import init_db, get_db_connection # type: ignore
+from categorize_engine import run_categorization_process # type: ignore
+import streamlit.components.v1 as components # type: ignore
 
 # -----------------------------------------------------------------------------
 # GLOBAL CONFIG & INITIALIZATION
@@ -110,24 +110,56 @@ st.markdown("""
     .news-card:hover { background: #f7f9f9 !important; }
 
     .author-avatar-small {
-        width: 40px !important;
-        height: 40px !important;
+        width: 36px !important;
+        height: 36px !important;
         border-radius: 50% !important;
-        margin-right: 12px !important;
+        flex-shrink: 0 !important;
         object-fit: cover;
+        margin: 0 !important;
     }
 
     .author-avatar-large {
-        width: 48px !important;
-        height: 48px !important;
+        width: 44px !important;
+        height: 44px !important;
         border-radius: 50% !important;
-        margin-right: 12px !important;
+        flex-shrink: 0 !important;
         object-fit: cover;
+        margin: 0 !important;
     }
 
-    .author-info { display: flex; flex-direction: column; }
-    .author-name { color: #0f1419; font-weight: 700; font-size: 0.95rem; }
-    .author-handle { color: #536471; font-size: 0.9rem; }
+    .card-meta-header {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        gap: 10px !important;
+        margin-bottom: 6px !important;
+    }
+
+    .author-info {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: center !important;
+        min-width: 0 !important;
+    }
+
+    .author-name {
+        color: #0f1419;
+        font-weight: 700;
+        font-size: 0.875rem !important;
+        line-height: 1.2 !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .author-handle {
+        color: #536471;
+        font-size: 0.8rem !important;
+        line-height: 1.2 !important;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
 
     .tweet-text {
         font-size: 0.95rem;
@@ -288,11 +320,11 @@ def get_expanded_panel_html(row, current_page_slug="home"):
     html_out = f"""
     <div class="expanded-panel">
         <a href="{close_url}" target="_self" class="close-btn-x">✕</a>
-        <div style="display: flex; align-items: flex-start;">
+        <div style="display:flex; flex-direction:row; align-items:center; gap:10px; margin-bottom:6px;">
             <img src="{author_image}" class="author-avatar-large">
-            <div style="display: flex; flex-direction: column;">
-                <span class="author-name" style="font-size: 1.1rem !important;">{author_name}</span>
-                <span class="author-handle" style="font-size: 0.9rem !important;">{handle}</span>
+            <div style="display:flex; flex-direction:column; justify-content:center; min-width:0;">
+                <span class="author-name" style="font-size:0.95rem !important;">{author_name}</span>
+                <span class="author-handle" style="font-size:0.85rem !important;">{handle}</span>
             </div>
         </div>
         <div class="expanded-text">{content_raw}</div>
@@ -321,16 +353,23 @@ def get_card_html(row, current_page_slug="home"):
     if not clean_content: clean_content = content_raw
     
     # Title/Desc Split
-    sentences = re.split(r'\.\s+', clean_content)
-    if len(sentences) > 0 and len(str(sentences[0])) > 10:
-        news_title = str(sentences[0]).strip()[:100]
-        news_desc = ". ".join(sentences[1:]).strip()[:120]
-    else:
-        news_title = str(clean_content)[:100]
-        news_desc = str(clean_content)[100:200]
+    news_title = str(clean_content)
+    news_desc = ""
     
-    if len(clean_content) > len(news_title): news_title += "..."
-    if len(news_desc) > 0 and len(clean_content) > (len(news_title) + 5): news_desc += "..."
+    sentences = re.split(r'\.\s+', str(clean_content))
+    if len(sentences) > 0:
+        first_sentence = str(sentences[0]).strip()
+        if len(first_sentence) > 10:
+            news_title = first_sentence[0:100] # type: ignore
+            news_desc = ". ".join(sentences[1:]).strip()[0:120] # type: ignore
+        else:
+            news_title = str(clean_content)[0:100] # type: ignore
+            news_desc = str(clean_content)[100:200] # type: ignore
+    
+    if len(str(clean_content)) > len(str(news_title)): 
+        news_title = f"{news_title}..."
+    if len(str(news_desc)) > 0 and len(str(clean_content)) > (len(str(news_title)) + 5): 
+        news_desc = f"{news_desc}..."
     
     # Escape for HTML safety
     news_title = html.escape(news_title)
@@ -350,12 +389,17 @@ def get_card_html(row, current_page_slug="home"):
     media_html = f'<img src="{media_url}" class="card-media-dashboard">' if media_url else ""
     
     # Determine if this card IS expanded
-    current_expanded = st.query_params.get("expand")
-    is_open = current_expanded == tweet_url
+    current_expanded = str(st.query_params.get("expand") or "")
+    is_open = (current_expanded == str(tweet_url))
     
     # URL for onclick redirection
     safe_tweet_url = str(tweet_url) if tweet_url else "#"
-    target_url = f"/?page={current_page_slug}" if is_open else f"/?page={current_page_slug}&expand={urllib.parse.quote_plus(safe_tweet_url)}"
+    encoded_url = urllib.parse.quote_plus(safe_tweet_url)
+    target_url = f"/?page={current_page_slug}" if is_open else f"/?page={current_page_slug}&expand={encoded_url}"
+    
+    # Return single-line string with onclick interaction model
+    # target='_self' but using window.open for better stability in Streamlit
+    js_nav = f"window.open('{target_url}', '_self');"
     
     # Stats Row for all cards
     stats_html = f"""
@@ -369,11 +413,11 @@ def get_card_html(row, current_page_slug="home"):
     
     # Return single-line string with onclick interaction model
     html_card = f"""
-    <div class="news-card {cat_class}" onclick="window.location.href='{target_url}'">
+    <div class="news-card {cat_class}" onclick="{js_nav}">
         <div class="card-meta-header">
             <img src="{author_image}" class="author-avatar-small">
             <div class="author-info">
-                <span class="author-name">{author_name.upper()}</span>
+                <span class="author-name">{author_name}</span>
                 <span class="author-handle">{handle}</span>
             </div>
         </div>
@@ -422,9 +466,11 @@ nav_items = [{"name": "Ana Sayfa", "label": "Ana Sayfa", "slug": "home"}] + [
 
 # Query Parameter Routing Bridge
 params = st.query_params
-raw_slug = params.get("page", ["home"])[0] if isinstance(params.get("page"), list) else params.get("page", "home")
-current_slug = slugify(raw_slug) # Force English slug
-expand_url = params.get("expand")
+raw_slug = params.get("page", "home")
+if isinstance(raw_slug, list): raw_slug = raw_slug[0] 
+current_slug = slugify(str(raw_slug)) # Force English slug
+expand_url = str(params.get("expand") or "")
+if isinstance(expand_url, list): expand_url = expand_url[0]
 
 # Determine Current Page Name & DB Category
 current_item = next((item for item in nav_items if item["slug"] == current_slug or slugify(item["name"]) == current_slug), nav_items[0])
@@ -473,7 +519,7 @@ df = load_data()
 header_html = f"""
     <div class="top-nav">
         <a href="/?page=home" target="_self" style="text-decoration: none; color: inherit;">
-            <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v45.0 Luxury</small></div>
+            <div class="logo-text">NUCLEUS<b>X</b></div>
         </a>
     </div>
 """
@@ -561,10 +607,11 @@ if current_page == "Ana Sayfa":
                 # 3. Handle Expansion (Inline Detail V43.0)
                 if expand_url and tweet.get('tweet_url') == expand_url:
                     panel_html = get_expanded_panel_html(tweet, current_page_slug=current_slug)
-            column_html = str(column_html) + '</div>' # End Category Column
-            dashboard_html = str(dashboard_html) + column_html
+                    column_html = f"{column_html}{panel_html}"
+            column_html = f"{column_html}</div>" # End Category Column
+            dashboard_html = f"{dashboard_html}{column_html}"
             
-        dashboard_html = str(dashboard_html) + '</div>' # End Dashboard Wrapper
+        dashboard_html = f"{dashboard_html}</div>" # End Dashboard Wrapper
         
         # Render the entire block at once
         st.markdown(dashboard_html, unsafe_allow_html=True)
@@ -572,4 +619,4 @@ if current_page == "Ana Sayfa":
         st.warning("Henüz haber verisi bulunmuyor. Lütfen yönetici panelinden tarama yapın.")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("NucleusX v44.0 Luxury - Developed by Antigravity AI")
+st.sidebar.caption("NucleusX v44.0 - Developed by ivicin")
