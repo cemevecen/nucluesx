@@ -1,4 +1,4 @@
-import streamlit as st # V42.0 SYNC
+import streamlit as st # V42.1 SYNC
 import re
 import pandas as pd
 import time
@@ -11,7 +11,7 @@ import streamlit.components.v1 as components
 # GLOBAL CONFIG & INITIALIZATION
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="NucleusX AI V42.0 LUXURY",
+    page_title="NucleusX AI V42.1 LUXURY",
     page_icon="🗞️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -492,30 +492,12 @@ def get_card_html(row, current_page_slug="home"):
 
     # Author handle logic (simplified)
     handle = f"@{slugify(author_name)}"
-    
     media_html = f'<img src="{media_url}" class="card-media">' if media_url else ""
-    
-    # expansion routing bridge link - V38.7
     expand_url = f"/?page={current_page_slug}&expand={tweet_url}"
     
-    return f"""
-    <a href="{expand_url}" target="_self" style="text-decoration:none; color:inherit; display:block;">
-        <div class="news-card {cat_class}">
-            <div class="card-meta-header">
-                <img src="{author_image or 'https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png'}" class="author-avatar">
-                <div class="author-info">
-                    <span class="author-name">{author_name}</span>
-                    <span class="author-handle">{handle}</span>
-                </div>
-            </div>
-            <div class="tweet-text">{news_title} {news_desc}</div>
-            {media_html}
-            <div class="card-footer">
-                <span class="timestamp">{processed_at}</span>
-            </div>
-        </div>
-    </a>
-    """
+    # Return single-line string to prevent Streamlit HTML leak
+    html_card = f'<a href="{expand_url}" target="_self" style="text-decoration:none; color:inherit; display:block;"><div class="news-card {cat_class}"><div class="card-meta-header"><img src="{author_image or "https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png"}" class="author-avatar"><div class="author-info"><span class="author-name">{author_name}</span><span class="author-handle">{handle}</span></div></div><div class="tweet-text">{news_title} {news_desc}</div>{media_html}<div class="card-footer"><span class="timestamp">{processed_at}</span></div></div></a>'
+    return html_card.replace('\n', ' ')
 
 @st.cache_data(ttl=600)
 def load_data():
@@ -603,7 +585,7 @@ df = load_data()
 header_html = f"""
     <div class="top-nav">
         <a href="/?page=home" target="_self" style="text-decoration: none; color: inherit;">
-            <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v42.0 Luxury</small></div>
+            <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v42.1 Luxury</small></div>
         </a>
     </div>
 """
@@ -685,12 +667,10 @@ if current_page == "Ana Sayfa":
             # 1. Render Chip at the top of the column
             column_html += f'<a href="/?page={cat_slug}" target="_self" class="nav-chip {cat_class} active">{cat_label}</a>'
             
-            # 2. Add News Cards
-            cat_df = df[df['category'] == db_cat].head(15)
-            topics = cat_df.groupby('topic_tag')
+            # 2. Add News Cards (Top 30 news per category, no complex grouping for dashboard)
+            cat_df = df[df['category'] == db_cat].head(30)
             
-            for t, group in topics:
-                tweet = group.iloc[0]
+            for idx, tweet in cat_df.iterrows():
                 card_html = get_card_html(tweet, current_page_slug=current_slug)
                 column_html += card_html
                 
@@ -710,4 +690,4 @@ if current_page == "Ana Sayfa":
         st.warning("Henüz haber verisi bulunmuyor. Lütfen yönetici panelinden tarama yapın.")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("NucleusX v42.0 Luxury - Developed by Antigravity AI")
+st.sidebar.caption("NucleusX v42.1 Luxury - Developed by Antigravity AI")
