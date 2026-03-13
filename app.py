@@ -338,25 +338,7 @@ st.markdown("""
         animation: slideDown 0.3s ease-out;
     }
 
-    .dashboard-scroll-container [data-testid="stHorizontalBlock"] {
-        display: flex !important;
-        flex-wrap: nowrap !important;
-        overflow-x: auto !important;
-        overflow-y: hidden !important;
-        gap: 25px !important;
-        padding: 5px 0 30px 0 !important;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-    }
-    .dashboard-scroll-container [data-testid="stHorizontalBlock"]::-webkit-scrollbar { display: none; }
-    
-    .dashboard-scroll-container [data-testid="stHorizontalBlock"] > div {
-        flex: 0 0 calc(25% - 18.75px) !important;
-        min-width: calc(25% - 18.75px) !important;
-        max-width: calc(25% - 18.75px) !important;
-    }
-
-    .nav-chip {
+    .category-column .nav-chip {
         display: block !important;
         width: 100% !important;
         text-align: center;
@@ -373,11 +355,11 @@ st.markdown("""
         box-sizing: border-box;
     }
     
-    .nav-chip:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-    .nav-chip.active { border-width: 3px !important; box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important; }
+    .category-column .nav-chip:hover { transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+    .category-column .nav-chip.active { border-width: 3px !important; box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important; }
 
     @media (max-width: 991px) {
-        .dashboard-scroll-container [data-testid="stHorizontalBlock"] > div {
+        .category-column {
             flex: 0 0 85vw !important;
             min-width: 85vw !important;
         }
@@ -411,6 +393,29 @@ def render_twitter_embed(tweet_url):
     </div>
     """
     components.html(embed_code, height=650)
+
+def get_twitter_embed_html(tweet_url):
+    """Returns raw HTML for a live Twitter embed (string version for unified dashboard)."""
+    if not tweet_url or tweet_url in ["#", "None", ""]:
+        return ""
+
+    embed_code = f"""
+    <blockquote class="twitter-tweet" data-theme="light">
+        <a href="{tweet_url}"></a>
+    </blockquote>
+    <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+    """
+    # Safely wrap in an iframe to ensure script execution inside st.markdown string
+    encoded_html = html.escape(f"""
+    <!DOCTYPE html>
+    <html>
+    <head><base target="_blank"></head>
+    <body style="margin:0; padding:0; display:flex; justify-content:center; background:transparent;">
+        <div style="width:100%; max-width:550px;">{embed_code}</div>
+    </body>
+    </html>
+    """)
+    return f'<div style="margin-bottom:20px;"><iframe srcdoc="{encoded_html}" style="width:100%; height:600px; border:none; overflow:hidden; background:transparent;"></iframe></div>'
 
 def get_card_html(row, current_page_slug="home"):
     """Generates standardized HTML for a news card with URL sanitization."""
@@ -609,34 +614,46 @@ if current_page != "Ana Sayfa":
         st.rerun()
     st.stop()
 
-# Dashboard View - V39.7 Unified Scroll
+# Dashboard View - V40.0 Unified Scroll with Raw HTML
 if current_page == "Ana Sayfa":
     visible_db_cats = [c["db"] for c in category_config if not df[df['category'] == c["db"]].empty]
     
     if visible_db_cats:
-        st.markdown('<div class="dashboard-scroll-container">', unsafe_allow_html=True)
-        dashboard_cols = st.columns(len(visible_db_cats))
+        dashboard_html = '<div class="dashboard-wrapper">'
         
-        for i, db_cat in enumerate(visible_db_cats):
-            with dashboard_cols[i]:
-                # Get display label and slug for the category
-                config = next(c for c in category_config if c["db"] == db_cat)
+        for db_cat in visible_db_cats:
+            config = next(c for c in category_config if c["db"] == db_cat)
+            cat_slug = config["slug"]
+            cat_label = config["label"]
+            cat_class = f"category-{cat_slug}"
+            
+            # Start Category Column
+            column_html = f'<div class="category-column">'
+            
+            # 1. Render Chip at the top of the column
+            column_html += f'<a href="/?page={cat_slug}" target="_self" class="nav-chip {cat_class} active">{cat_label}</a>'
+            
+            # 2. Add News Cards
+            cat_df = df[df['category'] == db_cat].head(15)
+            topics = cat_df.groupby('topic_tag')
+            
+            for t, group in topics:
+                tweet = group.iloc[0]
+                card_html = get_card_html(tweet, current_page_slug=current_slug)
+                column_html += card_html
                 
-                # Render Chip as Column Header for perfect sync
-                cat_class = f"category-{config['slug']}"
-                st.markdown(f'<a href="/?page={config["slug"]}" target="_self" class="nav-chip {cat_class} active">{config["label"]}</a>', unsafe_allow_html=True)
-                
-                cat_df = df[df['category'] == db_cat].head(15)
-                topics = cat_df.groupby('topic_tag')
-                
-                for t, group in topics:
-                    tweet = group.iloc[0]
-                    st.markdown(get_card_html(tweet, current_page_slug=current_slug), unsafe_allow_html=True)
-                    
-                    if expand_url and tweet.get('tweet_url') == expand_url:
-                        st.markdown('<div class="inline-detail-mini">', unsafe_allow_html=True)
-                        render_twitter_embed(expand_url)
-                        st.markdown('</div>', unsafe_allow_html=True)
+                # 3. Handle Expansion (Inline below the card)
+                if expand_url and tweet.get('tweet_url') == expand_url:
+                    embed_html = get_twitter_embed_html(expand_url)
+                    column_html += f'<div class="inline-detail-mini">{embed_html}</div>'
+            
+            column_html += '</div>' # End Category Column
+            dashboard_html += column_html
+            
+        dashboard_html += '</div>' # End Dashboard Wrapper
+        
+        # Render the entire block at once
+        st.markdown(dashboard_html, unsafe_allow_html=True)
     else:
         st.warning("Henüz haber verisi bulunmuyor. Lütfen yönetici panelinden tarama yapın.")
 

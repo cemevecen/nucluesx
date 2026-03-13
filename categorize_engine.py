@@ -1,4 +1,5 @@
 import os
+import re
 from google import genai
 from dotenv import load_dotenv
 from database import init_db, save_tweet, tweet_exists
@@ -15,13 +16,14 @@ api_key_groq = os.getenv("GROQ_API_KEY")
 api_key_mistral = os.getenv("MISTRAL_API_KEY")
 
 # Gemini Client
-try:
-    if api_key_gemini:
-        client_gemini = genai.Client(api_key=api_key_gemini)
-    else:
-        client_gemini = None
-except Exception:
-    client_gemini = None
+# try:
+#     if api_key_gemini:
+#         client_gemini = genai.Client(api_key=api_key_gemini)
+#     else:
+#         client_gemini = None
+# except Exception:
+#     client_gemini = None
+client_gemini = None # AI Temporarily Disabled
 
 def categorize_with_groq(text):
     """Gemini dursa bile Groq üzerinden Llama-3 ile analiz yapar (Ücretsiz ve Hızlı)."""
@@ -65,31 +67,27 @@ Haber: {text}"""
 
 def generate_topic_tag(text):
     """
-    Haber metni için BENZERSİZ ve OLAY ODAKLI bir hashtag (#) üretir.
-    Amacı: Farklı kaynaklar aynı olaydan bahsettiğinde aynı etiketi almalarını sağlamaktır.
+    Haber metni için KURAL tabanlı konu etiketi üretir (AI Kapalı).
     """
-    if client_gemini:
-        try:
-            prompt = f"""
-            Aşağıdaki haber metninden SADECE ana özneyi ve olayı içeren bir hashtag üret.
-            KURALLAR:
-            1. Genel etiketler (#HABER, #GUNDEM, #SONDAKIKA) KESİNLİKLE YASAKTIR.
-            2. Haberin ana kişisini VE ana konusunu birleştirerek tek bir etiket yap. (Örn: #FENERBAHCE_DIARRA, #BESIKTAS_TRANSFER, #ASGARI_UCRET_ZAMMI)
-            3. Eğer haber bir kişi hakkındaysa SADECE o kişinin adını kullanabilirsin. (Örn: #RECEP_TAYYIP_ERDOGAN)
-            4. SADECE etiketi dön, başka hiçbir şey yazma.
-            5. Boşluk kullanma, kelimeleri alt tire (_) ile ayır.
-            
-            Metin: {text}
-            """
-            response = client_gemini.models.generate_content(model='gemini-flash-latest', contents=prompt)
-            res = response.text.upper().strip().split()[0].replace(".", "").replace(",", "").replace('"', '').replace("'", "")
-            if not res.startswith("#"): res = f"#{res}"
-            
-            if len(res) < 3 or res in ["#GUNDEM", "#GELISME", "#HABER"]:
-                return "#DETAY"
-            return res
-        except: pass
-    return "#HABER"
+    text = text.strip()
+    # 1. Eğer metinde #etiket varsa onu kullan
+    hashtags = re.findall(r'#(\w+)', text)
+    if hashtags:
+        return f"#{hashtags[0].upper()}"
+    
+    # 2. Üst tırnak içindeki kelimeleri bul (Önemli özneler genelde buradadır)
+    quotes = re.findall(r'["\'](.*?)["\']', text)
+    if quotes and len(quotes[0]) > 3:
+        tag = quotes[0].upper().replace(" ", "_")[:20]
+        return f"#{tag}"
+        
+    # 3. İlk iki kelimeyi al (Basit bir çözüm)
+    words = [w for w in text.split() if len(w) > 3 and not w.startswith('http')]
+    if len(words) >= 2:
+        tag = f"{words[0]}_{words[1]}".upper().replace(".", "").replace(",", "")
+        return f"#{tag[:20]}"
+        
+    return "#DETAY"
 
 def categorize_with_mistral(text):
     """Mistral AI üzerinden analiz yapar (3. Yedek)."""
@@ -120,8 +118,51 @@ def categorize_with_mistral(text):
     except Exception:
         return None
 
-def get_fallback_category(text):
-    """AI hata verdiğinde anahtar kelimelerle kategori tahmini yapar."""
+# -----------------------------------------------------------------------------
+# SOURCE BASED MAPPING (V40.0 - AI ELIMINATED)
+# -----------------------------------------------------------------------------
+SOURCE_MAPPING = {
+    # Türkiye / Gündem
+    "pusholder": "Türkiye", "ajans_muhbir": "Türkiye", "haskologlu": "Türkiye", 
+    "darkwebhaber": "Türkiye", "solcugazete": "Türkiye", "haberreport": "Türkiye", 
+    "beehaber": "Türkiye", "aykiricomtr": "Türkiye", "bpthaber": "Türkiye", "haber": "Türkiye",
+
+    # Ekonomi
+    "ozgurdemirtas": "Ekonomi", "temelanaliz": "Ekonomi", "ekonomimcom": "Ekonomi", 
+    "econofia": "Ekonomi", "borsagundem": "Ekonomi", "paraanaliz": "Ekonomi", 
+    "investingtr": "Ekonomi", "paramevzu": "Ekonomi", "dunya_gazetesi": "Ekonomi", "bloomberght": "Ekonomi",
+
+    # Spor
+    "yagosabuncuoglu": "Spor", "sporx": "Spor", "ntvspor": "Spor", 
+    "beinsports_tr": "Spor", "asmarcatr": "Spor", "fanatikcomtr": "Spor", 
+    "fotomac": "Spor", "trtspor": "Spor", "mackolik": "Spor", "trendbasket": "Spor",
+
+    # Teknoloji
+    "shiftdelete": "Teknoloji", "webteknoloji": "Teknoloji", "donanimhaber": "Teknoloji", 
+    "teknoseyir": "Teknoloji", "hakkialkan": "Teknoloji", "mesutcevik": "Teknoloji", 
+    "barisozcan": "Teknoloji", "gdh_digital": "Teknoloji", "logdergisi": "Teknoloji", "bilim_teknik": "Teknoloji",
+
+    # Dünya
+    "bbcturkce": "Dünya", "euronews_tr": "Dünya", "dw_turkce": "Dünya", 
+    "voaturkce": "Dünya", "independentturk": "Dünya", "sputnik_tr": "Dünya", 
+    "anadoluajansi": "Dünya", "trthaber": "Dünya", "ntv": "Dünya", "ensonhaber": "Dünya",
+
+    # Eğlence / Magazin
+    "boxofficeturkey": "Eğlence", "raninitv": "Eğlence", "birsenaltuntas1": "Eğlence", 
+    "tokyophoner": "Eğlence", "magazingozi": "Eğlence", "onedio": "Eğlence", 
+    "listelist": "Eğlence", "nocontexttr": "Eğlence", "capsmerkezi": "Eğlence", "dizilah": "Eğlence",
+
+    # Müzik
+    "muzikonair": "Müzik", "popbizde": "Müzik", "murekkephaber": "Müzik", 
+    "kultur_sanat": "Müzik", "netdmuzik": "Müzik", "powerapptr": "Müzik", 
+    "kralpop": "Müzik", "joyturk": "Müzik", "radyofenomen": "Müzik", "backstagemuzik": "Müzik"
+}
+
+def get_fallback_category(text, username=None):
+    """Haber kaynağına veya anahtar kelimelere göre kategori tahmini yapar (AI Off)."""
+    if username and username.lower() in SOURCE_MAPPING:
+        return SOURCE_MAPPING[username.lower()]
+
     text = text.lower()
     keywords = {
         "Ekonomi": ["dolar", "euro", "faiz", "enflasyon", "zam", "asgari", "maaş", "vergi", "borsa", "hisse", "temettü", "kripto", "bitcoin", "ihale", "şirket", "yatırım", "finans", "ekonomi", "merkez bankası", "tcmb"],
@@ -138,75 +179,22 @@ def get_fallback_category(text):
             return cat
     return "Türkiye" # Varsayılan kategori
 
-def categorize_tweet(tweet_text):
+def categorize_tweet(tweet_text, username=None):
     """
-    Kategori belirleme zinciri: 
-    1. Gemini (Ana) -> 2. Groq (Llama-3) -> 3. Mistral -> 4. Anahtar Kelime
+    Kategori belirleme (AI DEVRE DIŞI):
+    Önce kaynağa (username) bakar, yoksa anahtar kelimelere geçer.
     """
-    
-    # 1. Aşama: Gemini Dene
-    if client_gemini:
-        try:
-            prompt = f"""Aşağıdaki haberi bu kategorilerden birine yerleştir: Ekonomi, Spor, Teknoloji, Eğlence, Müzik, Dünya, Türkiye.
+    return get_fallback_category(tweet_text, username=username)
 
-KATEGORİ REHBERİ:
-- Spor: Maçlar, futbolcular, kulüp başkanları (Sadettin Saran, Ali Koç vb.) ve transferler.
-- Ekonomi: Para, borsa, banka, şirket yönetimi, fiyat artışları.
-- Teknoloji: Dijital yenilikler, telefonlar, AI, bilim (İnsan transferleri teknoloji DEĞİLDİR).
-- Türkiye: Genel iç siyaset ve sosyal olaylar.
-
-SADECE kategorinin adını dön.
-
-Metin: {tweet_text}"""
-            response = client_gemini.models.generate_content(
-                model='gemini-flash-latest', # Çalışan ve güncel alias
-                contents=prompt
-            )
-            res = response.text.strip().replace("[", "").replace("]", "").replace(".", "")
-            if res in ["Ekonomi", "Spor", "Teknoloji", "Eğlence", "Müzik", "Dünya", "Türkiye"]:
-                return res
-        except Exception as e:
-            print(f"⚠️ Gemini Hatası (Yedeğe geçiliyor): {e}")
-            pass
-
-    # 2. Aşama: Groq (Llama-3) Dene
-    res_groq = categorize_with_groq(tweet_text)
-    if res_groq:
-        return res_groq
-
-    # 3. Aşama: Mistral Dene
-    res_mistral = categorize_with_mistral(tweet_text)
-    if res_mistral:
-        return res_mistral
-        
-    # 4. Aşama: Anahtar Kelime (En Son Çare)
-    return get_fallback_category(tweet_text)
-
-def get_full_analysis(tweet_text):
-    """Kategori ve Konu Etiketini beraber döner."""
-    cat = categorize_tweet(tweet_text)
+def get_full_analysis(tweet_text, username=None):
+    """Kategori ve Konu Etiketini beraber döner (AI Off)."""
+    cat = categorize_tweet(tweet_text, username=username)
     tag = generate_topic_tag(tweet_text)
     return cat, tag
 
 def run_categorization_process():
     """Tüm hedef hesaplardan tweetleri çeker, kategorize eder ve kaydeder."""
-    target_accounts = [
-        # Türkiye
-        "pusholder", "ajans_muhbir", "haskologlu", "darkwebhaber",
-        # Dünya
-        "bbcturkce", "euronews_tr", "dw_turkce", "voaturkce",
-        # Ekonomi (Merged Finans)
-        "ozgurdemirtas", "temelanaliz", "ekonomimcom", "Econofia",
-        "borsagundem", "ParaAnaliz", "InvestingTR", "paramevzu",
-        # Teknoloji
-        "shiftdelete", "webteknoloji", "donanimhaber", "teknoseyir",
-        # Spor
-        "yagosabuncuoglu", "sporx", "ntvspor", "beINSPORTS_TR",
-        # Eğlence
-        "boxofficeturkey", "raninitv", "birsenaltuntas1", "tokyophoner",
-        # Müzik
-        "MuzikOnair", "PopBizde", "murekkephaber", "Kultur_Sanat"
-    ]
+    target_accounts = list(SOURCE_MAPPING.keys())
     
     print("-" * 50)
     print("🚀 NucleusX AI Haber Sınıflandırıcı Motoru Başlıyor...")
@@ -216,7 +204,7 @@ def run_categorization_process():
         # Streamlit'e o an taranan hesabı bildirelim
         yield f"📡 {username} hesabından tweetler çekiliyor..."
         
-        tweets = fetch_user_tweets(username, limit=5) # 10 çok yavaşlattığı için 5 ideal
+        tweets = fetch_user_tweets(username, limit=15) # Increased for more content
         
         if not tweets:
             print(f"🔍 {username} için yeni tweet bulunamadı veya bir hata oluştu.")
@@ -234,14 +222,8 @@ def run_categorization_process():
             print(f"\n👤 GÖNDEREN: {tweet['author']} ({tweet['username']})")
             print(f"📝 TWEET: {tweet['text'][:100]}...") # Uzun tweetleri keserek basıyoruz
             
-            # 2. Rate Limiting (KOTA KORUMASI: SADECE ÜCRETSİZ PLANLAR)
-            # Gemini Free 15 RPM / Groq Free 30 RPM limitlerini aşmamak için 
-            # 4 saniye bekleme (Saniyede 15 istekten azına denk gelir). 
-            # Bu sayede 'Maliyet Sıfır, Kesintisizlik Tam' olur.
-            time.sleep(4) 
-
-            # Yapay Zeka Devreye Girer
-            kategori, konu_etiketi = get_full_analysis(tweet['text'])
+            # Kural Tabanlı Analiz Devreye Girer
+            kategori, konu_etiketi = get_full_analysis(tweet['text'], username=tweet['username'])
 
             # Veritabanına kaydet (Resim ve Tweet Linki varsa ekle)
             save_tweet(tweet['author'], tweet['username'], tweet['text'], kategori, konu_etiketi, media_url=tweet.get('media_url'), tweet_url=tweet.get('tweet_url'))
