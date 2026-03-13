@@ -531,24 +531,22 @@ with st.sidebar:
                     st.rerun()
             else: st.error("Yetkisiz.")
 
-# Top Nav
-st.markdown(f"""
+df = load_data()
+
+# Combined Header & Nav Tabs - V39.3 (Consolidated to remove phantom containers)
+header_html = f"""
     <div class="top-nav">
         <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v38.6 Luxury</small></div>
     </div>
-""", unsafe_allow_html=True)
-
-df = load_data()
-
-# V38.8 - 5+2 DYNAMIC NAV TABS (Direct HTML for Scroll Support)
-nav_html = '<div class="nav-tabs-wrapper">'
+    <div class="nav-tabs-wrapper">
+"""
 for item in nav_items:
-    if item["slug"] == "home": continue # Hide Home tab from header but keep as functionality
+    if item["slug"] == "home": continue
     active_class = "active" if current_page == item["name"] else ""
     cat_class = f"category-{item['slug']}"
-    nav_html += f'<a href="/?page={item["slug"]}" target="_self" class="nav-chip {cat_class} {active_class}">{item["label"]}</a>'
-nav_html += '</div>'
-st.markdown(nav_html, unsafe_allow_html=True)
+    header_html += f'<a href="/?page={item["slug"]}" target="_self" class="nav-chip {cat_class} {active_class}">{item["label"]}</a>'
+header_html += '</div>'
+st.markdown(header_html, unsafe_allow_html=True)
 
 # FOCUS VIEW REMOVED FROM TOP (V38.1)
 
@@ -597,45 +595,30 @@ if current_page != "Ana Sayfa":
     st.stop()
 
 # Dashboard View
-if current_page == "Ana Sayfa": # Changed from "Dashboard" to "Ana Sayfa"
-    # Multi Column Feed - V38.3 Definitive
+if current_page == "Ana Sayfa":
     visible_db_cats = [c["db"] for c in category_config if not df[df['category'] == c["db"]].empty]
     
     if visible_db_cats:
-        # Use a single container for the horizontal scroll
-        st.markdown('<div class="dashboard-wrapper">', unsafe_allow_html=True)
+        dashboard_cols = st.columns(len(visible_db_cats))
         
-        # Determine column structure
-        num_cats = len(visible_db_cats)
-        dashboard_cols = st.columns(num_cats)
-        
+        # Streamlit doesn't allow cross-element HTML wrapping reliably. 
+        # We handle column wrapping via CSS dashboard-wrapper in styles if needed.
         for i, db_cat in enumerate(visible_db_cats):
             with dashboard_cols[i]:
-                st.markdown(f'<div class="category-column">', unsafe_allow_html=True)
-                
                 # Get display label and slug for the category
                 config = next(c for c in category_config if c["db"] == db_cat)
-                
-                # V39.1 - Removed redundant headers and lines from dashboard view as requested
-                # st.markdown(f'<div class="column-header"><h3>{config["label"]}</h3></div>', unsafe_allow_html=True)
                 
                 cat_df = df[df['category'] == db_cat].head(15)
                 topics = cat_df.groupby('topic_tag')
                 
                 for t, group in topics:
                     tweet = group.iloc[0]
-                    # Individual markdown calls are safer and prevent raw HTML leaks
                     st.markdown(get_card_html(tweet, current_page_slug=current_slug), unsafe_allow_html=True)
                     
-                    # Inline Expansion in Dashboard
                     if expand_url and tweet.get('tweet_url') == expand_url:
                         st.markdown('<div class="inline-detail-mini">', unsafe_allow_html=True)
                         render_twitter_embed(expand_url)
                         st.markdown('</div>', unsafe_allow_html=True)
-                
-                st.markdown('</div>', unsafe_allow_html=True)
-        
-        st.markdown('</div>', unsafe_allow_html=True)
     else:
         st.warning("Henüz haber verisi bulunmuyor. Lütfen yönetici panelinden tarama yapın.")
 
