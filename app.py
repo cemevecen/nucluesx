@@ -354,7 +354,8 @@ def get_card_html(row, current_page_slug="home"):
     is_open = current_expanded == tweet_url
     
     # URL for onclick redirection
-    target_url = f"/?page={current_page_slug}" if is_open else f"/?page={current_page_slug}&expand={urllib.parse.quote_plus(tweet_url)}"
+    safe_tweet_url = str(tweet_url) if tweet_url else "#"
+    target_url = f"/?page={current_page_slug}" if is_open else f"/?page={current_page_slug}&expand={urllib.parse.quote_plus(safe_tweet_url)}"
     
     # Stats Row for all cards
     stats_html = f"""
