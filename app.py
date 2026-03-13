@@ -1,4 +1,4 @@
-import streamlit as st # V40.3 SYNC
+import streamlit as st # V40.4 SYNC
 import re
 import pandas as pd
 import time
@@ -11,7 +11,7 @@ import streamlit.components.v1 as components
 # GLOBAL CONFIG & INITIALIZATION
 # -----------------------------------------------------------------------------
 st.set_page_config(
-    page_title="NucleusX AI V40.3 LUXURY",
+    page_title="NucleusX AI V40.4 LUXURY",
     page_icon="🗞️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -564,7 +564,7 @@ df = load_data()
 header_html = f"""
     <div class="top-nav">
         <a href="/?page=home" target="_self" style="text-decoration: none; color: inherit;">
-            <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v40.3 Luxury</small></div>
+            <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v40.4 Luxury</small></div>
         </a>
     </div>
 """
@@ -671,4 +671,4 @@ if current_page == "Ana Sayfa":
         st.warning("Henüz haber verisi bulunmuyor. Lütfen yönetici panelinden tarama yapın.")
 
 st.sidebar.markdown("---")
-st.sidebar.caption("NucleusX V40.3 Luxury - Developed by Antigravity AI")
+st.sidebar.caption("NucleusX v40.4 Luxury - Developed by Antigravity AI")
