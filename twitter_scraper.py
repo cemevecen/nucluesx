@@ -68,7 +68,7 @@ def fetch_user_tweets(username, limit=5):
                 extracted_tweets.append({
                     "author": item.get("author", {}).get("name", username.capitalize()),
                     "username": f"@{username}",
-                    "author_image": item.get("author", {}).get("image"),
+                    "author_image": item.get("author", {}).get("avatar"),
                     "text": tweet_text,
                     "media_url": media_url,
                     "tweet_url": tweet_url
@@ -85,7 +85,7 @@ if __name__ == "__main__":
     tweets = fetch_user_tweets("fatihaltayli", limit=2)
     
     if tweets:
-        for t in tweets:
-            print(f"- {t['text']}")
+        import json
+        print(json.dumps(tweets[0], indent=2))
     else:
         print("Boş liste döndü veya hata alındı.")
