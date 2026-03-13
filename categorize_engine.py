@@ -128,36 +128,43 @@ SOURCE_MAPPING = {
     "pusholder": "Türkiye", "ajans_muhbir": "Türkiye", "haskologlu": "Türkiye", 
     "darkwebhaber": "Türkiye", "solcugazete": "Türkiye", "haberreport": "Türkiye", 
     "beehaber": "Türkiye", "aykiricomtr": "Türkiye", "bpthaber": "Türkiye", "haber": "Türkiye",
+    "yirmi3derece": "Türkiye", "onediopolitik": "Türkiye", "t24comtr": "Türkiye",
 
     # Ekonomi
     "ozgurdemirtas": "Ekonomi", "temelanaliz": "Ekonomi", "ekonomimcom": "Ekonomi", 
     "econofia": "Ekonomi", "borsagundem": "Ekonomi", "paraanaliz": "Ekonomi", 
     "investingtr": "Ekonomi", "paramevzu": "Ekonomi", "dunya_gazetesi": "Ekonomi", "bloomberght": "Ekonomi",
+    "mahfiegilmez": "Ekonomi", "bloomberg_tr": "Ekonomi", "ekonomimaus": "Ekonomi",
 
     # Spor
     "yagosabuncuoglu": "Spor", "sporx": "Spor", "ntvspor": "Spor", 
     "beinsports_tr": "Spor", "asmarcatr": "Spor", "fanatikcomtr": "Spor", 
     "fotomac": "Spor", "trtspor": "Spor", "mackolik": "Spor", "trendbasket": "Spor",
+    "ertansuzgun": "Spor", "nexustransfer": "Spor", "skorercom": "Spor",
 
     # Teknoloji
     "shiftdelete": "Teknoloji", "webteknoloji": "Teknoloji", "donanimhaber": "Teknoloji", 
     "teknoseyir": "Teknoloji", "hakkialkan": "Teknoloji", "mesutcevik": "Teknoloji", 
     "barisozcan": "Teknoloji", "gdh_digital": "Teknoloji", "logdergisi": "Teknoloji", "bilim_teknik": "Teknoloji",
+    "technopatnet": "Teknoloji", "hardwareplus": "Teknoloji", "pc_hocasi": "Teknoloji",
 
     # Dünya
     "bbcturkce": "Dünya", "euronews_tr": "Dünya", "dw_turkce": "Dünya", 
     "voaturkce": "Dünya", "independentturk": "Dünya", "sputnik_tr": "Dünya", 
     "anadoluajansi": "Dünya", "trthaber": "Dünya", "ntv": "Dünya", "ensonhaber": "Dünya",
+    "trtdunya": "Dünya", "aljazeera_turk": "Dünya", "ajplus": "Dünya",
 
     # Eğlence / Magazin
     "boxofficeturkey": "Eğlence", "raninitv": "Eğlence", "birsenaltuntas1": "Eğlence", 
     "tokyophoner": "Eğlence", "magazingozi": "Eğlence", "onedio": "Eğlence", 
     "listelist": "Eğlence", "nocontexttr": "Eğlence", "capsmerkezi": "Eğlence", "dizilah": "Eğlence",
+    "magazin_d": "Eğlence", "magazinkolik": "Eğlence", "snobmagazin": "Eğlence",
 
     # Müzik
     "muzikonair": "Müzik", "popbizde": "Müzik", "murekkephaber": "Müzik", 
     "kultur_sanat": "Müzik", "netdmuzik": "Müzik", "powerapptr": "Müzik", 
-    "kralpop": "Müzik", "joyturk": "Müzik", "radyofenomen": "Müzik", "backstagemuzik": "Müzik"
+    "kralpop": "Müzik", "joyturk": "Müzik", "radyofenomen": "Müzik", "backstagemuzik": "Müzik",
+    "trtmuzik": "Müzik", "powerturk": "Müzik", "radyoviva": "Müzik"
 }
 
 def populate_sources_table():

@@ -391,43 +391,13 @@ def get_card_html(row, current_page_slug="home"):
     
     if has_video and media_url:
         media_html = f"""
-        <div id="video-container-{card_id}" 
-             style="position:relative; width:100%; border-radius:12px; overflow:hidden; 
-                    border:1px solid #eff3f4; margin-top:12px; cursor:pointer; background:#000;"
-             onclick="event.stopPropagation(); playInlineVideo('{card_id}', '{safe_tweet_url}')">
-            <img id="video-thumb-{card_id}" src="{media_url}" 
-                 style="width:100%; max-height:240px; object-fit:cover; display:block;">
-            <div id="video-overlay-{card_id}"
-                 style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); 
-                        width:52px; height:52px; background:rgba(0,0,0,0.65); border-radius:50%; 
-                        display:flex; align-items:center; justify-content:center;">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="white">
-                    <path d="M8 5v14l11-7z"/>
-                </svg>
+        <div style="position:relative; width:100%; border-radius:12px; overflow:hidden; border:1px solid #eff3f4; margin-top:12px;">
+            <img src="{media_url}" style="width:100%; max-height:240px; object-fit:cover; display:block;">
+            <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:48px; height:48px; background:rgba(29,155,240,0.9); border-radius:50%; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 12px rgba(0,0,0,0.2);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="white"><path d="M8 5v14l11-7z"/></svg>
             </div>
-            <div style="position:absolute; bottom:10px; left:10px; 
-                        background:rgba(0,0,0,0.75); color:#fff; 
-                        font-size:0.78rem; font-weight:700; padding:3px 8px; 
-                        border-radius:4px;">▶ Video</div>
+            <div style="position:absolute; bottom:8px; right:8px; background:rgba(0,0,0,0.7); color:white; font-size:0.7rem; padding:2px 6px; border-radius:4px; font-weight:700;">VIDEO</div>
         </div>
-        <script>
-        function playInlineVideo(cardId, tweetUrl) {{
-            var container = document.getElementById('video-container-' + cardId);
-            if (!container) return;
-            container.innerHTML = `
-                <blockquote class="twitter-tweet" data-theme="dark" data-conversation="none" style="margin:0; width:100%;">
-                    <a href="${{tweetUrl}}"></a>
-                </blockquote>`;
-            if (window.twttr && window.twttr.widgets) {{
-                window.twttr.widgets.load(container);
-            }} else {{
-                var s = document.createElement('script');
-                s.src = 'https://platform.twitter.com/widgets.js';
-                s.async = true;
-                container.appendChild(s);
-            }}
-        }}
-        </script>
         """
     elif media_url:
         media_html = f'<img src="{media_url}" class="card-media-dashboard">'
@@ -464,9 +434,9 @@ def get_card_html(row, current_page_slug="home"):
     </div>
     """
     
-    # Return single-line string with a target='_top' link wrapper for iframe compatibility
+    # Return card wrapped in standard <a> for top-level navigation
     html_card = f"""
-    <a href="{target_url}" target="_top" style="text-decoration:none; color:inherit; display:block;">
+    <a href="{target_url}" target="_self" style="text-decoration:none; color:inherit; display:block;">
         <div class="news-card {cat_class}">
             <div class="card-meta-header">
                 <img src="{author_image}" class="author-avatar-small">
@@ -478,8 +448,8 @@ def get_card_html(row, current_page_slug="home"):
             <div class="tweet-text">{news_title} {news_desc}</div>
             {media_html}
             {stats_html}
-            <div style="display: flex; justify-content: flex-end; margin-top: 4px;">
-                <span class="timestamp" style="font-size: 0.75rem;">{processed_at}</span>
+            <div style="display:flex; justify-content:flex-end; margin-top:4px;">
+                <span class="timestamp" style="font-size:0.75rem;">{processed_at}</span>
             </div>
         </div>
     </a>
@@ -631,82 +601,12 @@ if current_page != "Ana Sayfa":
         for idx, row in cat_df.iterrows():
             st.markdown(get_card_html(row, current_page_slug=current_slug), unsafe_allow_html=True)
             
-            # Inline Expansion logic (V43.0)
-            # Inline Expansion logic (V43.0)
+            # Inline Expansion logic (V45.5 - Hybrid Model)
             if expand_url and row.get('tweet_url') == expand_url:
                 has_video = row.get('has_video', False)
-                tweet_url_val = row.get('tweet_url', '#')
-                if has_video and tweet_url_val and tweet_url_val != '#':
-                    # Video varsa Twitter embed'i components.html ile render et
-                    # (scripts çalışsın diye)
-                    close_url = f"/?page={current_slug}"
-                    author_name = html.escape(str(row.get('author') or 'ANONYMOUS'))
-                    author_image = row.get('author_image') or 'https://abs.twimg.com/sticky/default_profile_images/default_profile_normal.png'
-                    handle = f"@{slugify(author_name)}"
-                    content_raw = str(row.get('content', '')).strip()
-                    processed_at = row.get('processed_at', '00:00')
-                    reply_count   = int(row.get('reply_count',   0) or 0)
-                    retweet_count = int(row.get('retweet_count', 0) or 0)
-                    like_count    = int(row.get('like_count',    0) or 0)
-                    
-                    embed_panel = f"""
-                    <style>
-                    .exp {{ background:#fff; border-bottom:1px solid #eff3f4; padding:16px; position:relative; }}
-                    .exp-meta {{ display:flex; align-items:center; gap:10px; margin-bottom:8px; }}
-                    .exp-avatar {{ width:44px; height:44px; border-radius:50%; object-fit:cover; }}
-                    .exp-name {{ font-weight:700; font-size:0.95rem; color:#0f1419; }}
-                    .exp-handle {{ color:#536471; font-size:0.85rem; }}
-                    .exp-text {{ font-size:1.05rem; color:#0f1419; line-height:1.6; margin:10px 0; }}
-                    .exp-meta-time {{ color:#536471; font-size:0.85rem; padding:10px 0; border-top:1px solid #eff3f4; }}
-                    .exp-actions {{ display:flex; justify-content:space-around; padding:10px 0;
-                                    border-top:1px solid #eff3f4; border-bottom:1px solid #eff3f4; }}
-                    .act {{ color:#536471; font-size:0.85rem; display:flex; align-items:center; gap:5px; cursor:pointer; }}
-                    .close-x {{ position:absolute; top:12px; right:16px; color:#0f1419;
-                                font-size:1.2rem; text-decoration:none; padding:6px;
-                                border-radius:50%; line-height:1; }}
-                    .close-x:hover {{ background:rgba(0,0,0,0.08); }}
-                    </style>
-                    <div class="exp">
-                        <a href="{close_url}" class="close-x" target="_self">✕</a>
-                        <div class="exp-meta">
-                            <img src="{author_image}" class="exp-avatar">
-                            <div>
-                                <div class="exp-name">{author_name}</div>
-                                <div class="exp-handle">{handle}</div>
-                            </div>
-                        </div>
-                        <div class="exp-text">{content_raw}</div>
-                        <div style="margin:12px 0; border-radius:12px; overflow:hidden;">
-                            <blockquote class="twitter-tweet" data-theme="light"
-                                        data-conversation="none"
-                                        style="margin:0; width:100%;">
-                                <a href="{tweet_url_val}"></a>
-                            </blockquote>
-                        </div>
-                        <div class="exp-meta-time">{processed_at} · Görüntülenme</div>
-                        <div class="exp-actions">
-                            <div class="act">
-                                <svg width="17" height="17" viewBox="0 0 24 24" fill="#536471"><path d="M1.751 10c0-4.42 3.584-8 8.005-8h4.366c4.49 0 7.498 3.858 6.629 8.138-.064.315-.128.63-.192.95-.056.29-.114.58-.176.86-.077.34-.161.68-.248 1.02l1.26 1.26A.75.75 0 0121 15v6a.75.75 0 01-1.28.53l-2-2A.75.75 0 0117.5 19h-1.5a.75.75 0 010-1.5H17l1.5 1.5v-3.56l-.83-.83c.23-.76.45-1.53.65-2.3l.22-.86c.07-.28.13-.55.19-.82.66-3.24-1.7-6.15-4.99-6.15H9.756C6.43 4.5 3.5 7.45 3.5 10c0 1.24.48 2.39 1.36 3.23l-1.05 1.08A5.49 5.49 0 011.75 10H1.751z"/></svg>
-                                {reply_count}
-                            </div>
-                            <div class="act">
-                                <svg width="17" height="17" viewBox="0 0 24 24" fill="#536471"><path d="M4.5 3.88l4.432 4.14-1.364 1.46L5.5 7.55V16c0 1.1.896 2 2 2H13v2H7.5c-2.209 0-4-1.79-4-4V7.55L1.432 9.48.068 8.02 4.5 3.88zM16.5 6H11V4h5.5c2.209 0 4 1.79 4 4v8.45l2.068-1.93 1.364 1.46-4.432 4.14-4.432-4.14 1.364-1.46 2.068 1.93V8c0-1.1-.896-2-2-2z"/></svg>
-                                {retweet_count}
-                            </div>
-                            <div class="act">
-                                <svg width="17" height="17" viewBox="0 0 24 24" fill="#536471"><path d="M16.697 5.5c-1.222-.06-2.679.51-3.89 2.16l-.805 1.09-.806-1.09C9.984 6.01 8.526 5.44 7.304 5.5c-1.243.07-2.349.78-2.91 1.91-.552 1.12-.633 2.78.479 4.82 1.074 1.97 3.257 4.27 7.129 6.61 3.87-2.34 6.052-4.64 7.126-6.61 1.111-2.04 1.03-3.7.477-4.82-.561-1.13-1.666-1.84-2.908-1.91z"/></svg>
-                                {like_count}
-                            </div>
-                            <div class="act">
-                                <svg width="17" height="17" viewBox="0 0 24 24" fill="#536471"><path d="M4 4.5C4 3.12 5.119 2 6.5 2h11C18.881 2 20 3.12 20 4.5v18.44l-8-5.71-8 5.71V4.5zM6.5 4c-.276 0-.5.22-.5.5v14.56l6-4.29 6 4.29V4.5c0-.28-.224-.5-.5-.5h-11z"/></svg>
-                            </div>
-                        </div>
-                    </div>
-                    <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-                    """
-                    components.html(embed_panel, height=700, scrolling=True)
+                if has_video:
+                    render_twitter_embed(expand_url)
                 else:
-                    # Video yoksa eski yöntem yeterli
                     st.markdown(get_expanded_panel_html(row, current_page_slug=current_slug), unsafe_allow_html=True)
     else:
         st.info("Bu kategoride henüz haber yok.")
@@ -752,17 +652,9 @@ if current_page == "Ana Sayfa":
             
         dashboard_html = f"{dashboard_html}</div>" # End Dashboard Wrapper
         
-        # Render the entire block at once
-        # Render the entire block at once via components.html to allow JS execution
-        # Inject GLOBAL_CSS to ensure visual fidelity inside the iframe
-        components.html(
-            f"<style>{GLOBAL_CSS}</style>" +
-            dashboard_html + """
-            <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-            """,
-            height=2000,
-            scrolling=True
-        )
+        # Render the dashboard with st.markdown
+        # This ensures standard <a> links work for page navigation
+        st.markdown(dashboard_html, unsafe_allow_html=True)
     else:
         st.warning("Henüz haber verisi bulunmuyor. Lütfen yönetici panelinden tarama yapın.")
 
