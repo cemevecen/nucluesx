@@ -535,6 +535,7 @@ with st.sidebar:
 st.markdown(f"""
     <div class="top-nav">
         <div class="logo-text">NUCLEUS<b>X</b> AI <small style="font-weight:400; font-size:0.6rem; opacity:0.6;">v38.6 Luxury</small></div>
+    </div>
 """, unsafe_allow_html=True)
 
 df = load_data()
@@ -597,16 +598,6 @@ if current_page != "Ana Sayfa":
 
 # Dashboard View
 if current_page == "Ana Sayfa": # Changed from "Dashboard" to "Ana Sayfa"
-    # Trending Pills
-    if not df.empty:
-        pop_tags = df[~df['topic_tag'].isin(["#HABER", "#GUNDEM", "#DETAY"])]['topic_tag'].value_counts().head(7).index.tolist()
-        if pop_tags:
-            pill_cols = st.columns(len(pop_tags))
-            for i, pt in enumerate(pop_tags):
-                if pill_cols[i].button(pt, key=f"p_{pt}", use_container_width=True):
-                    st.session_state.selected_tag = pt
-                    st.rerun()
-
     # Multi Column Feed - V38.3 Definitive
     visible_db_cats = [c["db"] for c in category_config if not df[df['category'] == c["db"]].empty]
     
