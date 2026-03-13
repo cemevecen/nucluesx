@@ -5,6 +5,8 @@ from dotenv import load_dotenv
 from database import init_db, save_tweet, tweet_exists
 import time
 import requests
+import re
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from twitter_scraper import fetch_user_tweets
 
 # .env dosyasındaki anahtarları yükler
@@ -192,45 +194,59 @@ def get_full_analysis(tweet_text, username=None):
     tag = generate_topic_tag(tweet_text)
     return cat, tag
 
+def process_single_account(username):
+    """Tek bir hesap için verileri çeker ve ön işleme yapar."""
+    try:
+        tweets = fetch_user_tweets(username, limit=15)
+        return username, tweets
+    except Exception:
+        return username, []
+
 def run_categorization_process():
-    """Tüm hedef hesaplardan tweetleri çeker, kategorize eder ve kaydeder."""
+    """Tüm hedef hesaplardan tweetleri PARALEL (Multithreaded) çeker ve kaydeder."""
     target_accounts = list(SOURCE_MAPPING.keys())
     
     print("-" * 50)
-    print("🚀 NucleusX AI Haber Sınıflandırıcı Motoru Başlıyor...")
+    print("🚀 NucleusX ULTRA FAST Haber Sınıflandırıcı Başlıyor...")
     print("-" * 50)
     
-    for username in target_accounts:
-        # Streamlit'e o an taranan hesabı bildirelim
-        yield f"📡 {username} hesabından tweetler çekiliyor..."
-        
-        tweets = fetch_user_tweets(username, limit=15) # Increased for more content
-        
-        if not tweets:
-            print(f"🔍 {username} için yeni tweet bulunamadı veya bir hata oluştu.")
-            continue
-            
-        for tweet in tweets:
-            # 1. Ön Kategori ve Mükerrer Kontrolü (Zaten varsa AI'ya sormaya gerek yok)
-            # Haberlerin çoğu 'Ülke Gündemi' veya 'Dünya' olduğu için 
-            # önce hızlıca bir kategori tahmini yapıp veritabanına soruyoruz.
-            dummy_category = get_fallback_category(tweet['text'])
-            if tweet_exists(tweet['username'], tweet['text'], category=dummy_category):
-                print(f"⏩ {tweet['username']} için bu haber (veya benzeri) zaten sistemde var, atlanıyor.")
-                continue
-
-            print(f"\n👤 GÖNDEREN: {tweet['author']} ({tweet['username']})")
-            print(f"📝 TWEET: {tweet['text'][:100]}...") # Uzun tweetleri keserek basıyoruz
-            
-            # Kural Tabanlı Analiz Devreye Girer
-            kategori, konu_etiketi = get_full_analysis(tweet['text'], username=tweet['username'])
-
-            # Veritabanına kaydet (Resim ve Tweet Linki varsa ekle)
-            save_tweet(tweet['author'], tweet['username'], tweet['text'], kategori, konu_etiketi, media_url=tweet.get('media_url'), tweet_url=tweet.get('tweet_url'))
-            yield f"✅ {tweet['username']}: [{konu_etiketi}]"
+    yield "⚡ Haber kaynakları paralel olarak taranıyor (Işık hızı)..."
     
-    print("\n" + "-" * 50)
-    print("✅ Analiz Tamamlandı! Tüm veriler NucleusX veritabanına işlendi.")
+    all_new_tweets = []
+    
+    # 1. Aşama: Tweetleri PARALEL olarak çek
+    with ThreadPoolExecutor(max_workers=10) as executor:
+        future_to_user = {executor.submit(process_single_account, user): user for user in target_accounts}
+        
+        for future in as_completed(future_to_user):
+            username, tweets = future.result()
+            if tweets:
+                all_new_tweets.extend(tweets)
+                yield f"📡 {username} çekildi ({len(tweets)} haber)"
+
+    # 2. Aşama: Veritabanına kaydet (Seri ama hızlı DB checkleri ile)
+    yield "💾 Haberler veritabanına işleniyor..."
+    
+    count = 0
+    for tweet in all_new_tweets:
+        # Hızlı mükerrer kontrolü
+        if not tweet_exists(tweet['username'], tweet['text']):
+            kategori, konu_etiketi = get_full_analysis(tweet['text'], username=tweet['username'])
+            save_tweet(
+                tweet['author'], 
+                tweet['username'], 
+                tweet['text'], 
+                kategori, 
+                konu_etiketi, 
+                media_url=tweet.get('media_url'), 
+                tweet_url=tweet.get('tweet_url')
+            )
+            count += 1
+            if count % 10 == 0:
+                yield f"✅ {count} yeni haber eklendi..."
+    
+    yield f"🏁 Bitti! Toplam {count} benzersiz haber sisteme kazandırıldı."
+    print(f"\n✅ Analiz Tamamlandı! {count} haber işlendi.")
 
 if __name__ == "__main__":
     init_db()
