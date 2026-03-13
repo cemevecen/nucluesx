@@ -352,9 +352,9 @@ st.markdown("""
     .dashboard-scroll-container [data-testid="stHorizontalBlock"]::-webkit-scrollbar { display: none; }
     
     .dashboard-scroll-container [data-testid="stHorizontalBlock"] > div {
-        flex: 0 0 320px !important;
-        min-width: 320px !important;
-        max-width: 320px !important;
+        flex: 0 0 420px !important;
+        min-width: 420px !important;
+        max-width: 420px !important;
     }
 
     .nav-chip {
