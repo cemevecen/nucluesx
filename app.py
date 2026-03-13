@@ -480,11 +480,13 @@ category_config = [
     {"db": "Müzik", "name": "Müzik", "label": "Müzik", "slug": "muzik"}
 ]
 
-nav_items = [{"name": c["name"], "label": c["label"], "slug": c["slug"]} for c in category_config]
+nav_items = [{"name": "Ana Sayfa", "label": "Ana Sayfa", "slug": "home"}] + [
+    {"name": c["name"], "label": c["label"], "slug": c["slug"]} for c in category_config
+]
 
 # Query Parameter Routing Bridge
 params = st.query_params
-raw_slug = params.get("page", ["siyaset"])[0] if isinstance(params.get("page"), list) else params.get("page", "siyaset")
+raw_slug = params.get("page", ["home"])[0] if isinstance(params.get("page"), list) else params.get("page", "home")
 current_slug = slugify(raw_slug) # Force English slug
 expand_url = params.get("expand")
 
